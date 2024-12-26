@@ -1,6 +1,8 @@
+import javax.imageio.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 
 
@@ -51,8 +53,9 @@ public class MovingAndCollisions extends JPanel implements Runnable, KeyListener
 	public void update() {
 		move();
 		keepInBound();
-		for(int i = 0; i < walls.length; i++)
+		for(int i = 0; i < walls.length; i++) {
 			checkCollision(walls[i]);
+		}
 	}
 	
 	public void paintComponent(Graphics g) {
