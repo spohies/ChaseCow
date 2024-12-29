@@ -17,11 +17,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	int screenWidth = 1080;
 	int screenHeight = 720;
 	boolean up, down, left, right;
-	Rectangle player = new Rectangle(517, 328, 46, 64);
+	// Rectangle player = new Rectangle(517, 328, 46, 64);
 	HashSet <Rectangle> walls = new HashSet <Rectangle>();
-	int speed = 2;
 	BufferedImage bg, playerImage;
 	Rectangle border = new Rectangle(100, 100, 880, 520);
+	ArrayList <BufferedImage> cowImages;
+	BufferedImage cowSprite;
+	Player suki = new Player(100, 2, new Rectangle (517, 328, 46, 64));
 
 	public ChaseCow() {
 		//sets up JPanel
@@ -48,18 +50,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 	
 	public void initialize() {
+		
 		//setups before the game starts running
 		walls.add(new Rectangle(200, 200, 60, 60));
 		walls.add(new Rectangle(300, 40, 40, 100));
 		walls.add(new Rectangle(450, 100, 80, 35));
 		walls.add(new Rectangle(130, 150, 15, 15));
 		walls.add(new Rectangle(250, 350, 150, 200));
+		cowImages = new ArrayList <BufferedImage>();
 		try {
-			bg = ImageIO.read(new File("tempBG.png"));
-			playerImage = ImageIO.read(new File("sukiDown.png"));
-		} catch (IOException e) {
-		
-		}
+			// cow images
+			cowImages.add(ImageIO.read(new File("ICS4U1 Culminating/src/tempCow.png")));
+			// other images
+			bg = ImageIO.read(new File("ICS4U1 Culminating/src/tempBG.png"));
+			playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiDown.png"));
+		} catch (IOException e) {}
+
+        // Initialize the cow list and add some cows
+        cows = new ArrayList<Cow>();
+
+		// cows.add()
 	}
 	
 	public void update() {
@@ -70,6 +80,24 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		while (it.hasNext()) {
 			checkCollision(it.next());
 		}
+
+		Iterator<Cow> iterator = cows.iterator();
+
+        // Iterate through cows and update their behavior
+        while (iterator.hasNext()) {
+            Cow cow = iterator.next();
+
+            // Move the cow toward the player
+            cow.followPlayer(suki.getHitbox());
+
+            // // Simulate damage (example: reduce HP for demonstration purposes)
+            // cow.hp -= 1; // Decrease HP to simulate gameplay (you can replace this logic)
+
+            // Remove cow if it's dead
+            if (!cow.isAlive()) {
+                iterator.remove();
+            }
+        }
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -80,7 +108,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		g.fillRect(0, 0, screenWidth, screenHeight);
 		//draw stuff		
 		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-		g.drawImage(playerImage, player.x, player.y, 46, 64, this);
+		g.drawImage(playerImage, suki.getHitbox().x, suki.getHitbox().y, 46, 64, this);
 		g2.setColor(Color.GREEN);
 		Iterator <Rectangle> it = walls.iterator();
 		while (it.hasNext()) {
@@ -101,7 +129,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			left = true;
 			right = false;
 			try {
-				playerImage = ImageIO.read(new File("sukiLeft.png"));
+				playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiDown.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -109,7 +137,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			right = true;
 			left = false;
 			try {
-				playerImage = ImageIO.read(new File("sukiRight.png"));
+				playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiRight.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -117,7 +145,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			up = true;
 			down = false;
 			try {
-				playerImage = ImageIO.read(new File("sukiUp.png"));
+				playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiUp.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -125,7 +153,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			down = true;
 			up = false;
 			try {
-				playerImage = ImageIO.read(new File("sukiDown.png"));
+				playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiDown.png"));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -148,14 +176,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	void move() {
 		if(left)
-			player.x -= speed;
+			suki.getHitbox().x -= suki.getSpeed();
 		else if(right)
-			player.x += speed;
+			suki.getHitbox().x += suki.getSpeed();
 		
 		if(up)
-			player.y += -speed;
+			suki.getHitbox().y -= suki.getSpeed();
 		else if(down)
-			player.y += speed;
+			suki.getHitbox().y += suki.getSpeed();
 	}
 
 	@Override
@@ -189,25 +217,25 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	void keepInBound() {
-		if (player.x < 100)
-			player.x = 100;
-		else if (player.x > mapWidth - player.width)
-			player.x = mapWidth - player.width;
-		if (player.y < 100)
-			player.y = 100;
-		else if (player.y > mapHeight - player.height)
-			player.y = mapHeight - player.height;
+		if (suki.getHitbox().x < 100)
+			suki.getHitbox().x = 100;
+		else if (suki.getHitbox().x > mapWidth - suki.getHitbox().width)
+			suki.getHitbox().x = mapWidth - suki.getHitbox().width;
+		if (suki.getHitbox().y < 100)
+			suki.getHitbox().y = 100;
+		else if (suki.getHitbox().y > mapHeight - suki.getHitbox().height)
+			suki.getHitbox().y = mapHeight - suki.getHitbox().height;
 	}
 
 	void checkCollision(Rectangle wall) {
 		//check if player touches wall
-		if(player.intersects(wall)) {
+		if(suki.getHitbox().intersects(wall)) {
 			System.out.println("Ow!");
 			//stop the player from moving
-			double left1 = player.getX();
-			double right1 = player.getX() + player.getWidth();
-			double top1 = player.getY();
-			double bottom1 = player.getY() + player.getHeight();
+			double left1 = suki.getHitbox().getX();
+			double right1 = suki.getHitbox().getX() + suki.getHitbox().getWidth();
+			double top1 = suki.getHitbox().getY();
+			double bottom1 = suki.getHitbox().getY() + suki.getHitbox().getHeight();
 			double left2 = wall.getX();
 			double right2 = wall.getX() + wall.getWidth();
 			double top2 = wall.getY();
@@ -219,7 +247,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			   right1 - left2 < bottom2 - top1)
 	        {
 	            //player collides from left side of the wall
-				player.x = wall.x - player.width;
+				suki.getHitbox().x = wall.x - suki.getHitbox().width;
 	        }
 	        else if(left1 < right2 &&
 	        		right1 > right2 && 
@@ -227,17 +255,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	        		right2 - left1 < bottom2 - top1)
 	        {
 	            //player collides from right side of the wall
-	        	player.x = wall.x + wall.width;
+	        	suki.getHitbox().x = wall.x + wall.width;
 	        }
 	        else if(bottom1 > top2 && top1 < top2)
 	        {
 	            //player collides from top side of the wall
-	        	player.y = wall.y - player.height;
+	        	suki.getHitbox().y = wall.y - suki.getHitbox().height;
 	        }
 	        else if(top1 < bottom2 && bottom1 > bottom2)
 	        {
 	            //player collides from bottom side of the wall
-	        	player.y = wall.y + wall.height;
+	        	suki.getHitbox().y = wall.y + wall.height;
 	        }
 		}
 	}
