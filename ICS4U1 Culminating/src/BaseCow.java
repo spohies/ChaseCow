@@ -5,27 +5,28 @@ class BaseCow extends Cow {
     }
 
     @Override
-    public void followPlayer(Rectangle player) {
-        double dx = player.x - this.getX();
-        double dy = player.y - this.getY();
+    public void followPlayer(Player player) {
+        Point playerPos = player.getPosition();
+        double dx = playerPos.x - this.getX();
+        double dy = playerPos.y - this.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) { // Prevent division by zero
-            x += (dx / distance) * this.getSpeed();
-            y += (dy / distance) * this.getSpeed();
+            this.x += (dx / distance) * this.getSpeed();
+            this.y += (dy / distance) * this.getSpeed();
         }
         
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void attack(Rectangle player) {
-        double dx = player.x - this.getX();
-        double dy = player.y - this.getY();
-        double distance = Math.sqrt(dx * dx + dy * dy)
+    public void attack(Player player) {
+        double dx = player.getHitbox().x - this.getX();
+        double dy = player.getHitbox().y - this.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
          
         if (distance < 5) {
-            // .takeDamage(this.getDamage());
+            player.takeDamage(this.getDamage());
         }
         
         // TODO Auto-generated method stub

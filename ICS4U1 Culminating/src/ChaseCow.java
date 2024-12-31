@@ -24,6 +24,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	ArrayList <BufferedImage> cowImages;
 	BufferedImage cowSprite;
 	Player suki = new Player(100, 2, new Rectangle (517, 328, 46, 64));
+	HashSet<Cow> cows = new HashSet<>();
+	FloorMap currentMap = new FloorMap(); 
+	ArrayList <FloorMap> maps = new ArrayList<>();
 
 	public ChaseCow() {
 		//sets up JPanel
@@ -66,12 +69,21 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiDown.png"));
 		} catch (IOException e) {}
 
-        // Initialize the cow list and add some cows
-        cows = new ArrayList<Cow>();
-
-		// cows.add()
+		cows.add(new BaseCow(300, 300));
+		cows.add(new BaseCow(400, 400));
+		// make a method for initializing all maps. call method here
+		spawnCows();
 	}
 	
+	private void spawnCows() {
+	    Random rand = new Random();
+	    for (int i = 0; i < 5; i++) { // spawn 5 cows for example
+	        int x = rand.nextInt(mapWidth - 100) + 100; // ensure cows spawn within bounds
+	        int y = rand.nextInt(mapHeight - 100) + 100;
+	        cows.add(new BaseCow(x, y));
+	    }
+	}
+
 	public void update() {
 		//update stuff
 		move();
@@ -80,24 +92,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		while (it.hasNext()) {
 			checkCollision(it.next());
 		}
+		if (currentMap != null) {
+			currentMap.updateCows(suki);
+		} else {
+			System.out.println("currentMap is null");
+		}
+	}
 
-		Iterator<Cow> iterator = cows.iterator();
-
-        // Iterate through cows and update their behavior
-        while (iterator.hasNext()) {
-            Cow cow = iterator.next();
-
-            // Move the cow toward the player
-            cow.followPlayer(suki.getHitbox());
-
-            // // Simulate damage (example: reduce HP for demonstration purposes)
-            // cow.hp -= 1; // Decrease HP to simulate gameplay (you can replace this logic)
-
-            // Remove cow if it's dead
-            if (!cow.isAlive()) {
-                iterator.remove();
-            }
-        }
+	private void changeMap(FloorMap currentMap) {
+		walls.clear();
+   		cows.clear();
+		// change map according to what map is next... im not sure how to do this tbh we may need to number everysingle map
+		// and add an if statement for every single one
+		spawnCows();
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -107,12 +114,23 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, screenWidth, screenHeight);
 		//draw stuff		
-		g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-		g.drawImage(playerImage, suki.getHitbox().x, suki.getHitbox().y, 46, 64, this);
+		if (bg != null) {
+			g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+		} else {
+			System.out.println("Background image is null");
+		}
+		if (playerImage != null) {
+			g.drawImage(playerImage, suki.getHitbox().x, suki.getHitbox().y, 46, 64, this);
+		} else {
+			System.out.println("Player image is null");
+		}
 		g2.setColor(Color.GREEN);
 		Iterator <Rectangle> it = walls.iterator();
 		while (it.hasNext()) {
 			g2.fill(it.next());
+		}
+		for (Cow cow : cows) {
+			cow.render(g);
 		}
 	}
 

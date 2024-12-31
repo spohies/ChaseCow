@@ -28,6 +28,10 @@ public class Player {
         return hitbox;
     }
 
+    public Point getPosition() {
+        return new Point(hitbox.x, hitbox.y);
+    }
+
     // setters
     public void setHP(int hp){
         this.hp = hp;
@@ -39,5 +43,9 @@ public class Player {
     
     public void setHitbox(Rectangle hitbox){
         this.hitbox = hitbox;
+    }
+
+    public void takeDamage(int damage){
+        hp -= damage;
     }
 }

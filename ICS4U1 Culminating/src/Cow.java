@@ -6,7 +6,8 @@ abstract class Cow {
     private int damage; // damage dealt to player
     private int speed;
     private BufferedImage image;
-    private int x, y;
+    protected int x;
+    protected int y;
 
     // Constructor
     public Cow(int hp, int damage, int speed, int x, int y) {
@@ -67,10 +68,10 @@ abstract class Cow {
         this.setHP(this.hp - playerDamage);
     }
 
-    abstract public void followPlayer(Rectangle player);
+    abstract public void followPlayer(Player player);
 
     // deal damage based on cow type
-    abstract public void attack(Rectangle player);
+    abstract public void attack(Player player);
 
     public void render(Graphics g) {
         if (image != null) {
