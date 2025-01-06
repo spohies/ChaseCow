@@ -2,16 +2,19 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 public class FloorMap {
-    private Point location;
+    private Point TLlocation;
     HashSet<Rectangle> walls;
     HashSet<Cow> cows;
     ArrayList<Item> items;
+    NPC[] npcs;
     BufferedImage bg;
 
-    public FloorMap() {
+    public FloorMap(Point TLlocation, HashSet<Rectangle> walls, BufferedImage bg) {
+        this.TLlocation = TLlocation;
         cows = new HashSet<>();
-        walls = new HashSet<>();
         items = new ArrayList<>();
+        this.bg = bg;
+        this.walls = walls;
     }
     
     public void updateCows(Player player) {
@@ -29,5 +32,20 @@ public class FloorMap {
                 iterator.remove();
             }
         }
+
+        for (int i = 0; i < npcs.length; i++) {
+            double distance = player.getPosition().distance(npcs[i].getLocation().getX(), npcs[i].getLocation().getY());
+            if (distance < 30) {
+                NPC.interact();
+            }
+        }
+    }
+
+    public Point getTLLocation() {
+        return TLlocation;
+    }
+
+    public void setTLlocation(Point TLlocation) {
+        this.TLlocation = TLlocation;
     }
 }

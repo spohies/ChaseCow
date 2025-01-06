@@ -49,7 +49,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	int volume = 3; // 1-5??
 
 	// game
-	ArrayList <BufferedImage> cowImages;
+	ArrayList <BufferedImage> cowImages  = new ArrayList<BufferedImage>();
 	
 	// Rectangle player = new Rectangle(517, 328, 46, 64);
 	HashSet <Rectangle> walls = new HashSet <Rectangle>();
@@ -57,7 +57,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	Rectangle border = new Rectangle(100, 100, 880, 520);
 	Player suki = new Player(100, 2, new Rectangle (517, 328, 46, 64));
 	HashSet<Cow> cows = new HashSet<>();
-	FloorMap currentMap = new FloorMap(); 
+	FloorMap currentMap; 
 	ArrayList <FloorMap> maps = new ArrayList<>();
 	String[] cowNames = {
 		"baseCow",
@@ -73,7 +73,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			cowImages.add(ImageIO.read(new File(
 					"ICS4U1 Culminating/src/" + cowNames[i] + ".png")));
 		}
-
+		
 
 		// screen 0 (main menu)
 		title = ImageIO.read(new File("ICS4U1 Culminating/src/title.png"));
@@ -84,17 +84,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// DIMENSION NEED TO BE CHANGED!!!!!!
 		recPlay = new Rectangle(300, 300, play.getWidth(), play.getHeight());
 		recAbout = new Rectangle(300, 420, about.getWidth(), about.getHeight());
- 		recOptions = new Rectangle(1, 1, options.getWidth(), options.getHeight());
-		recExit = new Rectangle(1, 1, exit.getWidth(), exit.getHeight());
+ 		// recOptions = new Rectangle(1, 1, options.getWidth(), options.getHeight());
+		// recExit = new Rectangle(1, 1, exit.getWidth(), exit.getHeight());
 
 		// screen 1 (start menu)
 		
 		// screen 2 (wtvwtv )... so on
 
+		// screen 5
+		HashSet<Rectangle> electricalWalls = new HashSet<>();
+		electricalWalls.add(new Rectangle(200, 200, 60, 60));
+		electricalWalls.add(new Rectangle(300, 40, 40, 100));
+		electricalWalls.add(new Rectangle(450, 100, 80, 35));
+		electricalWalls.add(new Rectangle(130, 150, 15, 15));
+		electricalWalls.add(new Rectangle(250, 350, 150, 200));
+		Point electricalStart = new Point (100, 100); 
+		currentMap = new FloorMap(new Point(0,0), electricalWalls, tempBG);
+
+
 
 		cowImages = new ArrayList <BufferedImage>();
-		// cow images
-		cowImages.add(ImageIO.read(new File("ICS4U1 Culminating/src/tempCow.png")));
 		// other images
 		tempBG = ImageIO.read(new File("ICS4U1 Culminating/src/tempBG.png"));
 		playerImage = ImageIO.read(new File("ICS4U1 Culminating/src/sukiDown.png"));
@@ -262,7 +271,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-
 		// game screen
 		if (screen == 5) {
 			int key = e.getKeyCode();
@@ -281,16 +289,35 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	void move() {
 		// game screen
 		if (screen == 5) {
-			if(left)
-				suki.getHitbox().x -= suki.getSpeed();
-			else if(right)
-				suki.getHitbox().x += suki.getSpeed();
-			
-			if(up)
-				suki.getHitbox().y -= suki.getSpeed();
-			else if(down)
-				suki.getHitbox().y += suki.getSpeed();
-		}
+	        int moveX = 0, moveY = 0;
+	        if (left) {
+				moveX = -suki.getSpeed();
+			} 
+	        else if (right) {
+				moveX = suki.getSpeed();
+			} 
+	        if (up) {
+				moveY = -suki.getSpeed();
+			} 
+	        else if (down) {
+				moveY = suki.getSpeed();
+			}
+
+	        currentMap.setTLlocation(new Point(currentMap.getTLlocation().x + moveX, currentMap.getTLlocation().y + moveY));
+
+	        // center player
+	        suki.getHitbox().x = screenWidth / 2 - suki.getHitbox().width / 2;
+	        suki.getHitbox().y = screenHeight / 2 - suki.getHitbox().height / 2;
+
+	        for (Rectangle wall : walls) {
+	            wall.x += moveX;
+	            wall.y += moveY;
+	        }
+	        for (Cow cow : cows) {
+	            cow.setX(cow.getX() + moveX);
+	            cow.setY(cow.getY() + moveY);
+	        }
+	    }
 	}
 
 	@Override
