@@ -61,9 +61,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	ArrayList <FloorMap> maps = new ArrayList<>();
 	String[] cowNames = {
 		"baseCow",
-		"wasteCow",
 		"paceCow",
-		"spaceCow"
+		"spaceCow",
+		"wasteCow"
 	};
 
 	public ChaseCow() throws IOException {
@@ -88,7 +88,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		recExit = new Rectangle(1, 1, exit.getWidth(), exit.getHeight());
 
 		// screen 1 (start menu)
-		// TO BE COMPLETED
+		
 		// screen 2 (wtvwtv )... so on
 
 
