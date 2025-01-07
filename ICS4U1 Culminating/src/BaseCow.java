@@ -1,7 +1,9 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
+
 class BaseCow extends Cow {
-    public BaseCow(int x, int y) {
-        super(10, 1, 1, x, y);
+    public BaseCow(int x, int y, BufferedImage image) {
+        super(10, 1, 1, x, y, image);
     }
 
     @Override
@@ -31,5 +33,4 @@ class BaseCow extends Cow {
         
         // TODO Auto-generated method stub
     }
-
 }

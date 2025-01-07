@@ -6,7 +6,7 @@ public class FloorMap {
     HashSet<Rectangle> walls;
     HashSet<Cow> cows;
     ArrayList<Item> items;
-    NPC[] npcs;
+    // NPC[] npcs = new NPC[5];
     BufferedImage bg;
 
     public FloorMap(Point TLlocation, HashSet<Rectangle> walls, BufferedImage bg) {
@@ -33,12 +33,12 @@ public class FloorMap {
             }
         }
 
-        for (int i = 0; i < npcs.length; i++) {
-            double distance = player.getPosition().distance(npcs[i].getLocation().getX(), npcs[i].getLocation().getY());
-            if (distance < 30) {
-                NPC.interact();
-            }
-        }
+        // for (int i = 0; i < npcs.length; i++) {
+        //     double distance = player.getPosition().distance(npcs[i].getLocation().getX(), npcs[i].getLocation().getY());
+        //     if (distance < 30) {
+        //         NPC.interact();
+        //     }
+        // }
     }
 
     public Point getTLLocation() {

@@ -10,12 +10,13 @@ abstract class Cow {
     protected int y;
 
     // Constructor
-    public Cow(int hp, int damage, int speed, int x, int y) {
+    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image) {
         this.hp = hp;
         this.damage = damage;
         this.speed = speed;
         this.x = x;
         this.y = y;
+        this.image = image;
     }
 
     // Getters
@@ -78,7 +79,7 @@ abstract class Cow {
             g.drawImage(image, x, y, null);
         } else {
             g.setColor(Color.RED); // if sprite breaks
-            g.fillRect(x, y, image.getWidth(), image.getHeight());
+            g.fillRect(x, y, 50, 50); // default size for placeholder
         }
     }
 

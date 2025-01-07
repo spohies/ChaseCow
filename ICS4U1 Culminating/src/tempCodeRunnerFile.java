@@ -1,1 +1,1 @@
-100
+ectangle border = new Rectangle(100, 100, 880, 520);
