@@ -289,7 +289,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// game screen
-		if (screen == 5) {
+		// if (screen == 5) {
 			int key = e.getKeyCode();
 			if(key == KeyEvent.VK_A) {
 				left = false;
@@ -300,7 +300,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}else if(key == KeyEvent.VK_S) {
 				down = false;
 			}
-		}
+		// }
 	}
 
 	void move() {
@@ -320,19 +320,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				moveY = suki.getSpeed();
 			}
 
-	        currentMap.setTLlocation(new Point(currentMap.getTLLocation().x + moveX, currentMap.getTLLocation().y + moveY));
+	        currentMap.setTLlocation(new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
 
 	        // center player
 	        suki.getHitbox().x = (screenWidth / 2) - (suki.getHitbox().width / 2);
 	        suki.getHitbox().y = (screenHeight / 2) - (suki.getHitbox().height / 2);
 
 	        for (Rectangle wall : walls) {
-	            wall.x += moveX;
-	            wall.y += moveY;
+	            wall.x -= moveX;
+	            wall.y -= moveY;
 	        }
 	        for (Cow cow : cows) {
-	            cow.setX(cow.getX() + moveX);
-	            cow.setY(cow.getY() + moveY);
+	            cow.setX(cow.getX() - moveX);
+	            cow.setY(cow.getY() - moveY);
 	        }
 	    // }
 	}
