@@ -1,1 +1,4 @@
-ectangle border = new Rectangle(100, 100, 880, 520);
+		// Iterator cowIter = cows.iterator();
+		// while (cowIter.hasNext()) {
+		// 	((Cow) cowIter.next()).followPlayer(suki);
+		// }

@@ -12,8 +12,8 @@ class BaseCow extends Cow {
         double dx = playerPos.x - this.getX();
         double dy = playerPos.y - this.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
-
         if (distance > 0) { // Prevent division by zero
+            System.out.println(distance);
             this.x += (dx / distance) * this.getSpeed();
             this.y += (dy / distance) * this.getSpeed();
         }
