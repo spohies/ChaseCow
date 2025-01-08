@@ -7,14 +7,14 @@ public class Player {
     private BufferedImage image;
     private Rectangle hitboxM; // map hitbox
     private Rectangle hitboxC; // combat hitbox
-    HashSet<Item> inventory;
+    HashMap<Item, String> inventory;
     
     public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC){
         this.hp = hp;
         this.speed = speed;
         this.hitboxM = hitboxM;
         this.hitboxC = hitboxC;
-        inventory = new HashSet<Item>();
+        inventory = new HashMap<Item, String>();
     }
 
     // getters
