@@ -5,13 +5,15 @@ public class Player {
     private int hp;
     private int speed;
     private BufferedImage image;
-    private Rectangle hitbox;
+    private Rectangle hitboxM; // map hitbox
+    private Rectangle hitboxC; // combat hitbox
     HashSet<Item> inventory;
     
-    public Player (int hp, int speed, Rectangle hitbox){
+    public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC){
         this.hp = hp;
         this.speed = speed;
-        this.hitbox = hitbox;
+        this.hitboxM = hitboxM;
+        this.hitboxC = hitboxC;
         inventory = new HashSet<Item>();
     }
 
@@ -24,12 +26,16 @@ public class Player {
         return speed;
     }
 
-    public Rectangle getHitbox(){
-        return hitbox;
+    public Rectangle getHitboxM(){
+        return hitboxM;
     }
 
-    public Point getPosition() {
-        return new Point(hitbox.x, hitbox.y);
+    public Rectangle getHitboxC(){
+        return hitboxC;
+    }
+
+    public Point getMapPos() { 
+        return new Point(hitboxM.x, hitboxM.y);
     }
 
     // setters
@@ -39,10 +45,6 @@ public class Player {
 
     public void setSpeed(int speed){
         this.speed = speed;
-    }
-    
-    public void setHitbox(Rectangle hitbox){
-        this.hitbox = hitbox;
     }
 
     public void takeDamage(int damage){

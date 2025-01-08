@@ -38,7 +38,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean hoverNewGame, hoverLB;
 	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2, back;
 
-
 	// settings
 	ArrayList <Rectangle> recVolume; 
 	// im thinking we have like 5 buttons and its just 5 levels of volume next to each other so its like a fake slider
@@ -55,7 +54,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// HashSet <Rectangle> walls = new HashSet <Rectangle>();
 	BufferedImage tempBG, playerImage, cowImage;
 	Rectangle border = new Rectangle(100, 100, 880, 520);
-	Player suki = new Player(100, 2, new Rectangle (517, 328, 46, 64));
+	Player suki = new Player(100, 2, new Rectangle (517, 382, 46, 10), new Rectangle(517, 328, 46, 64));
 	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap; 
 	ArrayList <FloorMap> maps = new ArrayList<>();
@@ -219,6 +218,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
+		Graphics2D g3 = (Graphics2D) g;
 		//white background
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, screenWidth, screenHeight);
@@ -228,15 +228,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		} else {
 			System.out.println("Background image is null");
 		}
-		if (playerImage != null) {
-			g.drawImage(playerImage,  (screenWidth / 2) - (suki.getHitbox().width / 2), (screenHeight / 2) - (suki.getHitbox().height / 2), 46, 64, this);
-		} else {
-			System.out.println("Player image is null");
-		}
 		g2.setColor(Color.GREEN);
 		Iterator <Rectangle> it = currentMap.getWalls().iterator();
 		while (it.hasNext()) {
 			g2.fill(it.next());
+		}
+		if (playerImage != null) {
+			g.drawImage(playerImage,  (screenWidth / 2) - (suki.getHitboxC().width / 2), (screenHeight / 2) - (suki.getHitboxC().height / 2), 46, 64, this);
+		} else {
+			System.out.println("Player image is null");
 		}
 		for (Cow cow : currentMap.getCows()) {
 			cow.render(g);
@@ -329,8 +329,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	        // currentMap.setTLLocation(new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
 
 	        // center player
-	        suki.getHitbox().x = (screenWidth / 2) - (suki.getHitbox().width / 2);
-	        suki.getHitbox().y = (screenHeight / 2) - (suki.getHitbox().height / 2);
+	        suki.getHitboxC().x = (screenWidth / 2) - (suki.getHitboxC().width / 2);
+	        suki.getHitboxC().y = (screenHeight / 2) - (suki.getHitboxC().height / 2);
 
 	        for (Rectangle wall : currentMap.getWalls()) {
 	            wall.x -= moveX;
@@ -381,14 +381,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// game screen
 		// MUST CHANGE 100 and mapWidth to changing variables -> instance variables for currentMap
 		if (screen == 5) {
-			if (suki.getHitbox().x < 100)
-				suki.getHitbox().x = 100;
-			else if (suki.getHitbox().x > mapWidth - suki.getHitbox().width)
-				suki.getHitbox().x = mapWidth - suki.getHitbox().width;
-			if (suki.getHitbox().y < 100)
-				suki.getHitbox().y = 100;
-			else if (suki.getHitbox().y > mapHeight - suki.getHitbox().height)
-				suki.getHitbox().y = mapHeight - suki.getHitbox().height;
+			if (suki.getHitboxM().x < 100)
+				suki.getHitboxM().x = 100;
+			else if (suki.getHitboxM().x > mapWidth - suki.getHitboxM().width)
+				suki.getHitboxM().x = mapWidth - suki.getHitboxM().width;
+			if (suki.getHitboxM().y < 100)
+				suki.getHitboxM().y = 100;
+			else if (suki.getHitboxM().y > mapHeight - suki.getHitboxM().height)
+				suki.getHitboxM().y = mapHeight - suki.getHitboxM().height;
 		}
 	}
 
@@ -397,13 +397,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// game screen
 		// if (screen == 5) {
 			//check if player touches wall
-			if(suki.getHitbox().intersects(wall)) {
+			if(suki.getHitboxM().intersects(wall)) {
 				System.out.println("Ow!");
 				//stop the player from moving
-				double left1 = suki.getHitbox().getX();
-				double right1 = suki.getHitbox().getX() + suki.getHitbox().getWidth();
-				double top1 = suki.getHitbox().getY();
-				double bottom1 = suki.getHitbox().getY() + suki.getHitbox().getHeight();
+				double left1 = suki.getHitboxM().getX();
+				double right1 = suki.getHitboxM().getX() + suki.getHitboxM().getWidth();
+				double top1 = suki.getHitboxM().getY();
+				double bottom1 = suki.getHitboxM().getY() + suki.getHitboxM().getHeight();
 				double left2 = wall.getX();
 				double right2 = wall.getX() + wall.getWidth();
 				double top2 = wall.getY();
@@ -461,6 +461,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}				
 		// }
+	}
+	
+	void checkCollision(Triangle wall) {
+		
 	}
 	
 	public static void main(String[] args) throws IOException {
