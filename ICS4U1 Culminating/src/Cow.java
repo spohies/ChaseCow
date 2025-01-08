@@ -8,6 +8,7 @@ abstract class Cow {
     private BufferedImage image;
     protected int x;
     protected int y;
+    private int inGameX, inGameY; // in-game coordinates
 
     // Constructor
     public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image) {
@@ -16,6 +17,8 @@ abstract class Cow {
         this.speed = speed;
         this.x = x;
         this.y = y;
+        this.inGameX = x;
+        this.inGameY = y;
         this.image = image;
     }
 
@@ -33,10 +36,10 @@ abstract class Cow {
         return this.image;    
     }
     public int getX() {
-        return this.x;    
+        return this.inGameX;    
     }
     public int getY() {
-        return this.y;    
+        return this.inGameY;    
     }
 
     // Setters
@@ -56,12 +59,12 @@ abstract class Cow {
         this.image = image;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setGameX(int x) {
+        this.inGameX = x;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setGameY(int y) {
+        this.inGameY = y;
     }
 
     // get hurt by player
@@ -74,16 +77,28 @@ abstract class Cow {
     // deal damage based on cow type
     abstract public void attack(Player player);
 
-    public void render(Graphics g) {
+    public void render(Graphics g, int offsetX, int offsetY) {
         if (image != null) {
-            g.drawImage(image, x, y, null);
+            g.drawImage(image, inGameX + offsetX, inGameY + offsetY, null);
         } else {
             g.setColor(Color.RED); // if sprite breaks
-            g.fillRect(x, y, 50, 50); // default size for placeholder
+            g.fillRect(inGameX + offsetX, inGameY + offsetY, 50, 50); // default size for placeholder
         }
     }
 
     public boolean isAlive() {
         return hp > 0;
+    }
+
+    public Point getGamePos() {
+        return new Point(this.inGameX, this.inGameY);
+    }
+    public Point getMapPos() {
+        return new Point(this.x, this.y);
+    }
+
+    public void move(int dx, int dy) {
+        this.inGameX += dx;
+        this.inGameY += dy;
     }
 }

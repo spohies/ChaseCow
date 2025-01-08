@@ -8,13 +8,16 @@ public class Player {
     private BufferedImage image;
     private Rectangle hitboxM; // map hitbox
     private Rectangle hitboxC; // combat hitbox
+    private int inGameX, inGameY; // in-game coordinates
     HashMap<Item, String> inventory;
     
-    public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC){
+    public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY){
         this.hp = hp;
         this.speed = speed;
         this.hitboxM = hitboxM;
         this.hitboxC = hitboxC;
+        this.inGameX = startPosX;
+        this.inGameY = startPosY;
         inventory = new HashMap<Item, String>();
     }
 
@@ -35,8 +38,8 @@ public class Player {
         return hitboxC;
     }
 
-    public Point getMapPos() { 
-        return new Point(hitboxM.x, hitboxM.y);
+    public Point getGamePos() { 
+        return new Point(inGameX, inGameY);
     }
 
     // setters
@@ -50,5 +53,10 @@ public class Player {
 
     public void takeDamage(int damage){
         hp -= damage;
+    }
+
+    public void move(int dx, int dy) {
+        inGameX += dx;
+        inGameY += dy;
     }
 }

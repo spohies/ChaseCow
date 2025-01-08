@@ -8,17 +8,15 @@ class BaseCow extends Cow {
 
     @Override
     public void followPlayer(Player player) {
-        Point playerPos = player.getMapPos();
-        double dx = playerPos.x - this.getX();
-        double dy = playerPos.y - this.getY();
+        Point playerPos = player.getGamePos();
+        double dx = playerPos.x - this.getGamePos().x;
+        double dy = playerPos.y - this.getGamePos().y;
         double distance = Math.sqrt(dx * dx + dy * dy);
         if (distance > 0) { // Prevent division by zero
-            System.out.println(distance);
-            this.x += (dx / distance) * this.getSpeed();
-            this.y += (dy / distance) * this.getSpeed();
+            int moveX = (int)((dx / distance) * this.getSpeed());
+            int moveY = (int)((dy / distance) * this.getSpeed());
+            // this.move(moveX, moveY);
         }
-        
-        // TODO Auto-generated method stub
     }
 
     @Override
