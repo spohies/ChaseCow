@@ -3,6 +3,7 @@ import java.awt.*;
 import java.util.*;
 public class Player {
     private int hp;
+    private int maxHp;
     private int speed;
     private BufferedImage image;
     private Rectangle hitboxM; // map hitbox
