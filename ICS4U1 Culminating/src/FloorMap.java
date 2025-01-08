@@ -3,19 +3,21 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 public class FloorMap {
     private Point TLLocation;
-    HashSet<Rectangle> walls;
+    HashSet<Rectangle> rectWalls;
+    HashSet<Triangle> triWalls;
     HashSet<Cow> cows;
     ArrayList<Item> items;
     // NPC[] npcs = new NPC[5];
     BufferedImage bg;
     private Rectangle[] doors;
 
-    public FloorMap(Point TLLocation, HashSet<Rectangle> walls, BufferedImage bg, Rectangle[] doors, HashSet<Cow> cows) {
+    public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg, Rectangle[] doors, HashSet<Cow> cows) {
         this.TLLocation = TLLocation;
         this.cows = cows;
         items = new ArrayList<>();
         this.bg = bg;
-        this.walls = walls;
+        this.rectWalls = rectWalls;
+        this.triWalls = triWalls;
         this.doors = doors;
     }
     
@@ -54,12 +56,19 @@ public class FloorMap {
         this.TLLocation = TLLocation;
     }
 
-    public HashSet<Rectangle> getWalls() {
-        return walls;
+    public HashSet<Triangle> getTriWalls() {
+        return triWalls;
     }
 
-    public void setWalls(HashSet<Rectangle> walls) {
-        this.walls = walls;
+    public void setTriWalls(HashSet<Triangle> walls) {
+        this.triWalls = walls;
+    }
+    public HashSet<Rectangle> getRectWalls() {
+        return rectWalls;
+    }
+
+    public void setRectWalls(HashSet<Rectangle> walls) {
+        this.rectWalls = walls;
     }
 
     public HashSet<Cow> getCows() {

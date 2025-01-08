@@ -63,7 +63,7 @@ public class Triangle {
         return false;
     }
 
-    private boolean containsPoint(Point p) {
+    public boolean containsPoint(Point p) {
         int sign1 = getSign(p, vertices[0], vertices[1]);
         int sign2 = getSign(p, vertices[1], vertices[2]);
         int sign3 = getSign(p, vertices[2], vertices[0]);
@@ -71,7 +71,11 @@ public class Triangle {
         return (sign1 >= 0 && sign2 >= 0 && sign3 >= 0) || (sign1 <= 0 && sign2 <= 0 && sign3 <= 0);
     }
 
-    private int getSign(Point p1, Point p2, Point p3) {
+    public int getSign(Point p1, Point p2, Point p3) {
         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+    }
+
+    public Point[] getVertices() {
+        return vertices;
     }
 }
