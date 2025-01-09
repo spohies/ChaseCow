@@ -54,4 +54,32 @@ public class Line {
     public double length(){
         return Math.sqrt((this.end.x - this.start.x) * (this.end.x - this.start.x) + (this.end.y - this.start.y) * (this.end.y - this.start.y));
     }
+
+    public Point closestPoint(Point p) {
+        double x1 = start.x, y1 = start.y;
+        double x2 = end.x, y2 = end.y;
+        double x3 = p.x, y3 = p.y;
+
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double t = ((x3 - x1) * dx + (y3 - y1) * dy) / (dx * dx + dy * dy);
+
+        if (t < 0) {
+            return start;
+        } 
+        else if (t > 1) {
+            return end;
+        } 
+        else {
+            return new Point((int)(x1 + t * dx), (int)(y1 + t * dy));
+        }
+    }
+
+    public Point getStart() {
+        return start;
+    }
+
+    public Point getEnd() {
+        return end;
+    }
 }

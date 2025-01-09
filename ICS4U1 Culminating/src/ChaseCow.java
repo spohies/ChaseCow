@@ -479,38 +479,78 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 	
 	public void checkCollision(Triangle wall) {
-		if(wall.intersects(suki.getHitboxM())){
+		int intersectionType = wall.intersects(suki.getHitboxM());
+		if(intersectionType > 0){
 			System.out.println("Ow!");
 			// get player hitbox vertices
+			// point order = TL, TR, BR, BL
 			Point[] hitboxVertices = {new Point(suki.getHitboxM().x, suki.getHitboxM().y),
                 new Point(suki.getHitboxM().x + suki.getHitboxM().width, suki.getHitboxM().y),
                 new Point(suki.getHitboxM().x + suki.getHitboxM().width, suki.getHitboxM().y + suki.getHitboxM().height),
                 new Point(suki.getHitboxM().getLocation().x, suki.getHitboxM().getLocation().y + suki.getHitboxM().height)};
-			// get sides of triangle wall
+			Point[] wallVertices = wall.getVertices();
+			// get wall sides
 			Line side1 = new Line(wall.getVertices()[0], wall.getVertices()[1]);
 			Line side2 = new Line(wall.getVertices()[1], wall.getVertices()[2]);
 			Line side3 = new Line(wall.getVertices()[2], wall.getVertices()[0]);
 
-			// check which side the player is closest to
-			for(Point p : hitboxVertices){
-				// get the shortest distance from player to line
-				double dist1 = side1.getDistance(p);
-				double dist2 = side2.getDistance(p);
-				double dist3 = side3.getDistance(p);
-				double minDist = Math.min(dist1, Math.min(dist2, dist3));
-				if(minDist == dist1){ // player collides with side1
-					// move the player in the direction of the shortest distance 
-					// to the side of the line that is facing OUT of the triangle
+			// get player sides
+			Line playerSide1 = new Line(hitboxVertices[0], hitboxVertices[1]);
+			Line playerSide2 = new Line(hitboxVertices[1], hitboxVertices[2]);
+			Line playerSide3 = new Line(hitboxVertices[2], hitboxVertices[3]);
+			Line playerSide4 = new Line(hitboxVertices[3], hitboxVertices[0]);
+			
+			// if player vertex is inside triangle wall
+			if(intersectionType == 1){
+				for(Point p : hitboxVertices){
+					if(wall.containsPoint(p)){
+						double dist1 = side1.getDistance(p);
+						double dist2 = side2.getDistance(p);
+						double dist3 = side3.getDistance(p);
+						double minDist = Math.min(dist1, Math.min(dist2, dist3));
+						if(minDist == dist1){ // player collides with side1
+							Point closest = side1.closestPoint(p);
+						}
+						else if(minDist == dist2){ // player collides with side2
+							Point closest = side2.closestPoint(p);
+						}
+						else if(minDist == dist3){ // player collides with side3
+							Point closest = side3.closestPoint(p);
+						}
+					}
 				}
-				else if(minDist == dist2){ // player collides with side2
-					// move the player in the direction of the shortest distance 
-					// to the side of the line that is facing OUT of the triangle
+			}
+			// if triangle vertex is inside player
+			else if(intersectionType == 2){
+				for(Point p : wallVertices){
+					if(suki.getHitboxM().contains(p)){
+						double dist1 = playerSide1.getDistance(p);
+						double dist2 = playerSide2.getDistance(p);
+						double dist3 = playerSide3.getDistance(p);
+						double dist4 = playerSide4.getDistance(p);
+						double minDist = Math.min(dist1, Math.min(dist2, Math.min(dist3, dist4)));
+						if(minDist == dist1){ // player collides with side1
+							Point closest = playerSide1.closestPoint(p);
+						}
+						else if(minDist == dist2){ // player collides with side2
+							Point closest = playerSide2.closestPoint(p);
+						}
+						else if(minDist == dist3){ // player collides with side3
+							Point closest = playerSide3.closestPoint(p);
+						}
+						else if(minDist == dist4){ // player collides with side4
+							Point closest = playerSide4.closestPoint(p);
+						}
+					}
 				}
-				else if(minDist == dist3){ // player collides with side3
-					// move the player in the direction of the shortest distance 
-					// to the side of the line that is facing OUT of the triangle
-				}
-			}			
+			}
+			else if(intersectionType == 3){
+				// player side intersects wall side
+				
+				// find the two sides that touch
+
+				// move them away from each other
+			}
 		}				
 	}
 	

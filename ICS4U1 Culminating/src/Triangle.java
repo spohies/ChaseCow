@@ -7,27 +7,7 @@ public class Triangle {
         vertices = new Point[]{p1, p2, p3};
     }
 
-    public boolean intersects(Triangle t) {
-        // Existing triangle-triangle intersection code
-        for (int i = 0; i < 3; i++) {
-            if (containsPoint(t.vertices[i])) {
-                return true;
-            }
-            if (t.containsPoint(vertices[i])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean intersects(Rectangle rectangle) {
-        // Check if any vertex of the triangle is inside the rectangle
-        for (Point vertex : vertices) {
-            if (rectangle.contains(vertex)) {
-                return true;
-            }
-        }
-
+    public int intersects(Rectangle rectangle) {
         // Check if any vertex of the rectangle is inside the triangle
         Point[] rectangleVertices = {new Point(rectangle.getLocation().x, rectangle.getLocation().y),
                 new Point(rectangle.getLocation().x + rectangle.width, rectangle.getLocation().y),
@@ -35,10 +15,17 @@ public class Triangle {
                 new Point(rectangle.getLocation().x, rectangle.getLocation().y + rectangle.height)};
         for (Point vertex : rectangleVertices) {
             if (containsPoint(vertex)) {
-                return true;
+                return 1;
             }
         }
-
+        
+        // Check if any vertex of the triangle is inside the rectangle
+        for (Point vertex : vertices) {
+            if (rectangle.contains(vertex)) {
+                return 2;
+            }
+        }
+        
         // Check for line segment intersections
         Line[] triangleEdges = {
             new Line(vertices[0], vertices[1]),
@@ -55,12 +42,12 @@ public class Triangle {
         for (Line triangleEdge : triangleEdges) {
             for (Line rectangleEdge : rectangleEdges) {
                 if (triangleEdge.intersects(rectangleEdge)) {
-                    return true;
+                    return 3;
                 }
             }
         }
 
-        return false;
+        return 0;
     }
 
     public boolean containsPoint(Point p) {
