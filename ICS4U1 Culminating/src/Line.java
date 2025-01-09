@@ -37,4 +37,21 @@ public class Line {
     public boolean containsPoint(Point p) {
         return direction(this.start, this.end, p) == 0 && onSegment(this.start, p, this.end);
     }
+
+    public double getDistance(Point p){
+        double xlength = this.end.x - this.start.x;
+        double ylength = this.end.y - this.start.y;
+        double u = ((p.x - this.start.x) * xlength + (p.y - this.start.y) * ylength) / (xlength * xlength + ylength * ylength);
+        if (u < 0) {
+            return Math.sqrt((p.x - this.start.x) * (p.x - this.start.x) + (p.y - this.start.y) * (p.y - this.start.y));
+        }
+        if (u > 1) {
+            return Math.sqrt((p.x - this.end.x) * (p.x - this.end.x) + (p.y - this.end.y) * (p.y - this.end.y));
+        }
+        return Math.sqrt((p.x - this.start.x - u * xlength) * (p.x - this.start.x - u * xlength) + (p.y - this.start.y - u * ylength) * (p.y - this.start.y - u * ylength));
+    }
+
+    public double length(){
+        return Math.sqrt((this.end.x - this.start.x) * (this.end.x - this.start.x) + (this.end.y - this.start.y) * (this.end.y - this.start.y));
+    }
 }

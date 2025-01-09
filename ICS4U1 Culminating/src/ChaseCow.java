@@ -71,6 +71,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		//sets up JPanel
 		setPreferredSize(new Dimension(1080, 720));
 		setVisible(true);
+
+		initialize();
+
 		//starting the thread
 		thread = new Thread(this);
 		thread.start();
@@ -78,7 +81,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	
 	@Override
 	public void run() {
-		initialize();
 		while(true) {
 			//main game loop
 			update();
@@ -128,7 +130,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// screen 1 (start menu)
 		
 		// screen 2 (wtvwtv )... so on
-
+		
 		// screen 5
 		// starting room
 		HashSet<Rectangle> electricalWalls = new HashSet<>();
@@ -140,18 +142,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		Point electricalStart = new Point (100, 100); 
 		tempBG = ImageIO.read(getClass().getResource("/tempBG.png"));
 		System.out.println("Loaded tempBG image");
-
-		HashSet<Triangle> tempWalls = new HashSet<>();
-		tempWalls.add(new Triangle(new Point(100, 100), new Point(200, 200), new Point(300, 100)));
-
-		HashSet<Cow> electricalCows = new HashSet<>();
-		electricalCows.add(new BaseCow(300, 300, cowImages.get(currentCowType)));
-		electricalCows.add(new BaseCow(400, 400, cowImages.get(currentCowType)));
-		electricalCows.add(new BaseCow(500, 500, cowImages.get(currentCowType)));
-		electricalCows.add(new BaseCow(600, 600, cowImages.get(currentCowType)));
-		electricalCows.add(new BaseCow(700, 700, cowImages.get(currentCowType)));
 		
+		HashSet<Triangle> tempWalls = new HashSet<>();
+		HashSet<Cow> electricalCows = new HashSet<>();
+		
+		tempWalls.add(new Triangle(new Point(100, 100), new Point(200, 200), new Point(300, 100)));
 		currentMap = new FloorMap(new Point(0,0), electricalWalls, tempWalls, tempBG, new Rectangle[0], electricalCows);
+		
+		currentMap.getCows().add(new BaseCow(-100, 200, cowImages.get(currentCowType), currentMap));
+		currentMap.getCows().add(new BaseCow(-200, -100, cowImages.get(currentCowType), currentMap));
+		currentMap.getCows().add(new BaseCow(300, 300, cowImages.get(currentCowType), currentMap));
+		currentMap.getCows().add(new BaseCow(200, -200, cowImages.get(currentCowType), currentMap));
+		currentMap.getCows().add(new BaseCow(300, -200, cowImages.get(currentCowType), currentMap));
+		
 
 		// other images
 		tempBG = ImageIO.read(getClass().getResource("/tempBG.png"));
@@ -165,14 +168,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			e.printStackTrace();
 		}
 
-		//setups before the game starts running
-		// walls.add(new Rectangle(200, 200, 60, 60));
-		// walls.add(new Rectangle(300, 40, 40, 100));
-		// walls.add(new Rectangle(450, 100, 80, 35));
-		// walls.add(new Rectangle(130, 150, 15, 15));
-		// walls.add(new Rectangle(250, 350, 150, 200));
-
-		// make a method for initializing all maps. call method here
+		initializeMaps();
 		spawnCows();
 	}
 	
@@ -214,6 +210,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// }
 	}
 
+	private void initializeMaps() {
+		// Create and add FloorMap objects to the maps list
+	}
+
 	public void changeMap(FloorMap currentMap) {
 		currentMap.getTriWalls().clear();
 		currentMap.getRectWalls().clear();
@@ -253,7 +253,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			System.out.println("Player image is null");
 		}
 		for (Cow cow : currentMap.getCows()) {
-			cow.render(g, currentMap.getTLLocation().x, currentMap.getTLLocation().y);
+			cow.render(g);
 		}
 	}
 
@@ -343,7 +343,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	        // Update in-game coordinates
 	        suki.move(moveX, moveY);
 
-	        System.out.println(suki.getGamePos().x + " " + suki.getGamePos().y);
+	        // System.out.println(suki.getGamePos().x + " " + suki.getGamePos().y);
 
 	        // center player
 	        suki.getHitboxC().x = (screenWidth / 2) - (suki.getHitboxC().width / 2);
@@ -361,11 +361,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	            }
 	        }
 
-			// for some reason this doesn't need to be here... ??????
+			// BROKEN
 	        for (Cow cow : currentMap.getCows()) {
-	            cow.getMapPos().x -= moveX;
-	            cow.getMapPos().y -= moveY;
-				System.out.println(cow.getGamePos());
+	            cow.setMapPos(cow.getMapPos().x - moveX, cow.getMapPos().y - moveY);
+				System.out.println(cow.getMapPos());
 	        }
 	        
 	        currentMap.setTLLocation(new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
@@ -480,7 +479,39 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 	
 	public void checkCollision(Triangle wall) {
-		
+		if(wall.intersects(suki.getHitboxM())){
+			System.out.println("Ow!");
+			// get player hitbox vertices
+			Point[] hitboxVertices = {new Point(suki.getHitboxM().x, suki.getHitboxM().y),
+                new Point(suki.getHitboxM().x + suki.getHitboxM().width, suki.getHitboxM().y),
+                new Point(suki.getHitboxM().x + suki.getHitboxM().width, suki.getHitboxM().y + suki.getHitboxM().height),
+                new Point(suki.getHitboxM().getLocation().x, suki.getHitboxM().getLocation().y + suki.getHitboxM().height)};
+			// get sides of triangle wall
+			Line side1 = new Line(wall.getVertices()[0], wall.getVertices()[1]);
+			Line side2 = new Line(wall.getVertices()[1], wall.getVertices()[2]);
+			Line side3 = new Line(wall.getVertices()[2], wall.getVertices()[0]);
+
+			// check which side the player is closest to
+			for(Point p : hitboxVertices){
+				// get the shortest distance from player to line
+				double dist1 = side1.getDistance(p);
+				double dist2 = side2.getDistance(p);
+				double dist3 = side3.getDistance(p);
+				double minDist = Math.min(dist1, Math.min(dist2, dist3));
+				if(minDist == dist1){ // player collides with side1
+					// move the player in the direction of the shortest distance 
+					// to the side of the line that is facing OUT of the triangle
+				}
+				else if(minDist == dist2){ // player collides with side2
+					// move the player in the direction of the shortest distance 
+					// to the side of the line that is facing OUT of the triangle
+				}
+				else if(minDist == dist3){ // player collides with side3
+					// move the player in the direction of the shortest distance 
+					// to the side of the line that is facing OUT of the triangle
+				}
+			}			
+		}				
 	}
 	
 	public static void main(String[] args) throws IOException {

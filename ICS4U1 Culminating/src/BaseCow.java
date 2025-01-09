@@ -2,8 +2,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 class BaseCow extends Cow {
-    public BaseCow(int x, int y, BufferedImage image) {
-        super(10, 1, 1, x, y, image);
+    public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap) {
+        super(10, 1, 1, x, y, image, currentMap);
     }
 
     @Override
@@ -15,7 +15,7 @@ class BaseCow extends Cow {
         if (distance > 0) { // Prevent division by zero
             int moveX = (int)((dx / distance) * this.getSpeed());
             int moveY = (int)((dy / distance) * this.getSpeed());
-            // this.move(moveX, moveY);
+            this.move(moveX, moveY);
         }
     }
 

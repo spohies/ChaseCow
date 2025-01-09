@@ -11,14 +11,15 @@ abstract class Cow {
     private int inGameX, inGameY; // in-game coordinates
 
     // Constructor
-    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image) {
+    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap) {
         this.hp = hp;
         this.damage = damage;
         this.speed = speed;
-        this.x = x;
-        this.y = y;
         this.inGameX = x;
         this.inGameY = y;
+        this.x = x+(currentMap.getTLLocation().x + currentMap.getBG().getWidth()/2);
+        this.y = y+(currentMap.getTLLocation().y + currentMap.getBG().getHeight()/2);
+        System.out.println("Cow x: " + this.x + " y: " + this.y);
         this.image = image;
     }
 
@@ -77,12 +78,12 @@ abstract class Cow {
     // deal damage based on cow type
     abstract public void attack(Player player);
 
-    public void render(Graphics g, int offsetX, int offsetY) {
+    public void render(Graphics g) {
         if (image != null) {
-            g.drawImage(image, inGameX + offsetX, inGameY + offsetY, null);
+            g.drawImage(image, x, y, null);
         } else {
             g.setColor(Color.RED); // if sprite breaks
-            g.fillRect(inGameX + offsetX, inGameY + offsetY, 50, 50); // default size for placeholder
+            g.fillRect(x, y, 50, 50); // default size for placeholder
         }
     }
 
@@ -96,7 +97,11 @@ abstract class Cow {
     public Point getMapPos() {
         return new Point(this.x, this.y);
     }
-
+    public void setMapPos(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    
     public void move(int dx, int dy) {
         this.inGameX += dx;
         this.inGameY += dy;

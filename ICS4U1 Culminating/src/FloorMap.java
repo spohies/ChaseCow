@@ -22,15 +22,17 @@ public class FloorMap {
     }
     
     public void updateCows(Player player) {
-        Iterator<Cow> iterator = cows.iterator();
+        Iterator<Cow> iterator = this.cows.iterator();
 
         while (iterator.hasNext()) {
             Cow cow = iterator.next();
-            double distance = player.getGamePos().distance(cow.getMapPos().x, cow.getMapPos().y);
+            double distance = player.getGamePos().distance(cow.getGamePos().x, cow.getGamePos().y);
+            // System.out.println("PLAYER" + player.getGamePos().x + " " + player.getGamePos().y);
+            // System.out.println("cow" + cow.getGamePos().x + " " + cow.getGamePos().y);
             // System.out.println(distance);
             
             if (distance < 300) {
-                System.out.println("following");
+                // System.out.println("following");
                 cow.followPlayer(player);
             }
 
