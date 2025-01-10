@@ -56,23 +56,17 @@ public class Line {
     }
 
     public Point closestPoint(Point p) {
-        double x1 = start.x, y1 = start.y;
-        double x2 = end.x, y2 = end.y;
-        double x3 = p.x, y3 = p.y;
+        double ABx = end.x - start.x;
+        double ABy = end.y - start.y;
+        double ACx = p.x - start.x;
+        double ACy = p.y - start.y;
 
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-        double t = ((x3 - x1) * dx + (y3 - y1) * dy) / (dx * dx + dy * dy);
+        double dotProduct = ACx * ABx + ACy * ABy;
+        double lengthSquared = ABx * ABx + ABy * ABy;
 
-        if (t < 0) {
-            return start;
-        } 
-        else if (t > 1) {
-            return end;
-        } 
-        else {
-            return new Point((int)(x1 + t * dx), (int)(y1 + t * dy));
-        }
+        double t = Math.max(0, Math.min(1, dotProduct / lengthSquared));
+
+        return new Point((int)(start.x + t * ABx), (int)(start.y + t * ABy));
     }
 
     public Point getStart() {

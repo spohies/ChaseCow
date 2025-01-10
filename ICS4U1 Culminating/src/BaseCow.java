@@ -3,7 +3,7 @@ import java.awt.image.BufferedImage;
 
 class BaseCow extends Cow {
     public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap) {
-        super(10, 1, 1, x, y, image, currentMap);
+        super(10, 1, 2, x, y, image, currentMap);
     }
 
     @Override

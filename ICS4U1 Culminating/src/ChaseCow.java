@@ -21,7 +21,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	int screen = 5;
 
 	// self explanatory variables
-	int FPS = 120;
+	int FPS = 60;
 	Thread thread;
 	// int mapWidth = 960;
 	// int mapHeight = 580;
@@ -55,7 +55,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// Rectangle player = new Rectangle(517, 328, 46, 64);
 	// HashSet <Rectangle> walls = new HashSet <Rectangle>();
 	BufferedImage tempBG, playerImage, cowImage;
-	Player suki = new Player(100, 2, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 0, 0);
+	Player suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 0, 0);
 	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap;
 	ArrayList<FloorMap> maps = new ArrayList<>();
@@ -147,6 +147,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			HashSet<Cow> electricalCows = new HashSet<>();
 
 			tempWalls.add(new Triangle(new Point(100, 100), new Point(200, 200), new Point(300, 100)));
+			tempWalls.add(new Triangle(new Point(300, 600), new Point(360, 800), new Point(510, 700)));
 			currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, tempBG, new Rectangle[0],
 					electricalCows);
 
@@ -426,7 +427,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	// TO BE FIXED
 	public void keepInBound() {
-
 		// game screen
 		// MUST CHANGE 100 and mapWidth to changing variables -> instance variables for
 		// currentMap
@@ -540,7 +540,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	public void checkCollision(Triangle wall) {
 		int intersectionType = wall.intersects(suki.getHitboxM());
 		if (intersectionType > 0) {
-			// System.out.println("Ow!");
+			System.out.println("Ow!");
 			// get player hitbox vertices
 			// point order = TL, TR, BR, BL
 			Point[] hitboxVertices = { new Point(suki.getHitboxM().x, suki.getHitboxM().y),
@@ -563,14 +563,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// if player vertex is inside triangle wall
 			if (intersectionType == 1) {
-				handleTriangularCollisions(wall, new Line[] { wallSide1, wallSide2, wallSide3 }, hitboxVertices);
+				handleTriCollision(wall, new Line[] { wallSide1, wallSide2, wallSide3 }, hitboxVertices);
 			}
 			// if triangle vertex is inside player
 			else if (intersectionType == 2) {
-				handleTriangularCollisions(wall, new Line[] { playerSide1, playerSide2, playerSide3, playerSide4 }, wallVertices);
-			} else if (intersectionType == 3) {
-				// player side intersects wall side
-
+				handleTriCollision(wall, new Line[] { playerSide1, playerSide2, playerSide3, playerSide4 }, wallVertices);
+			} 
+			// player side intersects wall side
+			// only happens when a triangle side is parallel to a player side
+			// handle like rectangular collision
+			else if (intersectionType == 3) {
 				// find the two sides that touch
 
 				// move them away from each other
@@ -578,45 +580,65 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	public void handleTriangularCollisions(Triangle wall, Line[] sides, Point[] vertices){
+	public void handleTriCollision(Triangle wall, Line[] sides, Point[] vertices) {
+		final double EPSILON = 1e-6; // small buffer to push the player out of the triangle more 
 		for (Point p : vertices) {
 			if (wall.containsPoint(p)) {
-				double[] distances = new double[sides.length];
-				for(int i = 0; i < sides.length; i++){
-					distances[i] = sides[i].getDistance(p);
-				}
-				double minDist = Double.MIN_VALUE; 
-				for(int i = 0; i < distances.length; i++){
-					if(distances[i] < minDist){
-						minDist = distances[i];
+				double minDist = Double.MAX_VALUE;
+				int closestSideIndex = -1;
+	
+				for (int i = 0; i < sides.length; i++) {
+					double distance = sides[i].getDistance(p);
+					if (distance < minDist) {
+						minDist = distance;
+						closestSideIndex = i;
 					}
 				}
-				for(int i = 0; i < distances.length; i++){
-					if (minDist == distances[i]) { // player collides with side1
-						Point closest = sides[i].closestPoint(p);
-						int dx = (int) (p.x - closest.x);
-						int dy = (int) (p.y - closest.y);
-						// stop movement for rectangle walls when collision occurs
-						for (Rectangle w : currentMap.getRectWalls()) {
-							w.x -= dx;
-							w.y -= dy;
-						}
-						// stop movement for cows when collision occurs
-						for (Cow cow : currentMap.getCows()) {
-							cow.setMapPos(cow.getMapPos().x - dx, cow.getMapPos().y - dy);
-						}
-						// stop movement for triangle walls when collision occurs
-						for (Triangle tri : currentMap.getTriWalls()) {
-							for (Point point : tri.getVertices()) {
-								point.x -= dx;
-								point.y -= dy;
-							}
-						}
-					}
+	
+				if (closestSideIndex != -1) {
+					Point closest = sides[closestSideIndex].closestPoint(p);
+					double dx = p.x - closest.x;
+					double dy = p.y - closest.y;
+					
+					// normalize the direction vector
+					double length = Math.sqrt(dx * dx + dy * dy);
+					dx /= length;
+					dy /= length;
+					
+					// move slightly more than the minimum distance
+					double pushDistance = minDist + EPSILON;
+					
+					// apply collision response
+					triCollisionResponse(dx * pushDistance, dy * pushDistance);
 				}
 			}
 		}
 	}
+	
+	private void triCollisionResponse(double dx, double dy) {
+		// apply the collision response to all game objects
+		currentMap.setTLLocation(
+			new Point(currentMap.getTLLocation().x + (int)Math.round(dx), 
+					  currentMap.getTLLocation().y + (int)Math.round(dy)));
+	
+		for (Rectangle w : currentMap.getRectWalls()) {
+			w.x += Math.round(dx);
+			w.y += Math.round(dy);
+		}
+	
+		for (Cow cow : currentMap.getCows()) {
+			cow.setMapPos(cow.getMapPos().x + (int)Math.round(dx), 
+						  cow.getMapPos().y + (int)Math.round(dy));
+		}
+	
+		for (Triangle tri : currentMap.getTriWalls()) {
+			for (Point point : tri.getVertices()) {
+				point.x += Math.round(dx);
+				point.y += Math.round(dy);
+			}
+		}
+	}
+	
 
 	public void checkCollision(Cow cow) {
 		for (Cow cow2 : currentMap.getCows()) {
@@ -643,7 +665,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 		}
 	}
-
 
 	// public void checkCollision(Cow cow) {
 	// // check if player touches cow
