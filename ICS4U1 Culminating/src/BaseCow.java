@@ -12,10 +12,18 @@ class BaseCow extends Cow {
         double dx = playerPos.x - this.getGamePos().x;
         double dy = playerPos.y - this.getGamePos().y;
         double distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > 0) { // Prevent division by zero
-            int moveX = (int)((dx / distance) * this.getSpeed());
-            int moveY = (int)((dy / distance) * this.getSpeed());
-            this.move(moveX, moveY);
+
+        if (distance > 0) { // so cows don't just walk over suki?
+            // Normalize the direction vector (dx, dy)
+            double directionX = dx / distance;
+            double directionY = dy / distance;
+
+            // Calculate the movement for this step
+            int moveX = (int) Math.round(directionX * this.getSpeed());
+            int moveY = (int) Math.round(directionY * this.getSpeed());
+            System.out.println(moveX + " " + moveY);
+            this.inGameMove(moveX, moveY);
+            this.inScreenMove(moveX, moveY);
         }
     }
 
@@ -24,11 +32,11 @@ class BaseCow extends Cow {
         double dx = player.getHitboxC().x - this.getX();
         double dy = player.getHitboxC().y - this.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
-         
+
         if (distance < 5) {
             player.takeDamage(this.getDamage());
         }
-        
+
         // TODO Auto-generated method stub
     }
 }

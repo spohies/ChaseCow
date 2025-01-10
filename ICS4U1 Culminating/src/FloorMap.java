@@ -26,10 +26,9 @@ public class FloorMap {
 
         while (iterator.hasNext()) {
             Cow cow = iterator.next();
+
+            // ADJUST THESE FOR MIDDLE OF COW ??
             double distance = player.getGamePos().distance(cow.getGamePos().x, cow.getGamePos().y);
-            // System.out.println("PLAYER" + player.getGamePos().x + " " + player.getGamePos().y);
-            // System.out.println("cow" + cow.getGamePos().x + " " + cow.getGamePos().y);
-            // System.out.println(distance);
             
             if (distance < 300) {
                 // System.out.println("following");

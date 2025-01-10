@@ -6,6 +6,7 @@ abstract class Cow {
     private int damage; // damage dealt to player
     private int speed;
     private BufferedImage image;
+
     protected int x;
     protected int y;
     private int inGameX, inGameY; // in-game coordinates
@@ -19,7 +20,7 @@ abstract class Cow {
         this.inGameY = y;
         this.x = x+(currentMap.getTLLocation().x + currentMap.getBG().getWidth()/2);
         this.y = y+(currentMap.getTLLocation().y + currentMap.getBG().getHeight()/2);
-        System.out.println("Cow x: " + this.x + " y: " + this.y);
+        // System.out.println("Cow x: " + this.x + " y: " + this.y);
         this.image = image;
     }
 
@@ -102,8 +103,12 @@ abstract class Cow {
         this.y = y;
     }
     
-    public void move(int dx, int dy) {
+    public void inGameMove(int dx, int dy) {
         this.inGameX += dx;
         this.inGameY += dy;
+    }
+    public void inScreenMove(int dx, int dy) {
+        this.x += dx;
+        this.y += dy;
     }
 }
