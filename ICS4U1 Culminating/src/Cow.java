@@ -111,4 +111,8 @@ abstract class Cow {
         this.x += dx;
         this.y += dy;
     }
+
+    public Rectangle getHitbox() {
+        return new Rectangle(this.x, this.y, this.image.getWidth(), this.image.getHeight());
+    }
 }

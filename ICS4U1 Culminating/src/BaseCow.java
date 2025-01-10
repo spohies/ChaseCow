@@ -8,9 +8,9 @@ class BaseCow extends Cow {
 
     @Override
     public void followPlayer(Player player) {
-        Point playerPos = player.getGamePos();
-        double dx = playerPos.x - this.getGamePos().x;
-        double dy = playerPos.y - this.getGamePos().y;
+        Point playerPos = new Point((player.getHitboxC().x + player.getHitboxC().width / 2), (player.getHitboxC().y + player.getHitboxC().height / 2));
+        double dx = playerPos.x - this.getMapPos().x;
+        double dy = playerPos.y - this.getMapPos().y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) { // so cows don't just walk over suki?

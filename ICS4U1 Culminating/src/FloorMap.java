@@ -10,6 +10,7 @@ public class FloorMap {
     // NPC[] npcs = new NPC[5];
     BufferedImage bg;
     private Rectangle[] doors;
+    private Point[] cowLocations;
 
     public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg, Rectangle[] doors, HashSet<Cow> cows) {
         this.TLLocation = TLLocation;
@@ -30,7 +31,7 @@ public class FloorMap {
             // ADJUST THESE FOR MIDDLE OF COW ??
             double distance = player.getGamePos().distance(cow.getGamePos().x, cow.getGamePos().y);
             
-            if (distance < 300) {
+            if (distance < 250) {
                 // System.out.println("following");
                 cow.followPlayer(player);
             }
