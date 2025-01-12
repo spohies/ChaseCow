@@ -3,6 +3,8 @@ import java.util.*;
 import java.awt.*;
 import java.io.*;
 import javax.imageio.*;
+// import javax.sound.sampled.LineUnavailableException;
+// import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.image.*;
 
@@ -18,7 +20,9 @@ import java.awt.image.*;
 @SuppressWarnings("serial") // funky warning, just suppress it. It's not gonna do anything.
 public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener {
 	// big boss variable
-	int screen = 5;
+	int screen = 0;
+	static JPanel myPanel;
+	static JFrame frame;
 
 	// self explanatory variables
 	int FPS = 60;
@@ -35,8 +39,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage titleScreenBG, title, play, play2, about, about2, settings, settings2, options, options2, exit, exit2;
 
 	// start screen
-	Rectangle recLB, recNewGame;
-	boolean hoverNewGame, hoverLB;
+	Rectangle recLB, recNewGame, recBack;
+	boolean hoverNewGame, hoverLB, hoverBack;
 	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2, back;
 
 	// settings
@@ -49,6 +53,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// int difficulty = 1; // maybe just 1=easy 2=hard?
 	int volume = 3; // 1-5??
 
+	boolean showInventory = false;
 	// game
 	ArrayList<BufferedImage> cowImages = new ArrayList<BufferedImage>();
 
@@ -75,6 +80,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		initialize();
 
+		addMouseListener(this);
+		addKeyListener(this);
 		// starting the thread
 		thread = new Thread(this);
 		thread.start();
@@ -121,13 +128,38 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			System.out.println("Loaded play button 2 image");
 			about2 = ImageIO.read(getClass().getResource("/aboutbutton2.png"));
 			System.out.println("Loaded about button 2 image");
+			// settings = ImageIO.read(getClass().getResource("/settingsbutton.png"));
+			// System.out.println("Loaded settings button image");
+			// settings2 = ImageIO.read(getClass().getResource("/settingsbutton2.png"));
+			// System.out.println("Loaded settings button 2 image");
+			// options = ImageIO.read(getClass().getResource("/optionsbutton.png"));
+			// System.out.println("Loaded options button image");
+			// options2 = ImageIO.read(getClass().getResource("/optionsbutton2.png"));
+			// System.out.println("Loaded options button 2 image");
+			// exit = ImageIO.read(getClass().getResource("/exitbutton.png"));
+			// System.out.println("Loaded exit button image");
+			// exit2 = ImageIO.read(getClass().getResource("/exitbutton2.png"));
+			// System.out.println("Loaded exit button 2 image");
+			// newGame = ImageIO.read(getClass().getResource("/newgamebutton.png"));
+			// System.out.println("Loaded new game button image");
+			// newGame2 = ImageIO.read(getClass().getResource("/newgamebutton2.png"));
+			// System.out.println("Loaded new game button 2 image");
+			// leaderboard = ImageIO.read(getClass().getResource("/leaderboardbutton.png"));
+			// System.out.println("Loaded leaderboard button image");
+			// leaderboard2 = ImageIO.read(getClass().getResource("/leaderboardbutton2.png"));
+			// System.out.println("Loaded leaderboard button 2 image");
+			// back = ImageIO.read(getClass().getResource("/backbutton.png"));
+			// System.out.println("Loaded back button image");
+			// volumeImg = ImageIO.read(getClass().getResource("/volume.png"));
+			// System.out.println("Loaded volume image");
+			// difficultyImg = ImageIO.read(getClass().getResource("/difficulty.png"));
+			// System.out.println("Loaded difficulty image");
 			// DIMENSION NEED TO BE CHANGED!!!!!!
-			recPlay = new Rectangle(300, 300, play.getWidth(), play.getHeight());
-			recAbout = new Rectangle(300, 420, about.getWidth(), about.getHeight());
-			// recOptions = new Rectangle(1, 1, options.getWidth(), options.getHeight());
-			// recExit = new Rectangle(1, 1, exit.getWidth(), exit.getHeight());
+			recPlay = new Rectangle(100, 200, play.getWidth(), play.getHeight());
+			recAbout = new Rectangle(100, 300, about.getWidth(), about.getHeight());
 
 			// screen 1 (start menu)
+			
 
 			// screen 2 (wtvwtv )... so on
 
@@ -178,7 +210,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	// public void spawnCows() {
-		
+
 	// }
 
 	public void update() {
@@ -188,6 +220,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			move();
 			keepInBound();
+			if (currentMap != null) {
+				currentMap.updateCows(suki);
+			} else {
+				System.out.println("currentMap is null");
+			}
+
 			Iterator<Rectangle> it = currentMap.getRectWalls().iterator();
 			while (it.hasNext()) {
 				checkCollision(it.next());
@@ -196,21 +234,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			while (itr.hasNext()) {
 				checkCollision(itr.next());
 			}
-			// Iterator <Cow> iter = currentMap.getCows().iterator();
-			// while (iter.hasNext()) {
-			// Cow cow = iter.next();
-			// checkCollision(iter.next());
-			// }
 
-			if (currentMap != null) {
-				currentMap.updateCows(suki);
-			} else {
-				System.out.println("currentMap is null");
-			}
-			// Iterator cowIter = cows.iterator();
-			// while (cowIter.hasNext()) {
-			// ((Cow) cowIter.next()).followPlayer(suki);
-			// }
 			for (Cow cow : currentMap.getCows()) {
 				checkCollision(cow);
 			}
@@ -248,11 +272,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		// start game screen
 		if (screen == 1) {
-
+			// g.drawImage(newGame, 100, 200, newGame.getWidth(), newGame.getHeight(), this);
+			// g.drawImage(leaderboard, 100, 300, leaderboard.getWidth(), leaderboard.getHeight(), this);
+			// g.drawImage(back, 20, 20, back.getWidth(), back.getHeight(), this);
 		}
 
 		// draw stuff
 		if (screen == 5) {
+			if (showInventory) {
+				// draw inventory
+			}
 			if (tempBG != null) {
 				g.drawImage(currentMap.getBG(), currentMap.getTLLocation().x, currentMap.getTLLocation().y, getWidth(),
 						getHeight(), this);
@@ -325,6 +354,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					playerImage = ImageIO.read(getClass().getResource("/sukiDown.png"));
 				} catch (IOException e1) {
 					e1.printStackTrace();
+				}
+			} else if (key == KeyEvent.VK_E) {
+				if (showInventory == true) {
+					showInventory = false;
+				} else {
+					showInventory = true;
 				}
 			}
 		}
@@ -399,10 +434,109 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	}
 
+	/*
+	 * screen 0 = main menu
+	 * screen 1 = start menu
+	 * screen 2 = about menu
+	 * screen 3 = settings menu
+	 * screen 4 = leaderboard
+	 * screen 5 = game
+	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
+		Point selectedPoint = new Point(e.getX(), e.getY());
+		if (screen == 0) {
+			System.out.println("clicked" + e.getX() + " " + e.getY() );
+			if (recPlay.contains(selectedPoint)) {
+				screen = 1;
+				myPanel.repaint();
+				// try {
+				// 	// button = true;
+				// 	// soundPlayer();
+				// } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+				// 	e1.printStackTrace();
+				// }
+			} else if (recAbout.contains(selectedPoint)) {
+				screen = 2;
+				myPanel.repaint();
+				// try {
+				// 	// button = true;
+				// 	// soundPlayer();
+				// } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+				// 	e1.printStackTrace();
+				// }
+			}
+		}
 
+		// start menu
+		// starts a new game, shows leaderboard, or returns to main menu
+		
+		// else if (screen == 1) {
+		// 	if (recNewGame.contains(selectedPoint)) {
+		// 		screen = 5;
+		// 		// try {
+		// 		// 	// button = true;
+		// 		// 	// soundPlayer();
+		// 		// 	// music.stop();
+		// 		// 	// musicPlayer();
+		// 		// } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+		// 		// 	e1.printStackTrace();
+		// 		// }
+
+		// 		myPanel.repaint();
+		// 		// timer = new Timer("Timer");
+		// 		// timer.scheduleAtFixedRate(new ThreadTimer(), 10, 1000);
+		// 		resetVariables();
+		// 	} else if (recLB.contains(selectedPoint)) {
+		// 		screen = 4;
+		// 		myPanel.repaint();
+		// 		// try {
+		// 		// 	// button = true;
+		// 		// 	// soundPlayer();
+		// 		// } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+		// 		// 	e1.printStackTrace();
+		// 		// }
+		// 	} else if (recBack.contains(selectedPoint)) {
+		// 		screen = 0;
+		// 		myPanel.repaint();
+		// 		// try {
+		// 		// 	// button = true;
+		// 		// 	// soundPlayer();
+		// 		// } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+		// 		// 	e1.printStackTrace();
+		// 		// }
+		// 	}
+		// }
+		// // about menu
+		// else if (screen == 2) {
+		// 	if (recBack.contains(selectedPoint)) {
+		// 		screen = 0;
+		// 	}
+
+		// }
+		// // settings menu
+		// else if (screen == 3) {
+		// 	if (recBack.contains(selectedPoint)) {
+		// 		screen = 5;
+		// 	}
+
+		// }
+		// // leaderboard
+		// else if (screen == 4) {
+		// 	if (recBack.contains(selectedPoint)) {
+		// 		screen = 1;
+		// 	}
+		// }
+		// // main game
+		// else if (screen == 5) {
+		// 	if (showInventory) {
+		// 		// add inventory buttons
+		// 	}
+			
+		// 	if (recOptions.contains(selectedPoint)) {
+		// 		screen = 3;
+		// 	}
+		// }
 	}
 
 	@Override
@@ -567,8 +701,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 			// if triangle vertex is inside player
 			else if (intersectionType == 2) {
-				handleTriCollision(wall, new Line[] { playerSide1, playerSide2, playerSide3, playerSide4 }, wallVertices);
-			} 
+				handleTriCollision(wall, new Line[] { playerSide1, playerSide2, playerSide3, playerSide4 },
+						wallVertices);
+			}
 			// player side intersects wall side
 			// only happens when a triangle side is parallel to a player side
 			// handle like rectangular collision
@@ -581,12 +716,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void handleTriCollision(Triangle wall, Line[] sides, Point[] vertices) {
-		final double EPSILON = 1e-6; // small buffer to push the player out of the triangle more 
+		final double EPSILON = 1e-6; // small buffer to push the player out of the triangle more
 		for (Point p : vertices) {
 			if (wall.containsPoint(p)) {
 				double minDist = Double.MAX_VALUE;
 				int closestSideIndex = -1;
-	
+
 				for (int i = 0; i < sides.length; i++) {
 					double distance = sides[i].getDistance(p);
 					if (distance < minDist) {
@@ -594,58 +729,68 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						closestSideIndex = i;
 					}
 				}
-	
+
 				if (closestSideIndex != -1) {
 					Point closest = sides[closestSideIndex].closestPoint(p);
 					double dx = p.x - closest.x;
 					double dy = p.y - closest.y;
-					
+
 					// normalize the direction vector
 					double length = Math.sqrt(dx * dx + dy * dy);
 					dx /= length;
 					dy /= length;
-					
+
 					// move slightly more than the minimum distance
 					double pushDistance = minDist + EPSILON;
-					
+
 					// apply collision response
 					triCollisionResponse(dx * pushDistance, dy * pushDistance);
 				}
 			}
 		}
 	}
-	
+
 	private void triCollisionResponse(double dx, double dy) {
-		// apply the collision response to all game objects
-		currentMap.setTLLocation(
-			new Point(currentMap.getTLLocation().x + (int)Math.round(dx), 
-					  currentMap.getTLLocation().y + (int)Math.round(dy)));
-	
+		int roundedDx = (int) Math.round(dx);
+		int roundedDy = (int) Math.round(dy);
+
+		suki.setGameX(suki.getGamePos().x - roundedDx);
+		suki.setGameY(suki.getGamePos().y - roundedDy);
+
+		// Update the map's top-left location
+		currentMap.setTLLocation(new Point(
+				currentMap.getTLLocation().x + roundedDx,
+				currentMap.getTLLocation().y + roundedDy));
+
+		// Adjust rectangular wall positions
 		for (Rectangle w : currentMap.getRectWalls()) {
-			w.x += Math.round(dx);
-			w.y += Math.round(dy);
+			w.x += roundedDx;
+			w.y += roundedDy;
 		}
-	
+
+		// Adjust cow positions
 		for (Cow cow : currentMap.getCows()) {
-			cow.setMapPos(cow.getMapPos().x + (int)Math.round(dx), 
-						  cow.getMapPos().y + (int)Math.round(dy));
+			cow.inScreenMove(roundedDx, roundedDy);
 		}
-	
+
+		// Adjust triangular wall vertices
 		for (Triangle tri : currentMap.getTriWalls()) {
 			for (Point point : tri.getVertices()) {
-				point.x += Math.round(dx);
-				point.y += Math.round(dy);
+				point.x += roundedDx;
+				point.y += roundedDy;
 			}
 		}
+
 	}
-	
 
 	public void checkCollision(Cow cow) {
+
+		final int BUFFER = 5; // Small buffer to prevent overlap
 		for (Cow cow2 : currentMap.getCows()) {
 			if (cow != cow2 && cow.getHitbox().intersects(cow2.getHitbox())) {
 				Rectangle intersection = cow.getHitbox().intersection(cow2.getHitbox());
-				int dx = intersection.width / 2;
-				int dy = intersection.height / 2;
+				int dx = intersection.width / 2 + BUFFER;
+				int dy = intersection.height / 2 + BUFFER;
 
 				if (cow.getX() < cow2.getX()) {
 					cow.setMapPos(cow.getMapPos().x - dx, cow.getMapPos().y);
@@ -666,28 +811,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	// public void checkCollision(Cow cow) {
-	// // check if player touches cow
-	// if(suki.getHitboxM().intersects(cow.getHitbox())) {
-	// System.out.println("Moo!");
-	// }
-	// }
-
 	public static void main(String[] args) throws IOException {
 
 		// The following lines creates your window
 
 		// makes a brand new JFrame
-		JFrame frame = new JFrame("Example");
+		frame = new JFrame("Example");
 		// makes a new copy of your "game" that is also a JPanel
-		ChaseCow myPanel = new ChaseCow();
+		myPanel = new ChaseCow();
 		// so your JPanel to the frame so you can actually see it
 
 		frame.add(myPanel);
-		// so you can actually get keyboard input
-		frame.addKeyListener(myPanel);
-		// so you can actually get mouse input
-		frame.addMouseListener(myPanel);
 		// self explanatory. You don't want to resize your window because
 		// it might mess up your graphics and collisions
 		frame.setResizable(false);

@@ -59,4 +59,12 @@ public class Player {
         inGameX += dx;
         inGameY += dy;
     }
+
+    public void setGameX(int i) {
+        inGameX = i;
+    }
+
+    public void setGameY(int i) {
+        inGameY = i;
+    }
 }

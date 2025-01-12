@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+
 public class FloorMap {
     private Point TLLocation;
     HashSet<Rectangle> rectWalls;
@@ -12,7 +13,8 @@ public class FloorMap {
     private Rectangle[] doors;
     private Point[] cowLocations;
 
-    public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg, Rectangle[] doors, HashSet<Cow> cows) {
+    public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
+            Rectangle[] doors, HashSet<Cow> cows) {
         this.TLLocation = TLLocation;
         this.cows = cows;
         items = new ArrayList<>();
@@ -21,19 +23,20 @@ public class FloorMap {
         this.triWalls = triWalls;
         this.doors = doors;
     }
-    
+
     public void updateCows(Player player) {
         Iterator<Cow> iterator = this.cows.iterator();
 
         while (iterator.hasNext()) {
             Cow cow = iterator.next();
 
-            // ADJUST THESE FOR MIDDLE OF COW ??
-            double distance = player.getGamePos().distance(cow.getGamePos().x, cow.getGamePos().y);
-            
-            if (distance < 250) {
-                // System.out.println("following");
+            // Calculate distance using in-game positions
+            double distance = player.getGamePos().distance(cow.getGamePos());
+
+            // System.out.println(distance);
+            if (distance < 300) {
                 cow.followPlayer(player);
+                // System.out.println(distance);
             }
 
             if (!cow.isAlive()) {
@@ -42,14 +45,14 @@ public class FloorMap {
         }
 
         // for (int i = 0; i < npcs.length; i++) {
-        //     double distance = player.getPosition().distance(npcs[i].getLocation().getX(), npcs[i].getLocation().getY());
-        //     if (distance < 30) {
-        //         NPC.interact();
-        //     }
+        // double distance = player.getPosition().distance(npcs[i].getLocation().getX(),
+        // npcs[i].getLocation().getY());
+        // if (distance < 30) {
+        // NPC.interact();
+        // }
         // }
     }
 
-    
     public Point getTLLocation() {
         return TLLocation;
     }
@@ -65,6 +68,7 @@ public class FloorMap {
     public void setTriWalls(HashSet<Triangle> walls) {
         this.triWalls = walls;
     }
+
     public HashSet<Rectangle> getRectWalls() {
         return rectWalls;
     }

@@ -10,9 +10,10 @@ abstract class Cow {
     protected int x;
     protected int y;
     private int inGameX, inGameY; // in-game coordinates
+    private boolean colliding;
 
     // Constructor
-    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap) {
+    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap, boolean colliding) {
         this.hp = hp;
         this.damage = damage;
         this.speed = speed;
@@ -22,6 +23,7 @@ abstract class Cow {
         this.y = y+(currentMap.getTLLocation().y + currentMap.getBG().getHeight()/2);
         // System.out.println("Cow x: " + this.x + " y: " + this.y);
         this.image = image;
+        this.colliding = colliding;
     }
 
     // Getters
@@ -114,5 +116,13 @@ abstract class Cow {
 
     public Rectangle getHitbox() {
         return new Rectangle(this.x, this.y, this.image.getWidth(), this.image.getHeight());
+    }
+
+    public void setCollision(boolean colliding) {
+        this.colliding = colliding;
+    }
+
+    public boolean isColliding() {
+        return colliding;
     }
 }

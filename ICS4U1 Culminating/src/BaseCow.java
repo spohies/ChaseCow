@@ -2,8 +2,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 class BaseCow extends Cow {
+    private FloorMap currentMap;
+
     public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap) {
-        super(10, 1, 2, x, y, image, currentMap);
+        super(10, 1, 2, x, y, image, currentMap, false);
+        this.currentMap = currentMap;
     }
 
     @Override
@@ -21,9 +24,24 @@ class BaseCow extends Cow {
             // Calculate the movement for this step
             int moveX = (int) Math.round(directionX * this.getSpeed());
             int moveY = (int) Math.round(directionY * this.getSpeed());
-            System.out.println(moveX + " " + moveY);
-            this.inGameMove(moveX, moveY);
-            this.inScreenMove(moveX, moveY);
+
+            // Check for collisions with other cows
+            Rectangle futureHitbox = new Rectangle(this.getHitbox());
+            futureHitbox.translate(moveX, moveY);
+            boolean collision = false;
+            for (Cow otherCow : currentMap.getCows()) {
+                if (otherCow != this && futureHitbox.intersects(otherCow.getHitbox())) {
+                    collision = true;
+                    break;
+                }
+            }
+
+            if (!collision) {
+                this.inGameMove(moveX, moveY);
+                this.inScreenMove(moveX, moveY);
+            }
+            // System.out.printf("Cow Update: InGame(%d, %d), Screen(%d, %d)\n",
+            // this.getGamePos().x, this.getGamePos().y, this.getMapPos().x, this.getMapPos().y);
         }
     }
 
