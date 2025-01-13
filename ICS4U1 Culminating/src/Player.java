@@ -11,13 +11,13 @@ public class Player {
     private int inGameX, inGameY; // in-game coordinates
     HashMap<Item, String> inventory;
     
-    public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY){
+    public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY, FloorMap currentMap){
         this.hp = hp;
         this.speed = speed;
         this.hitboxM = hitboxM;
         this.hitboxC = hitboxC;
-        this.inGameX = startPosX;
-        this.inGameY = startPosY;
+        this.inGameX =  startPosX;
+        this.inGameY =  startPosY;
         inventory = new HashMap<Item, String>();
     }
 

@@ -2,29 +2,30 @@ import java.awt.image.*;
 import java.awt.*;
 
 public class NPC {
-    Point location;
+    Point gamePos;
     BufferedImage image;
     static String[] dialogue;
     static boolean itemGiven = false;
-    
-        public NPC (Point location, String[] dialogue, BufferedImage image) {
-            this.location = location;
-            this.dialogue = dialogue;
-            this.image = image;
-        }
-    
-        public static void interact() {
-            if (!itemGiven) {
-                for (int i = 0; i < dialogue.length; i++) {
-                // display dialogue, press to see next line
+
+    public NPC(Point location, String[] dialogue, BufferedImage image) {
+        this.gamePos = location;
+        this.dialogue = dialogue;
+        this.image = image;
+    }
+
+    public void interact() {
+        if (!itemGiven) {
+            for (int i = 0; i < dialogue.length; i++) {
+                System.out.println(dialogue[i]);
             }
+            itemGiven = true; // mark as interacted to prevent repeating dialogue
         } else {
-            // display already interacted
+            System.out.println("get out of here already");
         }
     }
-    
-    public Point getLocation() {
-        return location;
+
+    public Point getGamePos() {
+        return this.gamePos;
     }
-    
+
 }

@@ -8,13 +8,13 @@ public class FloorMap {
     HashSet<Triangle> triWalls;
     HashSet<Cow> cows;
     ArrayList<Item> items;
-    // NPC[] npcs = new NPC[5];
+    NPC npc;
     BufferedImage bg;
     private Rectangle[] doors;
     private Point[] cowLocations;
 
     public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
-            Rectangle[] doors, HashSet<Cow> cows) {
+            Rectangle[] doors, HashSet<Cow> cows, NPC npc) {
         this.TLLocation = TLLocation;
         this.cows = cows;
         items = new ArrayList<>();
@@ -22,6 +22,10 @@ public class FloorMap {
         this.rectWalls = rectWalls;
         this.triWalls = triWalls;
         this.doors = doors;
+        
+        if (npc != null) {
+            this.npc = npc;
+        }
     }
 
     public void updateCows(Player player) {
@@ -33,6 +37,7 @@ public class FloorMap {
             // Calculate distance using in-game positions
             double distance = player.getGamePos().distance(cow.getGamePos());
 
+            // System.out.println(cow.getGamePos());
             // System.out.println(distance);
             if (distance < 300) {
                 cow.followPlayer(player);
@@ -43,14 +48,6 @@ public class FloorMap {
                 iterator.remove();
             }
         }
-
-        // for (int i = 0; i < npcs.length; i++) {
-        // double distance = player.getPosition().distance(npcs[i].getLocation().getX(),
-        // npcs[i].getLocation().getY());
-        // if (distance < 30) {
-        // NPC.interact();
-        // }
-        // }
     }
 
     public Point getTLLocation() {
@@ -96,4 +93,6 @@ public class FloorMap {
     public BufferedImage getBG() {
         return bg;
     }
+
+    
 }

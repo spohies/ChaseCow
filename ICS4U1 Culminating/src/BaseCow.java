@@ -4,16 +4,18 @@ import java.awt.image.BufferedImage;
 class BaseCow extends Cow {
     private FloorMap currentMap;
 
-    public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap) {
-        super(10, 1, 2, x, y, image, currentMap, false);
+    public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
+        super(10, 1, 2, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 
     @Override
     public void followPlayer(Player player) {
-        Point playerPos = new Point((player.getHitboxC().x + player.getHitboxC().width / 2), (player.getHitboxC().y + player.getHitboxC().height / 2));
-        double dx = playerPos.x - this.getMapPos().x;
-        double dy = playerPos.y - this.getMapPos().y;
+        Point playerPos = new Point((player.getGamePos().x + player.getHitboxC().width / 2),
+                (player.getGamePos().y + player.getHitboxC().height / 2));
+        Point cowPos = this.getGamePos();
+        double dx = playerPos.x - cowPos.x;
+        double dy = playerPos.y - cowPos.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance > 0) { // so cows don't just walk over suki?
@@ -36,12 +38,19 @@ class BaseCow extends Cow {
                 }
             }
 
+            // for (Cow otherCow : currentMap.getCows()) {
+            //     if (otherCow != this && futureHitbox.intersects(otherCow.getHitbox())) {
+            //        collision = true;
+            //     }
+            // }
+
             if (!collision) {
                 this.inGameMove(moveX, moveY);
-                this.inScreenMove(moveX, moveY);
+                // this.inScreenMove(moveX, moveY);
             }
             // System.out.printf("Cow Update: InGame(%d, %d), Screen(%d, %d)\n",
-            // this.getGamePos().x, this.getGamePos().y, this.getMapPos().x, this.getMapPos().y);
+            // this.getGamePos().x, this.getGamePos().y, this.getMapPos().x,
+            // this.getMapPos().y);
         }
     }
 

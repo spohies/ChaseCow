@@ -13,17 +13,22 @@ abstract class Cow {
     private boolean colliding;
 
     // Constructor
-    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap, boolean colliding) {
+    public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap, boolean colliding, Player player) {
         this.hp = hp;
         this.damage = damage;
         this.speed = speed;
         this.inGameX = x;
         this.inGameY = y;
-        this.x = x+(currentMap.getTLLocation().x + currentMap.getBG().getWidth()/2);
-        this.y = y+(currentMap.getTLLocation().y + currentMap.getBG().getHeight()/2);
-        // System.out.println("Cow x: " + this.x + " y: " + this.y);
+        this.x = inGameX - currentMap.getTLLocation().x;
+        this.y = inGameY - currentMap.getTLLocation().y;
+
+        System.out.println("SCREEN Cow x: " + this.x + " y: " + this.y);
+        System.out.println("GAME Cow x: " + this.inGameX + " y: " + this.inGameY);
+        
         this.image = image;
         this.colliding = colliding;
+
+        
     }
 
     // Getters
@@ -81,14 +86,16 @@ abstract class Cow {
     // deal damage based on cow type
     abstract public void attack(Player player);
 
-    public void render(Graphics g) {
-        if (image != null) {
-            g.drawImage(image, x, y, null);
-        } else {
-            g.setColor(Color.RED); // if sprite breaks
-            g.fillRect(x, y, 50, 50); // default size for placeholder
-        }
-    }
+    // public void render(Graphics g) {
+    //     if (image != null) {
+    //         g.drawImage(image, x, y, null);
+
+            
+    //     } else {
+    //         g.setColor(Color.RED); // if sprite breaks
+    //         g.fillRect(x, y, 50, 50); // default size for placeholder
+    //     }
+    // }
 
     public boolean isAlive() {
         return hp > 0;
@@ -96,6 +103,10 @@ abstract class Cow {
 
     public Point getGamePos() {
         return new Point(this.inGameX, this.inGameY);
+    }
+    public void setGamePos(int x, int y) {
+        this.inGameX = x;
+        this.inGameY = y;
     }
     public Point getMapPos() {
         return new Point(this.x, this.y);
@@ -115,7 +126,7 @@ abstract class Cow {
     }
 
     public Rectangle getHitbox() {
-        return new Rectangle(this.x, this.y, this.image.getWidth(), this.image.getHeight());
+        return new Rectangle(this.inGameX, this.inGameY, this.image.getWidth(), this.image.getHeight());
     }
 
     public void setCollision(boolean colliding) {
