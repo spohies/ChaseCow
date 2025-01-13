@@ -4,7 +4,7 @@ import java.util.*;
 
 public class FloorMap {
     private Point TLLocation;
-    HashSet<Rectangle> rectWalls;
+    HashSet<Wall> rectWalls;
     HashSet<Triangle> triWalls;
     HashSet<Cow> cows;
     ArrayList<Item> items;
@@ -13,7 +13,7 @@ public class FloorMap {
     private Rectangle[] doors;
     private Point[] cowLocations;
 
-    public FloorMap(Point TLLocation, HashSet<Rectangle> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
+    public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
             Rectangle[] doors, HashSet<Cow> cows, NPC npc) {
         this.TLLocation = TLLocation;
         this.cows = cows;
@@ -66,11 +66,11 @@ public class FloorMap {
         this.triWalls = walls;
     }
 
-    public HashSet<Rectangle> getRectWalls() {
+    public HashSet<Wall> getRectWalls() {
         return rectWalls;
     }
 
-    public void setRectWalls(HashSet<Rectangle> walls) {
+    public void setRectWalls(HashSet<Wall> walls) {
         this.rectWalls = walls;
     }
 
