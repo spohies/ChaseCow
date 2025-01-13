@@ -1,5 +1,6 @@
-					for (Triangle tri : currentMap.getTriWalls()) {
-						tri.getVertices()[0].x += suki.getSpeed();
-						tri.getVertices()[1].x += suki.getSpeed();
-						tri.getVertices()[2].x += suki.getSpeed();
-					}
+				// for (Triangle tri : currentMap.getTriWalls()) {
+				// 	for (Point vertex : tri.getVertices()) {
+				// 		vertex.x -= moveX;
+				// 		vertex.y -= moveY;
+				// 	}
+				// }
