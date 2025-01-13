@@ -20,4 +20,12 @@ abstract class Item {
     public void setDescription (String description) {
         this.description = description;
     }
+
+    public Point getGamePos() {
+        return this.gamePos;
+    }
+
+    public BufferedImage getImage() {
+        return this.image;
+    }
 }

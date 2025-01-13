@@ -188,11 +188,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// TEMPORARY (THERE WILL BE AN NPC ARRAYLIST)
 			BufferedImage npcImage = ImageIO.read(getClass().getResource("/sprites/npc1.png"));
-			BufferedImage stickImage = ImageIO.read(getClass().getResource("/sprites/stick.png"));
+			BufferedImage stickImage = ImageIO.read(getClass().getResource("/map files/tempWeapon.png"));
 			NPC npc = new NPC(new Point(8100, 200),
 					new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
 			ArrayList<Item> items = new ArrayList<>();
-			Item tempWeapon = new Weapon("stick", stickImage, );
+			Item tempWeapon = new Weapon("stick", "use to attack", 50, 3, stickImage, new Point(7500, 370));
+			items.add(tempWeapon);
 			// TO BE CHANGE TO ACTUAL LOCATIONS
 			tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new Point(7300, 100)));
 			tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new Point(7510, 700)));
@@ -437,6 +438,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.setColor(Color.BLACK);
 				g.drawString("Inventory", 60, 70);
 				g.drawString("Press E to close", 60, 90);
+			}
+
+			for (Item i : currentMap.getItems()) {
+				int itemScreenX = (i.getGamePos().x - playerX) + ((screenWidth / 2));
+				int itemScreenY = (i.getGamePos().y - playerY) + ((screenHeight / 2));
+
+				g.drawImage(i.getImage(), itemScreenX, itemScreenY, i.getImage().getWidth(), i.getImage().getHeight(), this);
 			}
 
 			
