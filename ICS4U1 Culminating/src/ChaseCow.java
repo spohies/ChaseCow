@@ -188,16 +188,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// TEMPORARY (THERE WILL BE AN NPC ARRAYLIST)
 			BufferedImage npcImage = ImageIO.read(getClass().getResource("/sprites/npc1.png"));
+			BufferedImage stickImage = ImageIO.read(getClass().getResource("/sprites/stick.png"));
 			NPC npc = new NPC(new Point(8100, 200),
 					new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
-
+			ArrayList<Item> items = new ArrayList<>();
+			Item tempWeapon = new Weapon("stick", stickImage, );
 			// TO BE CHANGE TO ACTUAL LOCATIONS
 			tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new Point(7300, 100)));
 			tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new Point(7510, 700)));
 			currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, tempBG, new Rectangle[0],
-					electricalCows, npc);
-			int mapWidth = tempBG.getWidth();
-			int mapHeight = tempBG.getHeight();
+					electricalCows, npc, items);
 
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 8000, 300,
 					currentMap);
@@ -430,6 +430,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.drawString("Press SPACE to interact", 60, 620);
 				}
 			}
+
+			if (showInventory) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 50, 400, 400);
+				g.setColor(Color.BLACK);
+				g.drawString("Inventory", 60, 70);
+				g.drawString("Press E to close", 60, 90);
+			}
+
+			
 		}
 	}
 

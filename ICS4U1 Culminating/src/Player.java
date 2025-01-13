@@ -9,7 +9,7 @@ public class Player {
     private Rectangle hitboxM; // map hitbox
     private Rectangle hitboxC; // combat hitbox
     private int inGameX, inGameY; // in-game coordinates
-    HashMap<Item, String> inventory;
+    ArrayList<Item> inventory;
     
     public Player (int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY, FloorMap currentMap){
         this.hp = hp;
@@ -18,7 +18,7 @@ public class Player {
         this.hitboxC = hitboxC;
         this.inGameX =  startPosX;
         this.inGameY =  startPosY;
-        inventory = new HashMap<Item, String>();
+        inventory = new ArrayList<Item>();
     }
 
     // getters

@@ -14,7 +14,7 @@ public class FloorMap {
     private Point[] cowLocations;
 
     public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
-            Rectangle[] doors, HashSet<Cow> cows, NPC npc) {
+            Rectangle[] doors, HashSet<Cow> cows, NPC npc, ArrayList<Item> items) {
         this.TLLocation = TLLocation;
         this.cows = cows;
         items = new ArrayList<>();
@@ -22,7 +22,7 @@ public class FloorMap {
         this.rectWalls = rectWalls;
         this.triWalls = triWalls;
         this.doors = doors;
-        
+        this.items = items;
         if (npc != null) {
             this.npc = npc;
         }
