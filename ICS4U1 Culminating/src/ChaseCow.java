@@ -170,11 +170,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			HashSet<Wall> electricalWalls = new HashSet<>();
 			BufferedImage wallImage = ImageIO.read(getClass().getResource("/map files/tempWall.png"));
 			System.out.println("Loaded wall image");
-			electricalWalls.add(new Wall (wallImage, new Rectangle(7300, 200, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls.add(new Wall (wallImage, new Rectangle(7400, 40, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls.add(new Wall (wallImage, new Rectangle(7630, 100, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls.add(new Wall (wallImage, new Rectangle(7480, 150, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls.add(new Wall (wallImage, new Rectangle(7500, 350, wallImage.getWidth(), wallImage.getHeight())));
+			electricalWalls
+					.add(new Wall(wallImage, new Rectangle(7300, 200, wallImage.getWidth(), wallImage.getHeight())));
+			electricalWalls
+					.add(new Wall(wallImage, new Rectangle(7400, 40, wallImage.getWidth(), wallImage.getHeight())));
+			electricalWalls
+					.add(new Wall(wallImage, new Rectangle(7630, 100, wallImage.getWidth(), wallImage.getHeight())));
+			electricalWalls
+					.add(new Wall(wallImage, new Rectangle(7480, 150, wallImage.getWidth(), wallImage.getHeight())));
+			electricalWalls
+					.add(new Wall(wallImage, new Rectangle(7500, 350, wallImage.getWidth(), wallImage.getHeight())));
 			tempBG = ImageIO.read(getClass().getResource("/map files/FLOOR3.png"));
 			System.out.println("Loaded tempBG image");
 
@@ -239,14 +244,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				System.out.println("currentMap is null");
 			}
 
-			// Iterator<Wall> it = currentMap.getRectWalls().iterator();
-			// while (it.hasNext()) {
-			// 	checkCollision(it.next());
-			// }
-			// Iterator<Triangle> itr = currentMap.getTriWalls().iterator();
-			// while (itr.hasNext()) {
-			// 	checkCollision(itr.next());
-			// }
+			Iterator<Wall> it = currentMap.getRectWalls().iterator();
+			while (it.hasNext()) {
+				checkCollision(it.next());
+			}
+			Iterator<Triangle> itr = currentMap.getTriWalls().iterator();
+			while (itr.hasNext()) {
+				checkCollision(itr.next());
+			}
 
 			for (Cow cow : currentMap.getCows()) {
 				// System.out.println("cows: " + cow.getGamePos());
@@ -348,8 +353,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			NPC npc = currentMap.npc;
 			if (npc != null) {
 				// Translate NPC's in-game position to screen coordinates
-				int npcScreenX = (npc.getGamePos().x - suki.getGamePos().x) + (screenWidth / 2);
-				int npcScreenY = (npc.getGamePos().y - suki.getGamePos().y) + (screenHeight / 2);
+				int npcScreenX = (npc.getGamePos().x - suki.getGamePos().x) + ((screenWidth / 2));
+				int npcScreenY = (npc.getGamePos().y - suki.getGamePos().y) + ((screenHeight / 2));
 
 				// Draw NPC
 				if (npc.image != null) {
@@ -365,12 +370,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			while (it.hasNext()) {
 
 				Wall wall = it.next();
-
-				int wallScreenY = (wall.getRect().y - suki.getGamePos().y) + (screenHeight / 2);
 				int wallScreenX = (wall.getRect().x - suki.getGamePos().x) + (screenWidth / 2);
-
-				// System.out.println("wallScreenX: " + wallScreenX + " wallScreenY: " + wallScreenY);
-				g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wall.getImage().getWidth(), wall.getImage().getHeight(), this);
+				int wallScreenY = (wall.getRect().y - suki.getGamePos().y) + (screenHeight / 2);
+				int wallWidth = wall.getRect().width;
+				int wallHeight = wall.getRect().height;
+				
+				// Ensure alignment between rectangle and image
+				g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wallWidth, wallHeight, this);
 			}
 			for (Triangle tri : currentMap.getTriWalls()) {
 				Point[] vertices = tri.getVertices();
@@ -392,8 +398,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			for (Cow cow : currentMap.getCows()) {
 				// Translate the cow's in-game position to screen coordinates
-				int cowScreenX = (cow.getGamePos().x - suki.getGamePos().x) + (screenWidth / 2);
-				int cowScreenY = (cow.getGamePos().y - suki.getGamePos().y) + (screenHeight / 2);
+				int cowScreenX = (cow.getGamePos().x - suki.getGamePos().x) + ((screenWidth / 2));
+				int cowScreenY = (cow.getGamePos().y - suki.getGamePos().y) + ((screenHeight / 2));
 
 				// Draw the cow image or placeholder
 				BufferedImage cowImage = cow.getImage();
@@ -516,16 +522,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			Rectangle futureHitbox = new Rectangle(suki.getHitboxM());
 			futureHitbox.translate(moveX, moveY);
 
-			Iterator<Wall> it = currentMap.getRectWalls().iterator();
-			while (it.hasNext()) {
-				checkCollision(it.next());
-			}
-			Iterator<Triangle> itr = currentMap.getTriWalls().iterator();
-			while (itr.hasNext()) {
-				checkCollision(itr.next());
-			}
-
-
 			// Check for collisions with rectangular walls
 			boolean collision = false;
 			for (Wall wall : currentMap.getRectWalls()) {
@@ -539,7 +535,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			if (!collision) {
 				// System.out.printf("no collision");
 				suki.move(moveX, moveY);
-
+				// System.out.println("moving");
 				// center player
 				suki.getHitboxC().x = (screenWidth / 2) - (suki.getHitboxC().width / 2);
 				suki.getHitboxC().y = (screenHeight / 2) - (suki.getHitboxC().height / 2);
@@ -548,13 +544,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				currentMap.setTLLocation(
 						new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
 
-				// for (Wall w : currentMap.getRectWalls()) {
-				// 	w.setGamePos(w.getRect().x - moveX, w.getRect().y - moveY);
+				// for (Cow cow : currentMap.getCows()) {
+				// cow.setMapPos(cow.getMapPos().x - moveX, cow.getMapPos().y - moveY);
 				// }
-
-				for (Cow cow : currentMap.getCows()) {
-					cow.setMapPos(cow.getMapPos().x - moveX, cow.getMapPos().y - moveY);
-				}
 
 				for (Triangle tri : currentMap.getTriWalls()) {
 					for (Point vertex : tri.getVertices()) {
@@ -728,22 +720,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		// game screen
 		if (screen == 5) {
-			Rectangle wallRect = wall.getRect();
-			Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y, (int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+			Rectangle wallRect = new Rectangle(wall.getRect().x, wall.getRect().y, wall.getImage().getWidth(), wall.getImage().getHeight());
+			System.out.println(wallRect);
+			Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y,
+					(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+			System.out.println(playerRect);
+			// System.out.println();
 			// check if player touches wall
-			if (suki.getHitboxM().intersects(wallRect)) {
+			if (playerRect.intersects(wallRect)) {
 				System.out.println("Ow!");
-			
+
 				// stop the player from moving
 				double left1 = playerRect.getX();
 				double right1 = playerRect.getX() + playerRect.getWidth();
 				double top1 = playerRect.getY();
 				double bottom1 = playerRect.getY() + playerRect.getHeight();
-				
+
 				double left2 = wallRect.x;
-				double right2 = wallRect.x + wall.getRect().getWidth();
+				double right2 = wallRect.x + wallRect.getWidth();
 				double top2 = wallRect.y;
-				double bottom2 = wallRect.y + wall.getRect().getHeight();
+				double bottom2 = wallRect.y + wallRect.getHeight();
 
 				if (right1 > left2 &&
 						left1 < left2 &&
@@ -753,9 +749,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					currentMap.setTLLocation(
 							new Point(currentMap.getTLLocation().x + suki.getSpeed(), currentMap.getTLLocation().y));
 					// stop movement for walls when collision happens
-					for (Wall w : currentMap.getRectWalls()) {
-						w.setGamePos(w.getRect().x + suki.getSpeed(), w.getRect().y);
-					}
+					// for (Wall w : currentMap.getRectWalls()) {
+					// w.setGamePos(w.getRect().x + suki.getSpeed(), w.getRect().y);
+					// }
 					// stop movement for cows when collision occurs
 					for (Cow cow : currentMap.getCows()) {
 						cow.setMapPos(cow.getMapPos().x + suki.getSpeed(), cow.getMapPos().y);
@@ -766,6 +762,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						tri.getVertices()[1].x += suki.getSpeed();
 						tri.getVertices()[2].x += suki.getSpeed();
 					}
+					suki.setGameX((int) (suki.getGamePos().x - suki.getSpeed()));
 				} else if (left1 < right2 &&
 						right1 > right2 &&
 						right2 - left1 < bottom1 - top2 &&
@@ -773,9 +770,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					// player collides from right side of the wall
 					currentMap.setTLLocation(
 							new Point(currentMap.getTLLocation().x - suki.getSpeed(), currentMap.getTLLocation().y));
-					for (Wall w : currentMap.getRectWalls()) {
-						w.setGamePos(w.getRect().x - suki.getSpeed(), w.getRect().y);
-					}
+					// for (Wall w : currentMap.getRectWalls()) {
+					// w.setGamePos(w.getRect().x - suki.getSpeed(), w.getRect().y);
+					// }
 					for (Cow cow : currentMap.getCows()) {
 						cow.setMapPos(cow.getMapPos().x - suki.getSpeed(), cow.getMapPos().y);
 					}
@@ -785,13 +782,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						tri.getVertices()[1].x -= suki.getSpeed();
 						tri.getVertices()[2].x -= suki.getSpeed();
 					}
+					suki.setGameX((int) (suki.getGamePos().x) + suki.getSpeed());
 				} else if (bottom1 > top2 && top1 < top2) {
 					// player collides from top side of the wall
 					currentMap.setTLLocation(
 							new Point(currentMap.getTLLocation().x, currentMap.getTLLocation().y + suki.getSpeed()));
-					for (Wall w : currentMap.getRectWalls()) {
-						w.setGamePos(w.getRect().x, w.getRect().y + suki.getSpeed());
-					}
+					// for (Wall w : currentMap.getRectWalls()) {
+					// w.setGamePos(w.getRect().x, w.getRect().y + suki.getSpeed());
+					// }
 					for (Cow cow : currentMap.getCows()) {
 						cow.setMapPos(cow.getMapPos().x, cow.getMapPos().y + suki.getSpeed());
 					}
@@ -801,13 +799,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						tri.getVertices()[1].y += suki.getSpeed();
 						tri.getVertices()[2].y += suki.getSpeed();
 					}
+					suki.setGameY((int) (suki.getGamePos().y - suki.getSpeed()));
 				} else if (top1 < bottom2 && bottom1 > bottom2) {
 					// player collides from bottom side of the wall
 					currentMap.setTLLocation(
 							new Point(currentMap.getTLLocation().x, currentMap.getTLLocation().y - suki.getSpeed()));
-					for (Wall w : currentMap.getRectWalls()) {
-						w.setGamePos(w.getRect().x, w.getRect().y - suki.getSpeed());
-					}
+					// for (Wall w : currentMap.getRectWalls()) {
+					// w.setGamePos(w.getRect().x, w.getRect().y - suki.getSpeed());
+					// }
 					for (Cow cow : currentMap.getCows()) {
 						cow.setMapPos(cow.getMapPos().x, cow.getMapPos().y - suki.getSpeed());
 					}
@@ -816,8 +815,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						tri.getVertices()[0].y -= suki.getSpeed();
 						tri.getVertices()[1].y -= suki.getSpeed();
 						tri.getVertices()[2].y -= suki.getSpeed();
-
 					}
+					suki.setGameY((int) (suki.getGamePos().y + suki.getSpeed()));
 				}
 			}
 		}
@@ -916,7 +915,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		// Adjust rectangular wall positions
 		// for (Wall w : currentMap.getRectWalls()) {
-		// 	w.setGamePos(w.getRect().x + roundedDx, w.getRect().y + roundedDy);
+		// w.setGamePos(w.getRect().x + roundedDx, w.getRect().y + roundedDy);
 		// }
 
 		// Adjust cow positions

@@ -1,3 +1,5 @@
-	for (Wall w : currentMap.getRectWalls()) {
-						w.setGamePos(w.getRect().x, w.getRect().y - suki.getSpeed());
+					for (Triangle tri : currentMap.getTriWalls()) {
+						tri.getVertices()[0].x += suki.getSpeed();
+						tri.getVertices()[1].x += suki.getSpeed();
+						tri.getVertices()[2].x += suki.getSpeed();
 					}
