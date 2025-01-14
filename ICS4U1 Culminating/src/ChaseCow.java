@@ -222,6 +222,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			cowImage = ImageIO.read(getClass().getResource("/sprites/baseCow.png"));
 			System.out.println("Loaded cow image");
 			initializeMaps();
+			currentMap = maps.get(0);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -283,11 +284,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	public void initializeMaps() throws IOException{
 		// Create and add FloorMap objects to the maps list
-		BufferedReader b = new BufferedReader(new FileReader("/map files/mapInfo.txt"));
+		BufferedReader b = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/map files/mapInfo.txt")));
 		try{
 			int numMaps = Integer.parseInt(b.readLine());
 			for(int i = 0; i < numMaps; i++){
 				int mapID = Integer.parseInt(b.readLine());
+				System.out.println("a");
 				System.out.println("Loading map " + mapID);
 				String bgPath = b.readLine();
 				BufferedImage bg = ImageIO.read(getClass().getResource(bgPath));
@@ -913,8 +915,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// game screen
 		if (screen == 5) {
 
-			Rectangle wallRect = new Rectangle(wall.getRect().x, wall.getRect().y, wall.getImage().getWidth(),
-					wall.getImage().getHeight());
+			Rectangle wallRect = new Rectangle(wall.getRect().x, wall.getRect().y, wall.getRect().width,
+					wall.getRect().height);
 			Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 					(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 			// System.out.println();
@@ -1030,7 +1032,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void handleTriCollision(Triangle wall, Line[] sides, Point[] vertices) {
-		final double EPSILON = 1e-6; // small buffer to push the player out of the triangle more
+		final double EPSILON = 1e-4; // small buffer to push the player out of the triangle more
 		for (Point p : vertices) {
 			if (wall.containsPoint(p)) {
 				double minDist = Double.MAX_VALUE;
