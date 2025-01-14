@@ -63,9 +63,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap;
 	ArrayList<FloorMap> maps = new ArrayList<>();
+	HashMap<Integer, FloorMap> mapKey = new HashMap<>();
 	String[] cowNames = {
 			"baseCow",
-			"paceCow",
 			"spaceCow",
 			"wasteCow"
 	};
