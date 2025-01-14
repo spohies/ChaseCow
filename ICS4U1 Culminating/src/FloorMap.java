@@ -3,30 +3,49 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class FloorMap {
+    int mapID;
     private Point TLLocation;
     HashSet<Wall> rectWalls;
+    TreeSet<Wall> innerWalls;
     HashSet<Triangle> triWalls;
     HashSet<Cow> cows;
     ArrayList<Weapon> weapons;
     ArrayList<Collectible> collectibles;
     NPC npc;
     BufferedImage bg;
-    private Rectangle[] doors;
+    ArrayList<Door> doors;
     private Point[] cowLocations;
 
-    public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
-            Rectangle[] doors, HashSet<Cow> cows, NPC npc, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles ) {
+    public FloorMap(int mapID, Point TLLocation, BufferedImage bg, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls) {
+        this.mapID = mapID;
         this.TLLocation = TLLocation;
-        this.cows = cows;
         this.bg = bg;
+        this.npc = npc;
+        this.cows = new HashSet<>();
+        this.doors = new ArrayList<>();
         this.rectWalls = rectWalls;
         this.triWalls = triWalls;
+        this.innerWalls = new TreeSet<>();
+        this.weapons = new ArrayList<>();
+        this.collectibles = new ArrayList<>();
+        this.weapons = new ArrayList<>();
+        this.collectibles = new ArrayList<>();
+    }
+
+    public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, TreeSet<Wall> innerWalls, BufferedImage bg,
+            ArrayList<Door> doors, HashSet<Cow> cows, NPC npc, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles) {
+        this.TLLocation = TLLocation;
+        this.rectWalls = rectWalls;
+        this.triWalls = triWalls;
+        this.innerWalls = innerWalls;
+        this.bg = bg;
         this.doors = doors;
-        this.weapons = weapons;
-        this.collectibles = collectibles;
+        this.cows = cows;
         if (npc != null) {
             this.npc = npc;
         }
+        this.weapons = weapons;
+        this.collectibles = collectibles;
     }
 
     public void updateCows(Player player) {
@@ -49,14 +68,6 @@ public class FloorMap {
                 iterator.remove();
             }
         }
-    }
-
-    public Point getTLLocation() {
-        return TLLocation;
-    }
-
-    public void setTLLocation(Point TLLocation) {
-        this.TLLocation = TLLocation;
     }
 
     public HashSet<Triangle> getTriWalls() {
@@ -105,5 +116,12 @@ public class FloorMap {
         return bg;
     }
 
+    public Point getTLLocation() {
+        return TLLocation;
+    }
+
+    public void setTLLocation(Point TLLocation) {
+        this.TLLocation = TLLocation;
+    }
     
 }

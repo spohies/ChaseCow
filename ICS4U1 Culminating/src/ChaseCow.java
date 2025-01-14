@@ -105,7 +105,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	public void initialize() {
+	public void initialize() throws IOException{
 
 		try {
 			titleScreenBG = ImageIO.read(getClass().getResource("/menu/titleBG.png"));
@@ -117,6 +117,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				cowImages.add(cowImage);
 				System.out.println("Loaded cow image: " + cowPath);
 			}
+
 
 			// screen 0 (main menu)
 			title = ImageIO.read(getClass().getResource("/menu/title.png"));
@@ -197,7 +198,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			// TO BE CHANGE TO ACTUAL LOCATIONS
 			tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new Point(7300, 100)));
 			tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new Point(7510, 700)));
-			currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, tempBG, new Rectangle[0],
+			currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, null, tempBG, null,
 					electricalCows, npc, weapons, items);
 
 			// playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
@@ -220,12 +221,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			System.out.println("Loaded player image");
 			cowImage = ImageIO.read(getClass().getResource("/sprites/baseCow.png"));
 			System.out.println("Loaded cow image");
+			initializeMaps();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		initializeMaps();
 		// spawnCows();
 	}
 
@@ -280,8 +281,40 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	private void initializeMaps() {
+	public void initializeMaps() throws IOException{
 		// Create and add FloorMap objects to the maps list
+		BufferedReader b = new BufferedReader(new FileReader("/map files/mapInfo.txt"));
+		try{
+			int numMaps = Integer.parseInt(b.readLine());
+			for(int i = 0; i < numMaps; i++){
+				int mapID = Integer.parseInt(b.readLine());
+				System.out.println("Loading map " + mapID);
+				String bgPath = b.readLine();
+				BufferedImage bg = ImageIO.read(getClass().getResource(bgPath));
+				HashSet<Wall> rectWalls = new HashSet<>();
+				int numRectWalls = Integer.parseInt(b.readLine());
+				for(int j = 0; j < numRectWalls; j++){
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					rectWalls.add(new Wall(null, new Rectangle(tlPoint.x, tlPoint.y, Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()))));
+				}
+				int numTriWalls = Integer.parseInt(b.readLine());
+				HashSet<Triangle> triWalls = new HashSet<>();
+				for(int j = 0; j < numTriWalls; j++){
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point[] vertices = new Point[3];
+					for(int k = 0; k < 3; k++){
+						vertices[k] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					}
+					triWalls.add(new Triangle(vertices[0], vertices[1], vertices[2]));
+				}
+				maps.add(new FloorMap(mapID, new Point(0, 0), bg, rectWalls, triWalls));
+				System.out.println("Loaded map " + mapID);
+			}
+		} catch(NumberFormatException e){
+			System.out.println("Error reading map info file");
+		}
+		b.close();
 	}
 
 	public double getNPCDistance(Player suki, NPC npc) {

@@ -5,10 +5,12 @@ import java.awt.*;
 
 public class Wall {
 
+    private Point TLLocation;
     private BufferedImage image;
     private Rectangle rect;
     
     public Wall (BufferedImage image, Rectangle rect) {
+        this.TLLocation = new Point(rect.x, rect.y);
         this.image = image;
         this.rect = rect;
 
@@ -21,6 +23,10 @@ public class Wall {
 
     public void setImage(BufferedImage image) {
         this.image = image;
+    }
+
+    public void setTLLocation(Point tl) {
+        this.TLLocation = tl;
     }
 
     public Rectangle getRect() {
