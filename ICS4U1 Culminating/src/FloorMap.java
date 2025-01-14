@@ -7,22 +7,23 @@ public class FloorMap {
     HashSet<Wall> rectWalls;
     HashSet<Triangle> triWalls;
     HashSet<Cow> cows;
-    ArrayList<Item> items;
+    ArrayList<Weapon> weapons;
+    ArrayList<Collectible> collectibles;
     NPC npc;
     BufferedImage bg;
     private Rectangle[] doors;
     private Point[] cowLocations;
 
     public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, BufferedImage bg,
-            Rectangle[] doors, HashSet<Cow> cows, NPC npc, ArrayList<Item> items) {
+            Rectangle[] doors, HashSet<Cow> cows, NPC npc, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles ) {
         this.TLLocation = TLLocation;
         this.cows = cows;
-        items = new ArrayList<>();
         this.bg = bg;
         this.rectWalls = rectWalls;
         this.triWalls = triWalls;
         this.doors = doors;
-        this.items = items;
+        this.weapons = weapons;
+        this.collectibles = collectibles;
         if (npc != null) {
             this.npc = npc;
         }
@@ -82,13 +83,23 @@ public class FloorMap {
         this.cows = cows;
     }
 
-    public ArrayList<Item> getItems() {
-        return items;
+    public ArrayList<Weapon> getWeapons() {
+        return weapons;
     }
 
-    public void setItems(ArrayList<Item> items) {
-        this.items = items;
+    public ArrayList<Collectible> getItems() {
+        return collectibles;
     }
+
+    public void removeItem(Weapon weapon) {
+        weapons.remove(weapon);
+    }
+
+    // overloaded method
+    public void removeItem(Collectible i) {
+        collectibles.remove(i);
+    }
+
 
     public BufferedImage getBG() {
         return bg;
