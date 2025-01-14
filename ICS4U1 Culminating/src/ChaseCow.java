@@ -192,7 +192,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
 			ArrayList<Weapon> weapons = new ArrayList<>();
 			ArrayList<Collectible> items = new ArrayList<>();
-			Weapon tempWeapon = new Weapon("stick", "use to attack", 50, 3, stickImage, new Point(7400, 370));
+			Weapon tempWeapon = new Weapon("stick", "use to attack", 80, 30, stickImage, new Point(7400, 370));
 			weapons.add(tempWeapon);
 			// TO BE CHANGE TO ACTUAL LOCATIONS
 			tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new Point(7300, 100)));
@@ -382,10 +382,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				Wall wall = it.next();
 				int wallScreenX = (wall.getRect().x - playerX) + (screenWidth / 2);
 				int wallScreenY = (wall.getRect().y - playerY) + (screenHeight / 2);
-				// int wallScreenX = (wall.getRect().x - suki.getGamePos().x - (int)
-				// suki.getHitboxC().getWidth()/2) + (screenWidth / 2);
-				// int wallScreenY = (wall.getRect().y - suki.getGamePos().y + (int)
-				// suki.getHitboxC().getHeight()/2) + (screenHeight / 2);
 				int wallWidth = wall.getRect().width;
 				int wallHeight = wall.getRect().height;
 
@@ -595,25 +591,108 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				currentMap.setTLLocation(
 						new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
 
-				// for (Cow cow : currentMap.getCows()) {
-				// cow.setMapPos(cow.getMapPos().x - moveX, cow.getMapPos().y - moveY);
-				// }
 
-				// for (Triangle tri : currentMap.getTriWalls()) {
-				// for (Point vertex : tri.getVertices()) {
-				// vertex.x -= moveX;
-				// vertex.y -= moveY;
-				// }
-				// }
 			}
 		}
 	}
 
+// CAN DEFINITELY TURN THE DAMAGING INTO ITS OWN METHOD I JUST HAVENT GOTTEN TO IT YET
+	public void attack() {
+		int index = suki.getEquippedItem();
+		if (index < 0 || index >= suki.getInventory().size()) {
+			System.out.println("one punch man");
+				int damage = 10; // Default unarmed damage
+				int reach = 30;  // Default unarmed reach
+			
+				Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+				while (cowIterator.hasNext()) {
+					Cow cow = cowIterator.next();
+			
+					double distance = suki.getGamePos().distance(cow.getGamePos());
+					if (distance <= reach) {
+						System.out.println("Hit cow at distance: " + distance);
+			
+						// Apply damage to the cow
+						cow.hurt(damage);
+			
+						// Apply knockback
+						knockback(cow, suki, 50); // smaller knockback for punch
+			
+						if (!cow.isAlive()) {
+							System.out.println("Cow DIE!");
+							cowIterator.remove(); // Remove dead cow from the map
+						}
+					}
+				}
+			return;
+		}
+		
+		Item equippedItem = suki.getInventory().get(suki.getEquippedItem()); 
+		int damage = 0;
+		int reach = 0;
+		if (equippedItem instanceof Weapon) {
+			Weapon weapon = (Weapon) equippedItem; // Cast to Weapon
+			System.out.println("Attacking with weapon: " + weapon.getName());
+			damage = weapon.getDamage();
+			reach = weapon.getReach();
+		} else if (equippedItem == null) {
+			System.out.println("No item equipped! punching... ");
+			damage = 10; // Default unarmed damage
+			reach = 30;
+		} else {
+			System.out.println("equipped item is not a weapon! cannot attack.");
+			return; // Abort attack
+		}
+
+        // Check for cows within range
+        Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+        while (cowIterator.hasNext()) {
+            Cow cow = cowIterator.next();
+
+            double distance = suki.getGamePos().distance(cow.getGamePos());
+            if (distance <= reach) {
+                System.out.println("hit cow at distance: " + distance);
+
+                // Apply damage to the cow
+                cow.hurt(damage);
+
+                // Apply knockback
+                knockback(cow, suki, 50); // Knockback distance is 50 units
+
+                if (!cow.isAlive()) {
+                    System.out.println("Cow DIE!");
+                    cowIterator.remove(); // Remove dead cow from the map
+                }
+            }
+        }
+    }
+
+	private void knockback(Cow cow, Player player, int knockbackDistance) {
+        Point cowPos = cow.getGamePos();
+        Point playerPos = player.getGamePos();
+
+        // Calculate knockback direction
+        double dx = cowPos.x - playerPos.x;
+        double dy = cowPos.y - playerPos.y;
+        double length = Math.sqrt(dx * dx + dy * dy);
+
+        // Normalize the direction and apply knockback
+        dx = (dx / length) * knockbackDistance;
+        dy = (dy / length) * knockbackDistance;
+
+        cow.setGamePos(cowPos.x + (int) dx, cowPos.y + (int) dy);
+    }
+
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (screen == 5) {
+            attack();
+        }
 
 	}
+
+	
 
 	/*
 	 * screen 0 = main menu

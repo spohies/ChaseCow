@@ -9,8 +9,8 @@ public class Collectible extends Item{
     private Point gamePos; 
 
 
-    public Collectible(String name, String description, boolean isComsumable, int bonusHP, BufferedImage image, Point gamePos) {    
-        super(name, description, image, gamePos);
+    public Collectible(String name, String description, boolean isComsumable, int bonusHP, BufferedImage image, Point gamePos, int reach) {    
+        super(name, description, image, gamePos, reach);
         this.isComsumable = isComsumable;
         this.bonusHP = bonusHP;
     }

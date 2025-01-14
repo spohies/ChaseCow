@@ -19,6 +19,7 @@ public class Player {
     BufferedImage playerImageUp;
     BufferedImage playerImageRight;
     BufferedImage playerImageLeft;
+    int equippedItem= 0;
 
     public Player(int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY, BufferedImage spriteDown, BufferedImage spriteUp, BufferedImage spriteRight, BufferedImage spriteLeft) throws IOException {
         this.hp = hp;
@@ -136,5 +137,9 @@ public class Player {
 
     public void addToInventory(Item item) {
         inventory.add(item);
+    }
+
+    public int getEquippedItem() {
+        return equippedItem;
     }
 }

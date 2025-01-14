@@ -5,7 +5,7 @@ class BaseCow extends Cow {
     private FloorMap currentMap;
 
     public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
-        super(10, 1, 2, x, y, image, currentMap, false, suki);
+        super(100, 1, 2, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 

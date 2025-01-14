@@ -5,12 +5,14 @@ abstract class Item {
     private BufferedImage image;
     private Point gamePos;
     private String name;
+    private int reach;
 
-    public Item(String name, String description, BufferedImage image, Point gamePos) {
+    public Item(String name, String description, BufferedImage image, Point gamePos, int reach) {
         this.name = name;
         this.description = description;
         this.image = image;
         this.gamePos = gamePos;
+        this.reach = reach;
     }
 
     public String getDescription() {
@@ -31,5 +33,9 @@ abstract class Item {
 
     public String getName() {
         return this.name;
+    }
+
+    public int getReach() {
+        return reach;
     }
 }

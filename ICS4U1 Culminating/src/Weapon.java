@@ -6,7 +6,7 @@ public class Weapon extends Item{
     private int damage;
 
     public Weapon(String name, String description, int reach, int damage, BufferedImage image, Point gamePos) {
-        super(name, description, image, gamePos);
+        super(name, description, image, gamePos, reach);
         this.reach = reach;
         this.damage = damage;
     }
