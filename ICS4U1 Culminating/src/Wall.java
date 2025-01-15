@@ -42,7 +42,11 @@ public class Wall implements Comparable<Wall> {
         System.out.println("Wall x: " + x + " y: " + y);
     }
 
-    public int compareTo(Wall other) {
-        return this.rect.y - other.rect.y;
+    public int compareTo(Wall w){ 
+        int yComparison = Integer.compare(this.rect.y, w.rect.y);
+        if (yComparison != 0) {
+            return yComparison;
+        }
+        return Integer.compare(this.rect.x, w.rect.x);
     }
 }
