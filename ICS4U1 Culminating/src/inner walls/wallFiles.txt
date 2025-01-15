@@ -1,0 +1,11 @@
+10
+/inner walls/temp.png
+/inner walls/temp.png
+/inner walls/temp.png
+/inner walls/temp.png
+/inner walls/deskSmall.png
+/inner walls/deskSmallVertical.png
+/inner walls/chairLeft.png
+/inner walls/chairRight.png
+/inner walls/chairFront.png
+/inner walls/chairBack.png

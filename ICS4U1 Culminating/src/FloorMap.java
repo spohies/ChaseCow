@@ -132,4 +132,7 @@ public class FloorMap {
         return doors;
     }
     
+    public TreeSet<Wall> getInnerWalls() {
+        return innerWalls;
+    }
 }

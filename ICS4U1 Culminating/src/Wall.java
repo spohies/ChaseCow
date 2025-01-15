@@ -3,14 +3,14 @@ import java.awt.image.BufferedImage;
 import java.awt.*;
 
 
-public class Wall {
+public class Wall implements Comparable<Wall> {
 
     private Point TLLocation;
     private BufferedImage image;
     private Rectangle rect;
     
-    public Wall (BufferedImage image, Rectangle rect) {
-        this.TLLocation = new Point(rect.x, rect.y);
+    public Wall (Point TLLocation, BufferedImage image, Rectangle rect) {
+        this.TLLocation = TLLocation;
         this.image = image;
         this.rect = rect;
 
@@ -42,4 +42,7 @@ public class Wall {
         System.out.println("Wall x: " + x + " y: " + y);
     }
 
+    public int compareTo(Wall other) {
+        return this.rect.y - other.rect.y;
+    }
 }
