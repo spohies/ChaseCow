@@ -4,28 +4,51 @@ import java.awt.*;
 public class NPC {
     Point gamePos;
     BufferedImage image;
-    static String[] dialogue;
-    static boolean itemGiven = false;
+    String[] dialogue;
+    boolean itemGiven = false;
+    String name;
+    boolean withinRange = false;
+    int currentDialogueIndex = 0;
 
-    public NPC(Point location, String[] dialogue, BufferedImage image) {
+    public NPC(String name, Point location, String[] dialogue, BufferedImage image) {
         this.gamePos = location;
         this.dialogue = dialogue;
         this.image = image;
+        this.name = name;
     }
 
     public void interact() {
         if (!itemGiven) {
-            for (int i = 0; i < dialogue.length; i++) {
-                System.out.println(dialogue[i]);
+            if (currentDialogueIndex < dialogue.length) {
+                System.out.println(dialogue[currentDialogueIndex]);
+                currentDialogueIndex++;
             }
-            itemGiven = true; // mark as interacted to prevent repeating dialogue
+            if (currentDialogueIndex == dialogue.length) {
+                itemGiven = true; // Mark as interacted after the last line
+            }
         } else {
-            System.out.println("get out of here already");
+            System.out.println("We've already spoken.");
         }
     }
+    
 
     public Point getGamePos() {
         return this.gamePos;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setWithinRange(boolean inRange) {
+        withinRange = inRange;
+    }
+
+    public boolean interactable() {
+        return withinRange;
+    }
+
+    public boolean hasFinishedDialogue() {
+        return itemGiven || currentDialogueIndex >= dialogue.length;
+    }
 }

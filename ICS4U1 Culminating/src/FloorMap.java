@@ -11,29 +11,29 @@ public class FloorMap {
     HashSet<Cow> cows;
     ArrayList<Weapon> weapons;
     ArrayList<Collectible> collectibles;
-    NPC npc;
+    ArrayList<NPC> npcs;
     BufferedImage bg;
     ArrayList<Door> doors;
     private Point[] cowLocations;
 
-    public FloorMap(int mapID, Point TLLocation, BufferedImage bg, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls) {
-        this.mapID = mapID;
-        this.TLLocation = TLLocation;
-        this.bg = bg;
-        this.npc = npc;
-        this.cows = new HashSet<>();
-        this.doors = new ArrayList<>();
-        this.rectWalls = rectWalls;
-        this.triWalls = triWalls;
-        this.innerWalls = new TreeSet<>();
-        this.weapons = new ArrayList<>();
-        this.collectibles = new ArrayList<>();
-        this.weapons = new ArrayList<>();
-        this.collectibles = new ArrayList<>();
-    }
+    // public FloorMap(int mapID, Point TLLocation, BufferedImage bg, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls) {
+    //     this.mapID = mapID;
+    //     this.TLLocation = TLLocation;
+    //     this.bg = bg;
+    //     this.npcs = npcs;
+    //     this.cows = new HashSet<>();
+    //     this.doors = new ArrayList<>();
+    //     this.rectWalls = rectWalls;
+    //     this.triWalls = triWalls;
+    //     this.innerWalls = new TreeSet<>();
+    //     this.weapons = new ArrayList<>();
+    //     this.collectibles = new ArrayList<>();
+    //     this.weapons = new ArrayList<>();
+    //     this.collectibles = new ArrayList<>();
+    // }
 
     public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, TreeSet<Wall> innerWalls, BufferedImage bg,
-            ArrayList<Door> doors, HashSet<Cow> cows, NPC npc, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles) {
+            ArrayList<Door> doors, HashSet<Cow> cows, ArrayList<NPC> npcs, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles) {
         this.TLLocation = TLLocation;
         this.rectWalls = rectWalls;
         this.triWalls = triWalls;
@@ -41,8 +41,8 @@ public class FloorMap {
         this.bg = bg;
         this.doors = doors;
         this.cows = cows;
-        if (npc != null) {
-            this.npc = npc;
+        if (npcs != null) {
+            this.npcs = npcs;
         }
         this.weapons = weapons;
         this.collectibles = collectibles;
@@ -122,6 +122,14 @@ public class FloorMap {
 
     public void setTLLocation(Point TLLocation) {
         this.TLLocation = TLLocation;
+    }
+
+    public ArrayList<NPC> getNPCs() {
+        return npcs;
+    }
+
+    public ArrayList<Door> getDoors() {
+        return doors;
     }
     
 }

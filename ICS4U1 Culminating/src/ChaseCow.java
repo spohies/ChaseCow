@@ -62,8 +62,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	Player suki;
 	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap;
-	ArrayList<FloorMap> maps = new ArrayList<>();
-	HashMap<Integer, FloorMap> mapKey = new HashMap<>();
+	// ArrayList<FloorMap> maps = new ArrayList<>();
+	HashMap<Integer, FloorMap> maps = new HashMap<>();
 	String[] cowNames = {
 			"baseCow",
 			"spaceCow",
@@ -71,7 +71,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	};
 	int currentCowType = 0;
 
+	// NPC DIALOGUE
+	// Dialogue variables
+	String currentDialogue = null; // Current line of dialogue to display
+	long dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
+	boolean dialogueActive = false; // Flag to track if dialogue is currently active
+
 	public ChaseCow() throws IOException {
+		initializeMaps();
 		initialize();
 
 		// sets up JPanel
@@ -105,7 +112,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	public void initialize() throws IOException{
+	public void initialize() throws IOException {
 
 		try {
 			titleScreenBG = ImageIO.read(getClass().getResource("/menu/titleBG.png"));
@@ -117,7 +124,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				cowImages.add(cowImage);
 				System.out.println("Loaded cow image: " + cowPath);
 			}
-
 
 			// screen 0 (main menu)
 			title = ImageIO.read(getClass().getResource("/menu/title.png"));
@@ -167,39 +173,51 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// screen 5
 			// starting room
-			HashSet<Wall> electricalWalls = new HashSet<>();
-			BufferedImage wallImage = ImageIO.read(getClass().getResource("/map files/tempWall.png"));
-			System.out.println("Loaded wall image");
-			electricalWalls
-					.add(new Wall(wallImage, new Rectangle(7300, 200, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls
-					.add(new Wall(wallImage, new Rectangle(7400, 40, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls
-					.add(new Wall(wallImage, new Rectangle(7630, 100, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls
-					.add(new Wall(wallImage, new Rectangle(7480, 150, wallImage.getWidth(), wallImage.getHeight())));
-			electricalWalls
-					.add(new Wall(wallImage, new Rectangle(7500, 350, wallImage.getWidth(), wallImage.getHeight())));
-			tempBG = ImageIO.read(getClass().getResource("/map files/FLOOR3.png"));
-			System.out.println("Loaded tempBG image");
+			// HashSet<Wall> electricalWalls = new HashSet<>();
+			// BufferedImage wallImage = ImageIO.read(getClass().getResource("/map
+			// files/tempWall.png"));
+			// System.out.println("Loaded wall image");
+			// electricalWalls
+			// .add(new Wall(wallImage, new Rectangle(7300, 200, wallImage.getWidth(),
+			// wallImage.getHeight())));
+			// electricalWalls
+			// .add(new Wall(wallImage, new Rectangle(7400, 40, wallImage.getWidth(),
+			// wallImage.getHeight())));
+			// electricalWalls
+			// .add(new Wall(wallImage, new Rectangle(7630, 100, wallImage.getWidth(),
+			// wallImage.getHeight())));
+			// electricalWalls
+			// .add(new Wall(wallImage, new Rectangle(7480, 150, wallImage.getWidth(),
+			// wallImage.getHeight())));
+			// electricalWalls
+			// .add(new Wall(wallImage, new Rectangle(7500, 350, wallImage.getWidth(),
+			// wallImage.getHeight())));
+			// tempBG = ImageIO.read(getClass().getResource("/map files/FLOOR3.png"));
+			// System.out.println("Loaded tempBG image");
 
-			HashSet<Triangle> tempWalls = new HashSet<>();
-			HashSet<Cow> electricalCows = new HashSet<>();
+			// HashSet<Triangle> tempWalls = new HashSet<>();
+			// HashSet<Cow> electricalCows = new HashSet<>();
 
 			// TEMPORARY (THERE WILL BE AN NPC ARRAYLIST)
 			BufferedImage npcImage = ImageIO.read(getClass().getResource("/sprites/npc1.png"));
-			BufferedImage stickImage = ImageIO.read(getClass().getResource("/map files/tempWeapon.png"));
-			NPC npc = new NPC(new Point(8100, 200),
+			BufferedImage stickImage = ImageIO.read(getClass().getResource("/sprites/pencil.png"));
+			NPC npc = new NPC("npc", new Point(8100, 200),
 					new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
+			ArrayList<NPC> tempNPCs = new ArrayList<>();
+			tempNPCs.add(npc);
+
 			ArrayList<Weapon> weapons = new ArrayList<>();
-			ArrayList<Collectible> items = new ArrayList<>();
+			// ArrayList<Collectible> items = new ArrayList<>();
 			Weapon tempWeapon = new Weapon("stick", "use to attack", 80, 30, stickImage, new Point(7400, 370));
 			weapons.add(tempWeapon);
 			// TO BE CHANGE TO ACTUAL LOCATIONS
-			tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new Point(7300, 100)));
-			tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new Point(7510, 700)));
-			currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, null, tempBG, null,
-					electricalCows, npc, weapons, items);
+			// tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new
+			// Point(7300, 100)));
+			// tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new
+			// Point(7510, 700)));
+			// currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, null,
+			// tempBG, null,
+			// electricalCows, tempNPCs, weapons, items);
 
 			// playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
 
@@ -208,21 +226,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			BufferedImage playerImageRight = ImageIO.read(getClass().getResource("/sprites/sukiRight.png"));
 			BufferedImage playerImageLeft = ImageIO.read(getClass().getResource("/sprites/sukiLeft.png"));
 
-			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 8000, 300, playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
-			currentMap.getCows().add(new BaseCow(8300, 200, cowImages.get(currentCowType), currentMap, suki));
-			currentMap.getCows().add(new BaseCow(7800, 300, cowImages.get(currentCowType), currentMap, suki));
-			currentMap.getCows().add(new BaseCow(7700, 400, cowImages.get(currentCowType), currentMap, suki));
-			currentMap.getCows().add(new BaseCow(8000, 350, cowImages.get(currentCowType), currentMap, suki));
-			currentMap.getCows().add(new BaseCow(7600, 200, cowImages.get(currentCowType), currentMap, suki));
-			// other images
+			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 250,
+					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
+			// currentMap.getCows().add(new BaseCow(8300, 200,
+			// cowImages.get(currentCowType), currentMap, suki));
+			// currentMap.getCows().add(new BaseCow(7800, 300,
+			// cowImages.get(currentCowType), currentMap, suki));
+			// currentMap.getCows().add(new BaseCow(7700, 400,
+			// cowImages.get(currentCowType), currentMap, suki));
+			// currentMap.getCows().add(new BaseCow(8000, 350,
+			// cowImages.get(currentCowType), currentMap, suki));
+			// currentMap.getCows().add(new BaseCow(7600, 200,
+			// cowImages.get(currentCowType), currentMap, suki));
+			// // other images
 			// tempBG = ImageIO.read(getClass().getResource("/menu/tempBG.png"));
 			// System.out.println("Loaded tempBG image");
 			playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
 			System.out.println("Loaded player image");
 			cowImage = ImageIO.read(getClass().getResource("/sprites/baseCow.png"));
 			System.out.println("Loaded cow image");
-			initializeMaps();
-			currentMap = maps.get(0);
+			// currentMap = maps.get(0);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -244,13 +267,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		if (screen == 5) {
 			// System.out.println("suki: " + suki.getGamePos());
+			// System.out.println(suki.getGamePos());
 			move();
 			keepInBound();
-			// System.out.println(suki.getGamePos());
 			if (currentMap != null) {
 				currentMap.updateCows(suki);
 			} else {
-				System.out.println("currentMap is null");
+				System.out.println("No current map is set.");
 			}
 
 			Iterator<Wall> it = currentMap.getRectWalls().iterator();
@@ -270,50 +293,133 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			checkPlayerCollisions(suki);
 
-			NPC npc = currentMap.npc; // Get the map's NPC
-			if (npc != null) {
-				double distance = getNPCDistance(suki, currentMap.npc);
-				if (distance < 75) {
-					interactable = true;
-				} else {
-					interactable = false;
+			if (currentMap.getNPCs() != null) {
+				for (NPC npc : currentMap.getNPCs()) {
+					double distance = getNPCDistance(suki, npc);
+					npc.setWithinRange(distance < 75);
 				}
 			}
+
+			for (Door door : currentMap.getDoors()) {
+				checkCollision(door);
+			}
+
 		}
 	}
 
-	public void initializeMaps() throws IOException{
+	public void initializeMaps() throws IOException {
 		// Create and add FloorMap objects to the maps list
-		BufferedReader b = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/map files/mapInfo.txt")));
-		try{
+		BufferedReader b = new BufferedReader(
+				new InputStreamReader(getClass().getResourceAsStream("/map files/mapInfo.txt")));
+		try {
 			int numMaps = Integer.parseInt(b.readLine());
-			for(int i = 0; i < numMaps; i++){
+			for (int i = 0; i < numMaps; i++) {
 				int mapID = Integer.parseInt(b.readLine());
-				System.out.println("a");
 				System.out.println("Loading map " + mapID);
 				String bgPath = b.readLine();
 				BufferedImage bg = ImageIO.read(getClass().getResource(bgPath));
 				HashSet<Wall> rectWalls = new HashSet<>();
+				TreeSet<Wall> innerWalls = new TreeSet<>();
+				HashSet<Cow> cows = new HashSet<>();
+				ArrayList<Weapon> weapons = new ArrayList<>();
+				ArrayList<Collectible> collectibles = new ArrayList<>();
+				ArrayList<NPC> npcs = new ArrayList<>();
+				ArrayList<Door> doors = new ArrayList<>();
 				int numRectWalls = Integer.parseInt(b.readLine());
-				for(int j = 0; j < numRectWalls; j++){
+				for (int j = 0; j < numRectWalls; j++) {
 					StringTokenizer st = new StringTokenizer(b.readLine());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-					rectWalls.add(new Wall(null, new Rectangle(tlPoint.x, tlPoint.y, Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()))));
+					rectWalls.add(new Wall(null, new Rectangle(tlPoint.x, tlPoint.y, Integer.parseInt(st.nextToken()),
+							Integer.parseInt(st.nextToken()))));
+					System.out.println("loaded walls");
 				}
 				int numTriWalls = Integer.parseInt(b.readLine());
 				HashSet<Triangle> triWalls = new HashSet<>();
-				for(int j = 0; j < numTriWalls; j++){
+				for (int j = 0; j < numTriWalls; j++) {
 					StringTokenizer st = new StringTokenizer(b.readLine());
 					Point[] vertices = new Point[3];
-					for(int k = 0; k < 3; k++){
+					for (int k = 0; k < 3; k++) {
 						vertices[k] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					}
 					triWalls.add(new Triangle(vertices[0], vertices[1], vertices[2]));
+					System.out.println("loaded triangles");
 				}
-				maps.add(new FloorMap(mapID, new Point(0, 0), bg, rectWalls, triWalls));
+				int numInnerWalls = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numInnerWalls; j++) {
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					String imgPath = b.readLine();
+					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
+					innerWalls.add(new Wall(img, new Rectangle(tlPoint.x, tlPoint.y, Integer.parseInt(st.nextToken()),
+							Integer.parseInt(st.nextToken()))));
+					System.out.println("loaded inside");
+				}
+				int numWeapons = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numWeapons; j++) {
+					String name = b.readLine();
+					String desc = b.readLine();
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					int reach = Integer.parseInt(st.nextToken());
+					int damage = Integer.parseInt(st.nextToken());
+					String imgPath = b.readLine();
+					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
+					StringTokenizer stk = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
+					weapons.add(new Weapon(name, desc, reach, damage, img, tlPoint));
+					System.out.println("loaded weapons");
+				}
+				int numCollectibles = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numCollectibles; j++) {
+					String name = b.readLine();
+					String desc = b.readLine();
+					int reach = Integer.parseInt(b.readLine());
+					String imgPath = b.readLine();
+					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
+					StringTokenizer stk = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
+					collectibles.add(new Collectible(name, desc, img, tlPoint, reach));
+					System.out.println("loaded collectibles");
+				}
+				int numNPCs = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numNPCs; j++) {
+					String name = b.readLine();
+					String imgPath = b.readLine();
+					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					int numDialogues = Integer.parseInt(b.readLine());
+					String[] dialogue = new String[numDialogues];
+					for (int k = 0; k < numDialogues; k++) {
+						dialogue[k] = b.readLine();
+					}
+					npcs.add(new NPC(name, tlPoint, dialogue, img));
+					System.out.println("loaded npcs");
+				}
+				int numDoors = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numDoors; j++) {
+					Integer mapDest = Integer.parseInt(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					StringTokenizer stk = new StringTokenizer(b.readLine());
+					Point exitPos = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
+					doors.add(new Door(new Rectangle(tlPoint.x, tlPoint.y, 50, 50), mapDest, exitPos));
+					System.out.println("loaded doors");
+				}
+				// maps.add(new FloorMap(mapID, new Point(0, 0), bg, rectWalls, triWalls));
+				maps.put(mapID, new FloorMap(new Point(0, 0), rectWalls, triWalls, innerWalls, bg, doors, cows, npcs,
+						weapons, collectibles));
+				int numCows = Integer.parseInt(b.readLine());
+				for (int j = 0; j < numCows; j++) {
+					StringTokenizer st = new StringTokenizer(b.readLine());
+					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+					int cowType = Integer.parseInt(st.nextToken());
+					cows.add(new BaseCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
+					System.out.println("loaded cows");
+				}
+				currentMap = maps.get(30);
 				System.out.println("Loaded map " + mapID);
 			}
-		} catch(NumberFormatException e){
+		} catch (NumberFormatException e) {
 			System.out.println("Error reading map info file");
 		}
 		b.close();
@@ -331,20 +437,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		return Math.sqrt(Math.pow(playerCenterX - npcCenterX, 2) + Math.pow(playerCenterY - npcCenterY, 2));
 	}
 
-	public void changeMap(FloorMap currentMap, int n) {
-		FloorMap m = maps.get(n);
-		// change map according to what map is next... im not sure how to do this tbh we
-		// may need to number everysingle map
-		// and add an if statement for every single one
-		// spawnCows();
-	}
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		Graphics2D g3 = (Graphics2D) g;
 		// white background
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, screenWidth, screenHeight);
 
 		// main screen
@@ -369,7 +467,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		if (screen == 5) { // Game screen
 			int playerX = suki.getGamePos().x + (int) suki.getHitboxC().getWidth() / 2;
 			int playerY = suki.getGamePos().y - (int) suki.getHitboxC().getHeight() / 2;
-			if (tempBG != null) {
+			if (currentMap.getBG() != null) {
 
 				// Visible area dimensions
 				int visibleWidth = screenWidth;
@@ -386,7 +484,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				int destHeight = srcY2 - srcY;
 
 				// Draw the background (scaled to the screen dimensions if necessary)
-				g.drawImage(tempBG,
+				g.drawImage(currentMap.getBG(),
 						0, 0, destWidth, destHeight, // Destination rectangle
 						srcX, srcY, srcX2, srcY2, // Source rectangle
 						this);
@@ -395,18 +493,22 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				System.out.println("Background image is null");
 			}
 
-			NPC npc = currentMap.npc;
-			if (npc != null) {
-				// Translate NPC's in-game position to screen coordinates
-				int npcScreenX = (npc.getGamePos().x - playerX) + ((screenWidth / 2));
-				int npcScreenY = (npc.getGamePos().y - playerY) + ((screenHeight / 2));
+			if (currentMap.getNPCs() != null) {
+				Iterator<NPC> npcIt = currentMap.getNPCs().iterator();
+				while (npcIt.hasNext()) {
+					NPC npc = npcIt.next();
+					// Translate NPC's in-game position to screen coordinates
+					int npcScreenX = (npc.getGamePos().x - playerX) + ((screenWidth / 2));
+					int npcScreenY = (npc.getGamePos().y - playerY) + ((screenHeight / 2));
 
-				// Draw NPC
-				if (npc.image != null) {
-					g.drawImage(npc.image, npcScreenX, npcScreenY, npc.image.getWidth(), npc.image.getHeight(), this);
-				} else {
-					g.setColor(Color.BLUE);
-					g.fillRect(npcScreenX, npcScreenY, 50, 50); // Placeholder
+					// Draw NPC
+					if (npc.image != null) {
+						g.drawImage(npc.image, npcScreenX, npcScreenY, npc.image.getWidth(), npc.image.getHeight(),
+								this);
+					} else {
+						g.setColor(Color.BLUE);
+						g.fillRect(npcScreenX, npcScreenY, 50, 50); // Placeholder
+					}
 				}
 			}
 
@@ -466,14 +568,40 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-			if (npc != null) {
-				double distance = getNPCDistance(suki, currentMap.npc);
+			double distance;
+			if (currentMap.getNPCs() != null) {
+				for (NPC npc : currentMap.getNPCs()) {
+					distance = getNPCDistance(suki, npc);
+					if (distance < 75) {
+						g.setColor(Color.WHITE);
+						g.fillRect(50, 550, 400, 100);
+						g.setColor(Color.BLACK);
+						g.drawString("Press SPACE to interact", 60, 570);
+					}
+					// Render dialogue box if active
+					if (dialogueActive) {
+						// Draw dialogue box with same dimensions and style as the interaction box
+						g2.setColor(Color.WHITE);
+						g2.fillRect(50, 550, 400, 100); // Same size and position as the interaction box
+						g2.setColor(Color.BLACK);
+						g2.drawRect(50, 550, 400, 100);
 
-				if (distance < 75) {
-					g.setColor(Color.WHITE);
-					g.fillRect(50, 600, 400, 100);
-					g.setColor(Color.BLACK);
-					g.drawString("Press SPACE to interact", 60, 620);
+						// Draw dialogue text inside the box
+						if (currentDialogue != null) {
+							String[] lines = currentDialogue.split("\n");
+							int yPosition = 570; // Start text slightly below the top of the box
+							for (String line : lines) {
+								g2.drawString(line, 60, yPosition); // Indent slightly from the left
+								yPosition += 20; // Spacing between lines
+							}
+						}
+
+						// Hide dialogue box after the timer expires
+						if (System.currentTimeMillis() > dialogueEndTime) {
+							dialogueActive = false;
+							currentDialogue = null;
+						}
+					}
 				}
 			}
 
@@ -492,7 +620,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					// Optionally draw item icon
 					BufferedImage image = item.getImage();
 					if (image != null) {
-						g.drawImage(image, 60, y+70, image.getWidth(), image.getHeight(), null);
+						g.drawImage(image, 60, y + 70, image.getWidth(), image.getHeight(), null);
 					}
 
 					y += 40; // Spacing between items
@@ -516,6 +644,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					g.drawImage(c.getImage(), itemScreenX, itemScreenY, c.getImage().getWidth(),
 							c.getImage().getHeight(), this);
+				}
+			}
+
+			for (Door door : currentMap.getDoors()) {
+				if (door.interactable()) {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100); // Example box size
+					g.setColor(Color.BLACK);
+					g.drawString("Press C to interact", 60, 570);
 				}
 			}
 
@@ -556,9 +693,38 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					showInventory = true;
 				}
 			}
+			if (key == KeyEvent.VK_SPACE) {
+				if (currentMap.getNPCs() != null) {
+					for (NPC npc : currentMap.getNPCs()) {
+						if (npc.interactable()) {
+							if (!npc.hasFinishedDialogue()) {
+								npc.interact();
+								// Append "Press SPACE to interact" only if there are more lines
+								if (npc.currentDialogueIndex < npc.dialogue.length) {
+									currentDialogue = npc.getName() + ": " + npc.dialogue[npc.currentDialogueIndex - 1]
+											+ "\n\nPress SPACE to interact.";
+								} else {
+									currentDialogue = npc.dialogue[npc.currentDialogueIndex - 1];
+								}
+							} else {
+								currentDialogue = "We've already spoken.";
+							}
+							dialogueActive = true;
+							dialogueEndTime = System.currentTimeMillis() + 4000; // Reset 5-second timer
+							break; // Interact with only one NPC at a time
+						}
+					}
+				}
+			}
 
-			if (interactable == true && key == KeyEvent.VK_SPACE) {
-				currentMap.npc.interact();
+			if (key == KeyEvent.VK_C) {
+				for (Door door : currentMap.getDoors()) {
+					if (door.interactable()) {
+						currentMap = maps.get(door.getMapDest());
+						suki.setGameX(door.getExitPos().x);
+						suki.setGameY(door.getExitPos().y);
+					}
+				}
 			}
 		}
 
@@ -626,43 +792,43 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				currentMap.setTLLocation(
 						new Point(currentMap.getTLLocation().x - moveX, currentMap.getTLLocation().y - moveY));
 
-
 			}
 		}
 	}
 
-// CAN DEFINITELY TURN THE DAMAGING INTO ITS OWN METHOD I JUST HAVENT GOTTEN TO IT YET
+	// CAN DEFINITELY TURN THE DAMAGING INTO ITS OWN METHOD I JUST HAVENT GOTTEN TO
+	// IT YET
 	public void attack() {
 		int index = suki.getEquippedItem();
 		if (index < 0 || index >= suki.getInventory().size()) {
 			System.out.println("one punch man");
-				int damage = 10; // Default unarmed damage
-				int reach = 30;  // Default unarmed reach
-			
-				Iterator<Cow> cowIterator = currentMap.getCows().iterator();
-				while (cowIterator.hasNext()) {
-					Cow cow = cowIterator.next();
-			
-					double distance = suki.getGamePos().distance(cow.getGamePos());
-					if (distance <= reach) {
-						System.out.println("Hit cow at distance: " + distance);
-			
-						// Apply damage to the cow
-						cow.hurt(damage);
-			
-						// Apply knockback
-						knockback(cow, suki, 50); // smaller knockback for punch
-			
-						if (!cow.isAlive()) {
-							System.out.println("Cow DIE!");
-							cowIterator.remove(); // Remove dead cow from the map
-						}
+			int damage = 10; // Default unarmed damage
+			int reach = 30; // Default unarmed reach
+
+			Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+			while (cowIterator.hasNext()) {
+				Cow cow = cowIterator.next();
+
+				double distance = suki.getGamePos().distance(cow.getGamePos());
+				if (distance <= reach) {
+					System.out.println("Hit cow at distance: " + distance);
+
+					// Apply damage to the cow
+					cow.hurt(damage);
+
+					// Apply knockback
+					knockback(cow, suki, 50); // smaller knockback for punch
+
+					if (!cow.isAlive()) {
+						System.out.println("Cow DIE!");
+						cowIterator.remove(); // Remove dead cow from the map
 					}
 				}
+			}
 			return;
 		}
-		
-		Item equippedItem = suki.getInventory().get(suki.getEquippedItem()); 
+
+		Item equippedItem = suki.getInventory().get(suki.getEquippedItem());
 		int damage = 0;
 		int reach = 0;
 		if (equippedItem instanceof Weapon) {
@@ -679,55 +845,52 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			return; // Abort attack
 		}
 
-        // Check for cows within range
-        Iterator<Cow> cowIterator = currentMap.getCows().iterator();
-        while (cowIterator.hasNext()) {
-            Cow cow = cowIterator.next();
+		// Check for cows within range
+		Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+		while (cowIterator.hasNext()) {
+			Cow cow = cowIterator.next();
 
-            double distance = suki.getGamePos().distance(cow.getGamePos());
-            if (distance <= reach) {
-                System.out.println("hit cow at distance: " + distance);
+			double distance = suki.getGamePos().distance(cow.getGamePos());
+			if (distance <= reach) {
+				System.out.println("hit cow at distance: " + distance);
 
-                // Apply damage to the cow
-                cow.hurt(damage);
+				// Apply damage to the cow
+				cow.hurt(damage);
 
-                // Apply knockback
-                knockback(cow, suki, 50); // Knockback distance is 50 units
+				// Apply knockback
+				knockback(cow, suki, 50); // Knockback distance is 50 units
 
-                if (!cow.isAlive()) {
-                    System.out.println("Cow DIE!");
-                    cowIterator.remove(); // Remove dead cow from the map
-                }
-            }
-        }
-    }
+				if (!cow.isAlive()) {
+					System.out.println("Cow DIE!");
+					cowIterator.remove(); // Remove dead cow from the map
+				}
+			}
+		}
+	}
 
 	private void knockback(Cow cow, Player player, int knockbackDistance) {
-        Point cowPos = cow.getGamePos();
-        Point playerPos = player.getGamePos();
+		Point cowPos = cow.getGamePos();
+		Point playerPos = player.getGamePos();
 
-        // Calculate knockback direction
-        double dx = cowPos.x - playerPos.x;
-        double dy = cowPos.y - playerPos.y;
-        double length = Math.sqrt(dx * dx + dy * dy);
+		// Calculate knockback direction
+		double dx = cowPos.x - playerPos.x;
+		double dy = cowPos.y - playerPos.y;
+		double length = Math.sqrt(dx * dx + dy * dy);
 
-        // Normalize the direction and apply knockback
-        dx = (dx / length) * knockbackDistance;
-        dy = (dy / length) * knockbackDistance;
+		// Normalize the direction and apply knockback
+		dx = (dx / length) * knockbackDistance;
+		dy = (dy / length) * knockbackDistance;
 
-        cow.setGamePos(cowPos.x + (int) dx, cowPos.y + (int) dy);
-    }
-
+		cow.setGamePos(cowPos.x + (int) dx, cowPos.y + (int) dy);
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (screen == 5) {
-            attack();
-        }
+			attack();
+		}
 
 	}
-
-	
 
 	/*
 	 * screen 0 = main menu
@@ -881,35 +1044,48 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	}
 
-	public void checkPlayerCollisions(Player player) {
-        // Check collectibles
+	public void checkCollision(Door door) {
 		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
-					(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
-        Iterator<Collectible> collectibleIterator = currentMap.getItems().iterator();
-        while (collectibleIterator.hasNext()) {
-            Collectible collectible = collectibleIterator.next();
-			Rectangle itemRect = new Rectangle(collectible.getGamePos().x, collectible.getGamePos().y, collectible.getImage().getWidth(), collectible.getImage().getHeight());
-            if (playerRect.intersects(itemRect)) {
-                System.out.println("Picked up");
-                
-                collectibleIterator.remove(); // Remove from map
-                player.getInventory().add(collectible); // Add to player's inventory
-                System.out.println("Picked up collectible: " + collectible.getName());
-            }
-        }
-    
-        // Check weapons
-        Iterator<Weapon> weaponIterator = currentMap.getWeapons().iterator();
-        while (weaponIterator.hasNext()) {
-            Weapon weapon = weaponIterator.next();
-            Rectangle itemRect = new Rectangle (weapon.getGamePos().x, weapon.getGamePos().y, weapon.getImage().getWidth(), weapon.getImage().getHeight());
-            if (playerRect.intersects(itemRect)) {
-                weaponIterator.remove(); // Remove from map
-                player.getInventory().add(weapon); // Add to player's inventory
-                System.out.println("Picked up weapon: " + weapon.getName());
-            }
-        }
-    }
+				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+		Rectangle doorRect = door.getDoorRect();
+		if (playerRect.intersects(doorRect)) {
+			door.setInteractable(true);
+		} else {
+			door.setInteractable(false);
+		}
+	}
+
+	public void checkPlayerCollisions(Player player) {
+		// Check collectibles
+		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+		Iterator<Collectible> collectibleIterator = currentMap.getItems().iterator();
+		while (collectibleIterator.hasNext()) {
+			Collectible collectible = collectibleIterator.next();
+			Rectangle itemRect = new Rectangle(collectible.getGamePos().x, collectible.getGamePos().y,
+					collectible.getImage().getWidth(), collectible.getImage().getHeight());
+			if (playerRect.intersects(itemRect)) {
+				System.out.println("Picked up");
+
+				collectibleIterator.remove(); // Remove from map
+				player.getInventory().add(collectible); // Add to player's inventory
+				System.out.println("Picked up collectible: " + collectible.getName());
+			}
+		}
+
+		// Check weapons
+		Iterator<Weapon> weaponIterator = currentMap.getWeapons().iterator();
+		while (weaponIterator.hasNext()) {
+			Weapon weapon = weaponIterator.next();
+			Rectangle itemRect = new Rectangle(weapon.getGamePos().x, weapon.getGamePos().y,
+					weapon.getImage().getWidth(), weapon.getImage().getHeight());
+			if (playerRect.intersects(itemRect)) {
+				weaponIterator.remove(); // Remove from map
+				player.getInventory().add(weapon); // Add to player's inventory
+				System.out.println("Picked up weapon: " + weapon.getName());
+			}
+		}
+	}
 
 	public void checkCollision(Wall wall) {
 		// game screen
