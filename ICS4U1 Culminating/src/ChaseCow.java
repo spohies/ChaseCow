@@ -577,7 +577,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawImage(wall.getImage(), (wall.getRect().x - playerX) + (screenWidth / 2), (wall.getRect().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(), wall.getImage().getHeight(), this);
 				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2), (wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 			}
-			System.out.println("walls behind:" + wallsBehind.size());
+			// System.out.println("walls behind:" + wallsBehind.size());
 			if (suki.getCurrentSprite() != null) {
 				g.drawImage(suki.getCurrentSprite(),
 						(screenWidth - suki.getHitboxC().width) / 2,
@@ -594,7 +594,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawImage(wall.getImage(), (wall.getRect().x - playerX) + (screenWidth / 2), (wall.getRect().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(), wall.getImage().getHeight(), this);
 				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2), (wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 			}
-			System.out.println("walls in front:" + wallsInFront.size());
+			// System.out.println("walls in front:" + wallsInFront.size());
 
 			if (!currentMap.getCows().isEmpty()) {
 				for (Cow cow : currentMap.getCows()) {
