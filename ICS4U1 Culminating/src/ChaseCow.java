@@ -80,8 +80,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	public ChaseCow() throws IOException {
 		importImages();
-		initializeMaps();
 		initialize();
+		initializeMaps();
 
 		// sets up JPanel
 		setPreferredSize(new Dimension(1080, 720));
@@ -118,26 +118,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		try {
 			titleScreenBG = ImageIO.read(getClass().getResource("/menu/titleBG.png"));
-			System.out.println("Loaded titleScreenBG image");
+			// System.out.println("Loaded titleScreenBG image");
 			int numCows = cowNames.length;
 			for (int i = 0; i < numCows; i++) {
 				String cowPath = "/sprites/" + cowNames[i] + ".png";
 				cowImage = ImageIO.read(getClass().getResource(cowPath));
 				cowImages.add(cowImage);
-				System.out.println("Loaded cow image: " + cowPath);
+				// System.out.println("Loaded cow image: " + cowPath);
 			}
 
 			// screen 0 (main menu)
 			title = ImageIO.read(getClass().getResource("/menu/title.png"));
-			System.out.println("Loaded title image");
+			// System.out.println("Loaded title image");
 			play = ImageIO.read(getClass().getResource("/menu/playbutton.png"));
-			System.out.println("Loaded play button image");
+			// System.out.println("Loaded play button image");
 			about = ImageIO.read(getClass().getResource("/menu/aboutbutton.png"));
-			System.out.println("Loaded about button image");
+			// System.out.println("Loaded about button image");
 			play2 = ImageIO.read(getClass().getResource("/menu/playbutton2.png"));
-			System.out.println("Loaded play button 2 image");
+			// System.out.println("Loaded play button 2 image");
 			about2 = ImageIO.read(getClass().getResource("/menu/aboutbutton2.png"));
-			System.out.println("Loaded about button 2 image");
+			// System.out.println("Loaded about button 2 image");
 			// settings = ImageIO.read(getClass().getResource("/menu/settingsbutton.png"));
 			// System.out.println("Loaded settings button image");
 			// settings2 =
@@ -287,10 +287,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				checkCollision(itr.next());
 			}
 
-			Iterator<Cow> cowItr = currentMap.getCows().iterator();
-			while (cowItr.hasNext()) {
-				Cow cow = cowItr.next();
-				checkCollision(cow);
+			if (!currentMap.getCows().isEmpty()) { 
+				Iterator<Cow> cowItr = currentMap.getCows().iterator();
+				while (cowItr.hasNext()) {
+					Cow cow = cowItr.next();
+					checkCollision(cow);
+				}
 			}
 
 			checkPlayerCollisions(suki);
@@ -399,7 +401,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					System.out.println("loaded npcs");
 				}
 				int numDoors = Integer.parseInt(b.readLine());
+				System.out.println(numDoors);
 				for (int j = 0; j < numDoors; j++) {
+					System.out.println("loading doors");
 					Integer mapDest = Integer.parseInt(b.readLine());
 					StringTokenizer st = new StringTokenizer(b.readLine());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
@@ -412,11 +416,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				maps.put(mapID, new FloorMap(new Point(0, 0), rectWalls, triWalls, innerWalls, bg, doors, cows, npcs,
 						weapons, collectibles));
 				int numCows = Integer.parseInt(b.readLine());
+				System.out.println(numCows);
 				for (int j = 0; j < numCows; j++) {
 					StringTokenizer st = new StringTokenizer(b.readLine());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					int cowType = Integer.parseInt(st.nextToken());
-					cows.add(new BaseCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
+					System.out.println(tlPoint + " " + cowType);
+					currentMap.addCow(new BaseCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
 					System.out.println("loaded cows");
 				}
 				currentMap = maps.get(30);
@@ -557,23 +563,24 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 
 			displayRoominLayers(g2, currentMap.getInnerWalls(), playerX, playerY);
-
-			for (Cow cow : currentMap.getCows()) {
-				// Translate the cow's in-game position to screen coordinates
-				int cowScreenX = (cow.getGamePos().x - playerX) + ((screenWidth / 2));
-				int cowScreenY = (cow.getGamePos().y - playerY) + ((screenHeight / 2));
-
-				// Draw the cow image or placeholder
-				BufferedImage cowImage = cow.getImage();
-				if (cowImage != null) {
-					g.drawImage(cowImage,
-							cowScreenX, cowScreenY,
-							cow.getHitbox().width, cow.getHitbox().height,
-							this);
-				} else {
-					// Placeholder if the image is missing
-					g.setColor(Color.RED);
-					g.fillRect(cowScreenX, cowScreenY, cow.getHitbox().width, cow.getHitbox().height);
+			if (!currentMap.getCows().isEmpty()) {
+				for (Cow cow : currentMap.getCows()) {
+					// Translate the cow's in-game position to screen coordinates
+					int cowScreenX = (cow.getGamePos().x - playerX) + ((screenWidth / 2));
+					int cowScreenY = (cow.getGamePos().y - playerY) + ((screenHeight / 2));
+	
+					// Draw the cow image or placeholder
+					BufferedImage cowImage = cow.getImage();
+					if (cowImage != null) {
+						g.drawImage(cowImage,
+								cowScreenX, cowScreenY,
+								cow.getHitbox().width, cow.getHitbox().height,
+								this);
+					} else {
+						// Placeholder if the image is missing
+						g.setColor(Color.RED);
+						g.fillRect(cowScreenX, cowScreenY, cow.getHitbox().width, cow.getHitbox().height);
+					}
 				}
 			}
 
@@ -928,7 +935,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					if (!cow.isAlive()) {
 						System.out.println("Cow DIE!");
-						cowIterator.remove(); // Remove dead cow from the map
+						currentMap.removeCow(cow); // Remove dead cow from the map
 					}
 				}
 			}
@@ -969,7 +976,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 				if (!cow.isAlive()) {
 					System.out.println("Cow DIE!");
-					cowIterator.remove(); // Remove dead cow from the map
+					currentMap.removeCow(cow); // Remove dead cow from the map
 				}
 			}
 		}

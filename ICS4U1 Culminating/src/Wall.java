@@ -14,7 +14,7 @@ public class Wall implements Comparable<Wall> {
         this.image = image;
         this.rect = rect;
 
-        System.out.println("Wall x: " + rect.x + " y: " + rect.y);
+        // System.out.println("Wall x: " + rect.x + " y: " + rect.y);
     }
 
     public BufferedImage getImage() {

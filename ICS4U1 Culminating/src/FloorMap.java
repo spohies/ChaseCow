@@ -135,4 +135,11 @@ public class FloorMap {
     public TreeSet<Wall> getInnerWalls() {
         return innerWalls;
     }
+
+    public void addCow(Cow cow) {
+        this.cows.add(cow);
+    }
+    public void removeCow(Cow cow) {
+        this.cows.remove(cow);
+    }
 }

@@ -1,1 +1,1 @@
- = maps.get(door.getMapDest());
+"wall
