@@ -1,4 +1,4 @@
-2
+3
 3
 /map files/FLOOR3.png
 63
@@ -144,12 +144,17 @@ Be careful… The cows ate my multimeters :(
 50 400 400 50
 0
 0
-1
+2
 Screwdriver
 A small metal screwdriver. Doesn’t do much.
 60 30
 /sprites/screwdriver.png
 75 225
+Metre Stick
+A stick for measuring metres.
+100 40
+/sprites/pencil.png
+75 325
 0
 0
 1
@@ -173,7 +178,7 @@ Sharp Pencil
 Whoever sharpened this pencil must have a really good sharpener…
 50 100
 /sprites/pencil.png
-325 325
+275 275
 0
 0
 1

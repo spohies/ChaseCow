@@ -606,25 +606,75 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 
 			if (showInventory) {
+				int boxSize = 50; // Size of each inventory box
+				int padding = 10; // Padding between boxes
+				int startX = 60; // Starting X position for the grid
+				int startY = 100; // Starting Y position for the grid
+				int cols = 6; // Number of columns in the grid
+				
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 50, 400, 400);
 				g.setColor(Color.BLACK);
 				g.drawString("Inventory", 60, 70);
 				g.drawString("Press E to close", 60, 90);
-
-				int y = 40;
-				for (Item item : suki.getInventory()) {
-					// Draw item name
-					g.drawString(item.getName(), 10, y);
-
-					// Optionally draw item icon
+				
+				
+				for (int i = 0; i < suki.getInventory().size(); i++) {
+					Item item = suki.getInventory().get(i);
+					int row = i / cols;
+					int col = i % cols;
+					int x = startX + col * (boxSize + padding);
+					int y = startY + row * (boxSize + padding);
+					
+					// Draw item box
+					g.setColor(Color.LIGHT_GRAY);
+					g.fillRect(x, y, boxSize, boxSize);
+					g.setColor(Color.BLACK);
+					g.drawRect(x, y, boxSize, boxSize);
+					
+					// Draw item icon
 					BufferedImage image = item.getImage();
 					if (image != null) {
-						g.drawImage(image, 60, y + 70, image.getWidth(), image.getHeight(), null);
+						g.drawImage(image, x + (boxSize - image.getWidth()) / 2, y + (boxSize - image.getHeight()) / 2, null);
 					}
-
-					y += 40; // Spacing between items
+					
 				}
+
+				Point mousePos = getMousePosition();
+				if (mousePos != null) {
+					for (int i = 0; i < suki.getInventory().size(); i++) {
+						Item item = suki.getInventory().get(i);
+						int row = i / cols;
+						int col = i % cols;
+						int x = startX + col * (boxSize + padding);
+						int y = startY + row * (boxSize + padding);
+
+						Rectangle itemRect = new Rectangle(x, y, boxSize, boxSize);
+						if (itemRect.contains(mousePos)) {
+							if (itemRect.contains(mousePos)) {
+								String itemName = item.getName();
+								String itemDescription = item.getDescription();
+								FontMetrics metrics = g.getFontMetrics();
+								int textWidth = Math.max(metrics.stringWidth(itemName), metrics.stringWidth(itemDescription));
+								int textHeight = metrics.getHeight() * 2;
+			
+								// Draw background box
+								g.setColor(new Color(255, 255, 255, 200)); // Semi-transparent white
+								g.fillRect(mousePos.x, mousePos.y - textHeight, textWidth + 10, textHeight + 10);
+			
+								// Draw item name and description
+								g.setColor(Color.BLACK);
+								Font originalFont = g.getFont();
+								Font boldFont = originalFont.deriveFont(Font.BOLD);
+								g.setFont(boldFont);
+								g.drawString(itemName, mousePos.x + 5, mousePos.y - textHeight + metrics.getHeight());
+								g.setFont(originalFont);
+								g.drawString(itemDescription, mousePos.x + 5, mousePos.y - textHeight + metrics.getHeight() * 2);
+							}
+						}
+					}
+				}
+				
 			}
 
 			if (currentMap.getWeapons() != null) {
@@ -720,6 +770,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			if (key == KeyEvent.VK_C) {
 				for (Door door : currentMap.getDoors()) {
 					if (door.interactable()) {
+						System.out.println(door.getMapDest());
 						currentMap = maps.get(door.getMapDest());
 						suki.setGameX(door.getExitPos().x);
 						suki.setGameY(door.getExitPos().y);
@@ -755,15 +806,30 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// game screen
 		if (screen == 5) {
 			int moveX = 0, moveY = 0;
-			if (left) {
-				moveX = -suki.getSpeed();
-			} else if (right) {
-				moveX = suki.getSpeed();
+			if (up && left) {
+				moveY = -suki.getSpeed() / 2;
+				moveX = -suki.getSpeed() / 2;
+			} else if (up && right) {
+				moveY = -suki.getSpeed() / 2;
+				moveX = suki.getSpeed() / 2;
+			} else if (down && left) {
+				moveY = suki.getSpeed() / 2;
+				moveX = -suki.getSpeed() / 2;
+			} else if (down && right) {
+				moveY = suki.getSpeed() / 2;
+				moveX = suki.getSpeed() / 2;
 			}
-			if (up) {
-				moveY = -suki.getSpeed();
-			} else if (down) {
-				moveY = suki.getSpeed();
+			else {
+				if (up) {
+					moveY = -suki.getSpeed();
+				} else if (down) {
+					moveY = suki.getSpeed();
+				}
+				if (left) {
+					moveX = -suki.getSpeed();
+				} else if (right) {
+					moveX = suki.getSpeed();
+				}
 			}
 
 			// Create a future hitbox for the player
@@ -776,6 +842,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				if (futureHitbox.intersects(wall.getRect())) {
 					collision = true;
 					break;
+				}
+			}
+
+			// Check for collisions with triangular walls
+			if (!collision) {
+				for (Triangle triangle : currentMap.getTriWalls()) {
+					if (triangle.intersects(futureHitbox) > 0) {
+						collision = true;
+						break;
+					}
 				}
 			}
 
@@ -887,7 +963,32 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (screen == 5) {
-			attack();
+			if (!showInventory) {
+				attack();
+			}
+			if (showInventory) {
+				Point mousePos = e.getPoint();
+				int boxSize = 50; // Size of each inventory box
+				int padding = 10; // Padding between boxes
+				int startX = 60; // Starting X position for the grid
+				int startY = 100; // Starting Y position for the grid
+				int cols = 6; // Number of columns in the grid
+
+				for (int i = 0; i < suki.getInventory().size(); i++) {
+					int row = i / cols;
+					int col = i % cols;
+					int x = startX + col * (boxSize + padding);
+					int y = startY + row * (boxSize + padding);
+
+					Rectangle itemRect = new Rectangle(x, y, boxSize, boxSize);
+					if (itemRect.contains(mousePos)) {
+						suki.setEquippedItem(i);
+						showInventory = false;
+						System.out.println(i + " equipped.");
+						break;
+					}
+				}
+			}
 		}
 
 	}

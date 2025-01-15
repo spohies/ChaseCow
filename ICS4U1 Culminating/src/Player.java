@@ -142,4 +142,7 @@ public class Player {
     public int getEquippedItem() {
         return equippedItem;
     }
+    public void setEquippedItem(int i) {
+        equippedItem = i;
+    }
 }

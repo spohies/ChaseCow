@@ -1,1 +1,1 @@
-ImageIO
+ = maps.get(door.getMapDest());
