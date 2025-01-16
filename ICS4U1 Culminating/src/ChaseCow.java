@@ -595,6 +595,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// Ensure alignment between rectangle and image
 				g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wallWidth, wallHeight, this);
 			}
+
 			for (Triangle tri : currentMap.getTriWalls()) {
 				Point[] vertices = tri.getVertices();
 				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
@@ -608,8 +609,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			Set<Wall> wallsBehind = currentMap.getInnerWalls()
 					.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
 			for (Wall wall : wallsBehind) {
-				g.drawImage(wall.getImage(), (wall.getRect().x - playerX) + (screenWidth / 2),
-						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
+				g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
+						(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
 						wall.getImage().getHeight(), this);
 				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
 						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
@@ -629,8 +630,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			Set<Wall> wallsInFront = currentMap.getInnerWalls()
 					.tailSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
 			for (Wall wall : wallsInFront) {
-				g.drawImage(wall.getImage(), (wall.getRect().x - playerX) + (screenWidth / 2),
-						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
+				g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
+						(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
 						wall.getImage().getHeight(), this);
 				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
 						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
@@ -911,7 +912,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		if (screen == 5) {
 			int moveX = 0, moveY = 0;
 			// Diagonal movement
-			int diagSpeed = (suki.getSpeed() / 2) + 1;
+			int diagSpeed = (suki.getSpeed() / 2);
 			if (up && left) {
 				moveY = -diagSpeed;
 				moveX = -diagSpeed;
@@ -929,8 +930,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					moveY = -suki.getSpeed();
 				} else if (down) {
 					moveY = suki.getSpeed();
-				}
-				if (left) {
+				} else if (left) {
 					moveX = -suki.getSpeed();
 				} else if (right) {
 					moveX = suki.getSpeed();
@@ -959,7 +959,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					}
 				}
 			}
-
+			
 			// Only update coordinates if no collision is detected
 			if (!collision) {
 				// System.out.printf("no collision");

@@ -25,6 +25,10 @@ public class Wall implements Comparable<Wall> {
         this.image = image;
     }
 
+    public Point getTLLocation() {
+        return TLLocation;
+    }
+
     public void setTLLocation(Point tl) {
         this.TLLocation = tl;
     }
