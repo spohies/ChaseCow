@@ -13,7 +13,7 @@ abstract class Cow {
     private boolean colliding;
 
     private long lastAttackTime = 0; // Timestamp for last attack
-    private static final int COOLDOWN = 1000; // Cooldown time in milliseconds
+    private static final int COOLDOWN = 500; // Cooldown time in milliseconds
 
     // Constructor
     public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap, boolean colliding, Player player) {

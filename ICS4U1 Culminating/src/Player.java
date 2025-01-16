@@ -93,17 +93,17 @@ public class Player {
 
         // Update sprite image based on direction
         switch (direction) {
-            case "up":
-                this.image = playerImageUp;
-                break;
-            case "down":
-                this.image = playerImageDown;
-                break;
             case "left":
                 this.image = playerImageLeft;
                 break;
             case "right":
                 this.image = playerImageRight;
+                break;
+            case "up":
+                this.image = playerImageUp;
+                break;
+            case "down":
+                this.image = playerImageDown;
                 break;
         }
     }

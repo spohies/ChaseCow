@@ -22,7 +22,6 @@ class BaseCow extends Cow {
         // Damage player if within 20 distance
         if (distance <= 20) {
             tryAttack(player);
-            return; // Skip movement if the cow is attacking
         }
 
         if (distance > 0) {
