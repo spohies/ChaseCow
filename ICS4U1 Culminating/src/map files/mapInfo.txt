@@ -1,4 +1,4 @@
-4
+6
 3
 /map files/FLOOR3.png
 63
@@ -314,3 +314,59 @@ Stick for measuring metres.
 725 825 0
 275 725 0
 75 875 0
+322
+/map files/ROOM322.png
+4
+0 0 900 50
+0 0 50 900
+0 850 900 50
+850 0 50 900
+0
+0
+0
+1
+Broom
+Great for cleaning up lab spills.
+0
+/sprites/pencil.png
+700 250
+0
+1
+800 800 50 50
+7575 225
+0
+328
+/map files/ROOM328.png
+7
+50 200 150 50
+0 0 1100 200
+950 200 100 50
+0 0 100 900
+1050 0 50 1100
+0 1850 1100 50
+850 200 100 25
+0
+0
+0
+1
+Beaker
+Fragile container to hold dangerous substances.
+0
+/sprites/beaker.png
+100 100
+1
+Mr. Mckillop
+/sprites/kim.png
+100 100
+5
+Hiiiiii! How come you haven’t left the building yet?
+Hey, since you’re here, do you happen to have a broom?
+Aayan Karmali dropped his lab equipment.
+Thank you for cleaning up after Aayan.
+Here’s a beaker in case you need it to get out of here.
+2
+1000 250
+7700 1175
+100 250
+6800 1175
+0
