@@ -19,4 +19,9 @@ public class Weapon extends Item{
         return this.damage;
     }
 
+    @Override
+    public int compareTo(Object arg0) {
+        return 0;
+    }
+
 }

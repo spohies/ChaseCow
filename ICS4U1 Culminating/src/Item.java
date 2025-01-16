@@ -1,6 +1,6 @@
 import java.awt.image.*;
 import java.awt.*;
-abstract class Item {
+abstract class Item implements Comparable{
     private String description;
     private BufferedImage image;
     private Point gamePos;
@@ -37,5 +37,17 @@ abstract class Item {
 
     public int getReach() {
         return reach;
+    }
+
+    public Rectangle getRect() {
+        return new Rectangle (gamePos.x, gamePos.y, image.getWidth(), image.getHeight());
+    }
+
+
+    public int compareTo(Item i) {
+        if (i == null) {
+            throw new NullPointerException("Compared item is null");
+        }
+        return this.name.compareTo(i.name);
     }
 }

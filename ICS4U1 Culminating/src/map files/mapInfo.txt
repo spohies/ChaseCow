@@ -82,6 +82,7 @@
 AV
 /sprites/av.png
 4870 1830
+1
 3
 The cows made a huge mess!
 I am doing AV things.
@@ -89,15 +90,18 @@ Could you find a broom so I can get to the Math office?
 Mrs. Kim
 /sprites/kim.png
 3250 2550
-5
+2
+3
 Hey, you!
 Your synthesis essay was due last week.
 You may not pass until you hand me your essay.
+2
 Excellent. What a sophisticated piece of writing.
 Off you go!
 Mr. Huang
 /sprites/huang.png
 2550 3400
+1
 1
 Be careful…The cows ate my multimeters :(
 11
@@ -332,7 +336,8 @@ Great for cleaning up lab spills.
 700 250
 0
 1
-800 800 50 50
+3
+800 800
 7575 225
 0
 328
@@ -352,21 +357,25 @@ Great for cleaning up lab spills.
 Beaker
 Fragile container to hold dangerous substances.
 0
-/sprites/beaker.png
-100 100
+/sprites/pencil.png
+300 700
 1
 Mr. Mckillop
 /sprites/kim.png
-100 100
-5
+300 300
+2
+3
 Hiiiiii! How come you haven’t left the building yet?
 Hey, since you’re here, do you happen to have a broom?
 Aayan Karmali dropped his lab equipment.
-Thank you for cleaning up after Aayan.
-Here’s a beaker in case you need it to get out of here.
 2
+Thank you for cleaning up after Aayan.
+The beaker should help you get out of here.
+2
+3
 1000 250
 7700 1175
+3
 100 250
 6800 1175
 0

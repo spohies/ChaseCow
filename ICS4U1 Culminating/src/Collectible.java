@@ -11,4 +11,13 @@ public class Collectible extends Item{
         super(name, description, image, gamePos, reach);
     }
 
+
+    @Override
+    public int compareTo(Object arg0) {
+        return 0;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
 }

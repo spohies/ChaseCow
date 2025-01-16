@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 public class Player {
     private int hp;
-    private int maxHp;
+    private int maxHp = 100;
     private int speed;
     private BufferedImage image;
     private String currentDirection; // e.g., "up", "down", "left", "right"
@@ -141,6 +141,11 @@ public class Player {
 
     public void addToInventory(Item item) {
         inventory.add(item);
+        inventory.sort(new SortByName());
+    }
+
+    public int searchInventory(String itemName) {
+        return Collections.binarySearch(inventory, new Collectible(itemName, null, null, null, 0), new SortByName());
     }
 
     public int getEquippedItem() {
@@ -150,4 +155,7 @@ public class Player {
         equippedItem = i;
     }
     
+    public int getMaxHP() {
+        return maxHp;
+    }
 }

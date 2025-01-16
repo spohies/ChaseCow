@@ -80,6 +80,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	long dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
 	boolean dialogueActive = false; // Flag to track if dialogue is currently active
 
+	boolean beakerCleaned = false;
+	int beakerWalkCount = 0;
+	boolean showBeakerMessage = false;
+
 	public ChaseCow() throws IOException {
 		importImages();
 		initialize();
@@ -103,7 +107,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	public void run() {
 		while (true) {
 			// main game loop
-			update();
+			try {
+				update();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			this.repaint();
 			try {
 				Thread.sleep(1000 / FPS);
@@ -203,17 +212,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			// HashSet<Cow> electricalCows = new HashSet<>();
 
 			// TEMPORARY (THERE WILL BE AN NPC ARRAYLIST)
-			BufferedImage npcImage = ImageIO.read(getClass().getResource("/sprites/npc1.png"));
-			BufferedImage stickImage = ImageIO.read(getClass().getResource("/sprites/pencil.png"));
-			NPC npc = new NPC("npc", new Point(8100, 200),
-					new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
-			ArrayList<NPC> tempNPCs = new ArrayList<>();
-			tempNPCs.add(npc);
+			// BufferedImage npcImage = ImageIO.read(getClass().getResource("/sprites/npc1.png"));
+			// BufferedImage stickImage = ImageIO.read(getClass().getResource("/sprites/pencil.png"));
+			// NPC npc = new NPC("npc", new Point(8100, 200),
+			// 		new String[] { "ive been here for four hours help", "PLEASE WORK I AM BEGGINGG" }, npcImage);
+			// ArrayList<NPC> tempNPCs = new ArrayList<>();
+			// tempNPCs.add(npc);
 
-			ArrayList<Weapon> weapons = new ArrayList<>();
+			// ArrayList<Weapon> weapons = new ArrayList<>();
 			// ArrayList<Collectible> items = new ArrayList<>();
-			Weapon tempWeapon = new Weapon("stick", "use to attack", 80, 30, stickImage, new Point(7400, 370));
-			weapons.add(tempWeapon);
+			// Weapon tempWeapon = new Weapon("stick", "use to attack", 80, 30, stickImage, new Point(7400, 370));
+			// weapons.add(tempWeapon);
 			// TO BE CHANGE TO ACTUAL LOCATIONS
 			// tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new
 			// Point(7300, 100)));
@@ -266,7 +275,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	// }
 
-	public void update() {
+	public void update() throws IOException {
 		// update stuff
 
 		if (screen == 5) {
@@ -339,7 +348,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-			if (suki.getHP() >= 100) {
+			if (suki.getHP() >= suki.getMaxHP()) {
 				fullHP = true;
 			} else {
 				fullHP = false;
@@ -435,10 +444,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
 					StringTokenizer st = new StringTokenizer(b.readLine());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-					int numDialogues = Integer.parseInt(b.readLine());
-					String[] dialogue = new String[numDialogues];
-					for (int k = 0; k < numDialogues; k++) {
-						dialogue[k] = b.readLine();
+					int numStates = Integer.parseInt(b.readLine());
+					String[][] dialogue = new String[numStates][];
+					for (int k = 0; k < numStates; k++) {
+						int numDialogues = Integer.parseInt(b.readLine());
+						dialogue[k] = new String[numDialogues];  // Initialize the inner array for this state
+						for (int l = 0; l < numDialogues; l++) {
+							dialogue[k][l] = b.readLine();
+						}
 					}
 					npcs.add(new NPC(name, tlPoint, dialogue, img));
 					System.out.println("loaded npcs");
@@ -681,25 +694,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			double distance;
 			if (currentMap.getNPCs() != null) {
 				for (NPC npc : currentMap.getNPCs()) {
+					g2.setFont(new Font("Dialog", Font.PLAIN, 16));
 					distance = getNPCDistance(suki, npc);
 					if (distance < 75) {
 						g.setColor(Color.WHITE);
 						g.fillRect(50, 550, 400, 100);
 						g.setColor(Color.BLACK);
-						g.drawString("Press SPACE to interact", 60, 570);
+						g.drawString("Press SPACE to interact", 60, 580);
 					}
 					// Render dialogue box if active
 					if (dialogueActive) {
 						// Draw dialogue box with same dimensions and style as the interaction box
 						g2.setColor(Color.WHITE);
-						g2.fillRect(50, 550, 400, 100); // Same size and position as the interaction box
+						g2.fillRect(50, 550, 600, 100); // Same size and position as the interaction box
 						g2.setColor(Color.BLACK);
-						g2.drawRect(50, 550, 400, 100);
+						g2.drawRect(50, 550, 600, 100);
 
 						// Draw dialogue text inside the box
 						if (currentDialogue != null) {
 							String[] lines = currentDialogue.split("\n");
-							int yPosition = 570; // Start text slightly below the top of the box
+							int yPosition = 580; // Start text slightly below the top of the box
 							for (String line : lines) {
 								g2.drawString(line, 60, yPosition); // Indent slightly from the left
 								yPosition += 20; // Spacing between lines
@@ -800,6 +814,40 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		}
 
+		if (beakerCleaned && showBeakerMessage) {
+			if (beakerWalkCount == 1) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				if (beakerWalkCount == 1) {
+					g.drawString("Sweeping. . .", 60, 570);
+					javax.swing.Timer timer = new javax.swing.Timer(3000, new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							showBeakerMessage = false;
+							beakerWalkCount++;
+							repaint();
+						}
+					});
+					timer.setRepeats(false);
+					timer.start();
+				} else {
+					g.drawString("Shattered Glass has been Sweeped.", 60, 570);
+				}
+				g.drawString("Shattered Glass has been Sweeped.", 60, 570);
+			} else {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("Shattered Glass has been Sweeped.", 60, 570);
+			}
+		} else if (!beakerCleaned && showBeakerMessage) {
+			g.setColor(Color.WHITE);
+			g.fillRect(50, 550, 400, 100);
+			g.setColor(Color.BLACK);
+			g.drawString("\"If only I had a broom...\"", 60, 570);
+		}
+
 		if (healing && !fullHP) {
 			g.setColor(Color.WHITE);
 			g.fillRect(50, 550, 400, 100);
@@ -852,20 +900,30 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				if (currentMap.getNPCs() != null) {
 					for (NPC npc : currentMap.getNPCs()) {
 						if (npc.interactable()) {
-							if (!npc.hasFinishedDialogue()) {
-								npc.interact();
-								// Append "Press SPACE to interact" only if there are more lines
-								if (npc.currentDialogueIndex < npc.dialogue.length) {
-									currentDialogue = npc.getName() + ": " + npc.dialogue[npc.currentDialogueIndex - 1]
-											+ "\n\nPress SPACE to interact.";
-								} else {
-									currentDialogue = npc.dialogue[npc.currentDialogueIndex - 1];
+							// Interact with NPC and get the current dialogue
+							npc.interact();
+
+							// Get the current dialogue set based on NPC's state
+							if (npc.state < npc.dialogues.length) {
+								// Get the current line of dialogue
+								String currentDialogueLine = npc.dialogues[npc.state][npc.currentDialogueIndex];
+
+								// Add the NPC's name and the current line of dialogue
+								currentDialogue = npc.getName() + ": " + currentDialogueLine;
+
+								// Check if there are more lines in the current dialogue set
+								if (npc.currentDialogueIndex < npc.dialogues[npc.state].length - 1) {
+									currentDialogue += "\n\nPress SPACE to interact."; // Prompt for next line
 								}
 							} else {
+								// If all dialogues are finished, display "We've already spoken."
 								currentDialogue = "We've already spoken.";
 							}
+
+							// Activate dialogue and set the timer
 							dialogueActive = true;
-							dialogueEndTime = System.currentTimeMillis() + 4000; // Reset 5-second timer
+							dialogueEndTime = System.currentTimeMillis() + 4000; // Reset 4-second timer
+
 							break; // Interact with only one NPC at a time
 						}
 					}
@@ -959,7 +1017,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					}
 				}
 			}
-			
+
 			// Only update coordinates if no collision is detected
 			if (!collision) {
 				// System.out.printf("no collision");
@@ -1260,7 +1318,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	public void checkPlayerCollisions(Player player) {
+	public void checkPlayerCollisions(Player player) throws IOException {
 		// Check collectibles
 		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
@@ -1270,11 +1328,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			Rectangle itemRect = new Rectangle(collectible.getGamePos().x, collectible.getGamePos().y,
 					collectible.getImage().getWidth(), collectible.getImage().getHeight());
 			if (playerRect.intersects(itemRect)) {
-				System.out.println("Picked up");
-
-				collectibleIterator.remove(); // Remove from map
-				player.getInventory().add(collectible); // Add to player's inventory
-				System.out.println("Picked up collectible: " + collectible.getName());
+				if (currentMap == maps.get(328)) {
+					int index = suki.searchInventory("Broom");
+					if (index >= 0) {
+						beakerCleaned = true;
+						collectible.setImage(ImageIO.read(getClass().getResource("/sprites/beaker.png")));
+						Collectible beaker = collectible;
+						System.out.println("Picked up collectible: " + collectible.getName());
+						player.getInventory().add(beaker);
+						collectibleIterator.remove();
+						beakerWalkCount++;
+					} else {
+						showBeakerMessage = true;
+					}
+				} else {
+					collectibleIterator.remove(); // Remove from map
+					player.getInventory().add(collectible); // Add to player's inventory
+					System.out.println("Picked up collectible: " + collectible.getName());
+				}
+			} else {
+				showBeakerMessage = false; // Disable the message when not near the beaker
 			}
 		}
 
