@@ -1415,32 +1415,38 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void checkCollision(Cow cow) {
-
-		final int BUFFER = 5; // Small buffer to prevent overlap
+		final int BUFFER = 1; // Small buffer to prevent re-collision
 		for (Cow cow2 : currentMap.getCows()) {
 			if (cow != cow2 && cow.getHitbox().intersects(cow2.getHitbox())) {
 				Rectangle intersection = cow.getHitbox().intersection(cow2.getHitbox());
 				int dx = intersection.width / 2 + BUFFER;
 				int dy = intersection.height / 2 + BUFFER;
-
-				if (cow.getX() < cow2.getX()) {
-					cow.setGamePos(cow.getGamePos().x - dx, cow.getGamePos().y);
-					cow2.setGamePos(cow2.getGamePos().x + dx, cow2.getGamePos().y);
-				} else {
-					cow.setGamePos(cow.getGamePos().x + dx, cow.getGamePos().y);
-					cow2.setGamePos(cow2.getGamePos().x - dx, cow2.getGamePos().y);
+	
+				// Resolve collision along x-axis
+				if (intersection.width > intersection.height) {
+					if (cow.getX() < cow2.getX()) {
+						cow.setGamePos(cow.getGamePos().x - dx, cow.getGamePos().y);
+						cow2.setGamePos(cow2.getGamePos().x + dx, cow2.getGamePos().y);
+					} else {
+						cow.setGamePos(cow.getGamePos().x + dx, cow.getGamePos().y);
+						cow2.setGamePos(cow2.getGamePos().x - dx, cow2.getGamePos().y);
+					}
 				}
-
-				if (cow.getY() < cow2.getY()) {
-					cow.setGamePos(cow.getGamePos().x, cow.getGamePos().y - dy);
-					cow2.setGamePos(cow2.getGamePos().x, cow2.getGamePos().y + dy);
-				} else {
-					cow.setGamePos(cow.getGamePos().x, cow.getGamePos().y + dy);
-					cow2.setGamePos(cow2.getGamePos().x, cow2.getGamePos().y - dy);
+	
+				// Resolve collision along y-axis
+				if (intersection.height > intersection.width) {
+					if (cow.getY() < cow2.getY()) {
+						cow.setGamePos(cow.getGamePos().x, cow.getGamePos().y - dy);
+						cow2.setGamePos(cow2.getGamePos().x, cow2.getGamePos().y + dy);
+					} else {
+						cow.setGamePos(cow.getGamePos().x, cow.getGamePos().y + dy);
+						cow2.setGamePos(cow2.getGamePos().x, cow2.getGamePos().y - dy);
+					}
 				}
 			}
 		}
 	}
+	
 
 	public static void main(String[] args) throws IOException {
 

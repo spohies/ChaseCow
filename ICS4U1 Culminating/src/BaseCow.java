@@ -11,14 +11,21 @@ class BaseCow extends Cow {
 
     @Override
     public void followPlayer(Player player) {
-        Point playerPos = new Point((player.getGamePos().x + player.getHitboxC().width / 2),
-                (player.getGamePos().y + player.getHitboxC().height / 2));
+        Point playerPos = new Point(
+                (player.getGamePos().x + player.getHitboxM().width / 2),
+                (player.getGamePos().y + player.getHitboxM().height / 2));
         Point cowPos = this.getGamePos();
         double dx = playerPos.x - cowPos.x;
         double dy = playerPos.y - cowPos.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > 0) { // so cows don't just walk over suki?
+        // Damage player if within 20 distance
+        if (distance <= 20) {
+            player.takeDamage(10);
+            return; // Skip movement if the cow is attacking
+        }
+
+        if (distance > 0) {
             // Normalize the direction vector (dx, dy)
             double directionX = dx / distance;
             double directionY = dy / distance;
@@ -38,19 +45,9 @@ class BaseCow extends Cow {
                 }
             }
 
-            // for (Cow otherCow : currentMap.getCows()) {
-            //     if (otherCow != this && futureHitbox.intersects(otherCow.getHitbox())) {
-            //        collision = true;
-            //     }
-            // }
-
             if (!collision) {
                 this.inGameMove(moveX, moveY);
-                // this.inScreenMove(moveX, moveY);
             }
-            // System.out.printf("Cow Update: InGame(%d, %d), Screen(%d, %d)\n",
-            // this.getGamePos().x, this.getGamePos().y, this.getMapPos().x,
-            // this.getMapPos().y);
         }
     }
 

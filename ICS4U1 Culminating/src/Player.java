@@ -68,7 +68,11 @@ public class Player {
     }
 
     public void takeDamage(int damage) {
-        hp -= damage;
+        this.hp -= damage;
+        System.out.println("hp: " + this.hp);
+        if (this.hp <= 0) {
+            System.out.println("suki died.");
+        }
     }
 
     public void move(int dx, int dy) {
@@ -145,4 +149,5 @@ public class Player {
     public void setEquippedItem(int i) {
         equippedItem = i;
     }
+    
 }

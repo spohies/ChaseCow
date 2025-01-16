@@ -65,7 +65,7 @@ public class FloorMap {
             }
 
             if (!cow.isAlive()) {
-                iterator.remove();
+                this.removeCow(cow);
             }
         }
     }
