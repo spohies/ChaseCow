@@ -1,1 +1,1 @@
-"wall
+currentMap == maps.get(30

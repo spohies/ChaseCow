@@ -5,7 +5,7 @@ class BaseCow extends Cow {
     private FloorMap currentMap;
 
     public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
-        super(100, 1, 2, x, y, image, currentMap, false, suki);
+        super(100, 2, 2, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 
@@ -21,7 +21,7 @@ class BaseCow extends Cow {
 
         // Damage player if within 20 distance
         if (distance <= 20) {
-            player.takeDamage(10);
+            tryAttack(player);
             return; // Skip movement if the cow is attacking
         }
 

@@ -12,6 +12,9 @@ abstract class Cow {
     private int inGameX, inGameY; // in-game coordinates
     private boolean colliding;
 
+    private long lastAttackTime = 0; // Timestamp for last attack
+    private static final int COOLDOWN = 1000; // Cooldown time in milliseconds
+
     // Constructor
     public Cow(int hp, int damage, int speed, int x, int y, BufferedImage image, FloorMap currentMap, boolean colliding, Player player) {
         this.hp = hp;
@@ -28,7 +31,28 @@ abstract class Cow {
         this.image = image;
         this.colliding = colliding;
 
-        
+        updateScreenCoords(player);
+    }
+
+      // Update screen coordinates based on player's position
+      public void updateScreenCoords(Player player) {
+        this.x = this.inGameX - player.getGamePos().x + (player.getHitboxC().width / 2);
+        this.y = this.inGameY - player.getGamePos().y + (player.getHitboxC().height / 2);
+    }
+
+    public void move(int speedX, int speedY, Player player) {
+        this.inGameX += speedX;
+        this.inGameY += speedY;
+        updateScreenCoords(player);
+    }
+
+
+    public void tryAttack(Player player) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastAttackTime >= COOLDOWN) {
+            player.takeDamage(this.damage);
+            lastAttackTime = currentTime;
+        }
     }
 
     // Getters

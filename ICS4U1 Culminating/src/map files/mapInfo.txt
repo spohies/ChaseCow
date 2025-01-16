@@ -130,7 +130,7 @@ Be careful…The cows ate my multimeters :(
 500 275
 32
 950 3450
-800 100
+100 675
 348
 250 3600
 250 275
