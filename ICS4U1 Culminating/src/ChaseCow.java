@@ -6,6 +6,8 @@ import javax.imageio.*;
 // import javax.sound.sampled.LineUnavailableException;
 // import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
+import javax.swing.Timer;
+
 import java.awt.image.*;
 
 /* 
@@ -80,19 +82,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	long dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
 	boolean dialogueActive = false; // Flag to track if dialogue is currently active
 
+	// STAGE 1
 	boolean beakerCleaned = false;
 	int beakerWalkCount = 0;
 	boolean showBeakerMessage = false;
-
 	BufferedImage spillImage;
 	boolean spillCleaned = true;
 	int spillWalkCount = 0;
 	boolean showSpillMessage = false;
 
-	boolean essayWritten = false;
+	// STAGE 2
+	boolean essayWritten = true;
 	int essayWalkCount = 0;
 	boolean showEssayMessage = false;
-	boolean essaySubmitted = false;
+	boolean essaySubmitted = true;
+
+	// STAGE 3
+	boolean chipsStolen = false;
+	boolean showLockedMessage = false;
+	BufferedImage keyImage;
+
 
 	public ChaseCow() throws IOException {
 		importImages();
@@ -253,6 +262,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			BufferedImage playerImageRight = ImageIO.read(getClass().getResource("/sprites/sukiRight.png"));
 			BufferedImage playerImageLeft = ImageIO.read(getClass().getResource("/sprites/sukiLeft.png"));
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
+			keyImage = ImageIO.read(getClass().getResource("/map files/key.png"));
 			System.out.println("spill loaded");
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 250,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
@@ -343,9 +353,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			if (currentMap == maps.get(3)) {
 				Rectangle waterFountain = new Rectangle(6500, 950, 100, 25);
+				Rectangle waterFountain2 = new Rectangle (1075, 3450, 50, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
-				if (waterFountain.intersects(playerRect)) {
+				if (waterFountain.intersects(playerRect) || waterFountain2.intersects(playerRect)) {
 					healing = true;
 				} else {
 					healing = false;
@@ -371,6 +382,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						suki.getInventory().remove(suki.searchInventory("Beaker"));
 						suki.getInventory().add(spill);
 						System.out.println("Spill cleaned.");
+						currentMap.getNPCs().get(0).setState(1);
+						currentMap.getNPCs().get(0).setCurrentDialogueIndex(0);
 						spillWalkCount++;
 					} else {
 						showSpillMessage = true;
@@ -921,6 +934,20 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 		}
 
+		if (chipsStolen) {
+			g.setColor(Color.WHITE);
+			g.fillRect(50, 550, 400, 100);
+			g.setColor(Color.BLACK);
+			g.drawString("Mr. Lee: Hey Kid! That's not for you! >:(", 60, 580);
+		}
+
+		if (showLockedMessage) {
+			g.setColor(Color.WHITE);
+			g.fillRect(50, 550, 400, 100);
+			g.setColor(Color.BLACK);
+			g.drawString("This door is locked...?", 60, 580);
+		}
+
 		if (healing && !fullHP) {
 			g.setColor(Color.WHITE);
 			g.fillRect(50, 550, 400, 100);
@@ -1040,6 +1067,28 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 							// Get the current dialogue set based on NPC's state
 							if (npc.getState() < npc.getDialogues().length) {
+								if (currentMap == maps.get(341) && npc == currentMap.getNPCs().get(0)) {
+									int index = suki.searchInventory("Meter Stick");
+									if (index < 0) {
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+									} else {
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+
+								if (currentMap == maps.get(345) && npc == currentMap.getNPCs().get(1)) {
+									int index = suki.searchInventory("Lays Classic Chips");
+									if (index < 0) {
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+									} else {
+										suki.addToInventory(new Collectible("Math Storage Key", "Key to the electrical room in Math Departmen Printing Room", keyImage, new Point(0, 0), 0));
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
 								// Get the current line of dialogue
 								String currentDialogueLine = npc.getDialogues()[npc.getState()][npc
 										.getCurrentDialogueIndex()];
@@ -1451,14 +1500,42 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void checkCollision(Door door) {
-		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
-				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
-		Rectangle doorRect = door.getDoorRect();
-		if (playerRect.intersects(doorRect)) {
-			door.setInteractable(true);
+		if (door.getMapDest() == 34) {
+			int index = suki.searchInventory("Math Storage Key");
+			if (index >= 0) {
+				door.setInteractable(true);
+			} else {
+				door.setInteractable(false);
+			}
+
+			if (!door.interactable()) {
+				showLockedMessage = true;
+			} else {
+				showLockedMessage = false;
+			}
+		} else if (door.getMapDest() == 224 && currentMap == maps.get(34)) {
+			if (suki.getInventory().get(suki.getEquippedItem()).getName() == "Screwdriver") {
+					door.setInteractable(true);
+				} else {
+					door.setInteractable(false);
+			}
+
+			if (!door.interactable()) {
+				showLockedMessage = true;
+			} else {
+				showLockedMessage = false;
+			}
 		} else {
-			door.setInteractable(false);
+			Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+					(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+			Rectangle doorRect = door.getDoorRect();
+			if (playerRect.intersects(doorRect)) {
+				door.setInteractable(true);
+			} else {
+				door.setInteractable(false);
+			}
 		}
+		
 	}
 
 	public void checkPlayerCollisions(Player player) throws IOException {
@@ -1517,6 +1594,23 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 							showEssayMessage = true;
 						}
 					}
+				} else if (currentMap == maps.get(341)) {
+						chipsStolen = true;
+						repaint();
+						Timer timer = new Timer(4000, new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								chipsStolen = false;
+								repaint();
+							}
+						});
+						timer.setRepeats(false);
+						timer.start();
+						repaint();
+					collectibleIterator.remove(); // Remove from map
+					player.getInventory().add(collectible); // Add to player's inventory
+					player.getInventory().sort(new SortByName());
+					System.out.println("Picked up collectible: " + collectible.getName());
 				} else {
 					collectibleIterator.remove(); // Remove from map
 					player.getInventory().add(collectible); // Add to player's inventory
