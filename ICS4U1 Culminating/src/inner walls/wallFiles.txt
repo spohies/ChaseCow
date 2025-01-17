@@ -1,8 +1,28 @@
-7
-/inner walls/temp.png
-/inner walls/temp.png
-/inner walls/temp.png
-/inner walls/deskSmall.png
-/inner walls/deskSmall.png
-/inner walls/deskSmallVertical.png
-/inner walls/deskSmallVertical.png
+27
+/inner walls/325labBenchF.png
+/inner walls/325labBenchB.png
+/inner walls/325labBenchL.png
+/inner walls/smallDeskSetF.png
+/inner walls/smallDeskSetB.png
+/inner walls/smallDeskSetL.png
+/inner walls/smallDeskSetR.png
+/inner walls/322labBenchB.png
+/inner walls/325labBenchR.png
+/inner walls/325labBenchL.png
+/inner walls/322labBenchF.png
+/inner walls/smallBlackChairF.png
+/inner walls/325labBenchR.png
+/inner walls/328labBenchR.png
+/inner walls/328labBenchB1.png
+/inner walls/328labBenchB2.png
+/inner walls/328labBenchF.png
+/inner walls/box.png
+/inner walls/boxTilted.png
+/inner walls/couchB.png
+/inner walls/couchL.png
+/inner walls/couchR.png
+/inner walls/doubleDeskSetL.png
+/inner walls/doubleDeskSetR.png
+/inner walls/doubleWBDeskSetL.png
+/inner walls/doubleWBDeskSetR.png
+/inner walls/FITNESSbenches.png

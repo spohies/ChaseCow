@@ -85,9 +85,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean showBeakerMessage = false;
 
 	BufferedImage spillImage;
-	boolean spillCleaned = false;
+	boolean spillCleaned = true;
 	int spillWalkCount = 0;
 	boolean showSpillMessage = false;
+
+	boolean essayWritten = false;
+	int essayWalkCount = 0;
+	boolean showEssayMessage = false;
+	boolean essaySubmitted = false;
 
 	public ChaseCow() throws IOException {
 		importImages();
@@ -373,6 +378,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				} else {
 					showSpillMessage = false;
 				}
+
+				Rectangle msKimThreshold = new Rectangle(3200, 2625, 100, 200);
+				if (msKimThreshold.intersects(playerRect) && !essaySubmitted) {
+					// stop the player from moving
+					double top1 = playerRect.getY();
+					double bottom1 = playerRect.getY() + playerRect.getHeight();
+					double top2 = msKimThreshold.y;
+					if (bottom1 > top2 && top1 < top2) {
+						// player collides from top side of the wall
+						suki.setGameY((int) (suki.getGamePos().y - suki.getSpeed()));
+					}
+				}
 			}
 
 			long lastHealTime = 0;
@@ -652,16 +669,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
 
-			for (Triangle tri : currentMap.getTriWalls()) {
-				Point[] vertices = tri.getVertices();
-				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
-						(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
-				int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
-						(vertices[1].y - playerY) + (screenHeight / 2),
-						(vertices[2].y - playerY) + (screenHeight / 2) };
-				g2.fillPolygon(xPoints, yPoints, 3);
-			}
-
 			Set<Wall> wallsBehind = currentMap.getInnerWalls()
 					.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
 			for (Wall wall : wallsBehind) {
@@ -698,6 +705,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						wall.getImage().getHeight(), this);
 				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
 						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
+			}
+			for (Triangle tri : currentMap.getTriWalls()) {
+				Point[] vertices = tri.getVertices();
+				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
+						(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
+				int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
+						(vertices[1].y - playerY) + (screenHeight / 2),
+						(vertices[2].y - playerY) + (screenHeight / 2) };
+				g2.fillPolygon(xPoints, yPoints, 3);
 			}
 			// System.out.println("walls in front:" + wallsInFront.size());
 
@@ -786,7 +802,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				int startY = 100; // Starting Y position for the grid
 				int cols = 6; // Number of columns in the grid
 
-				
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 50, 400, 400);
 				g.setColor(Color.BLACK);
@@ -918,6 +933,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawString("\"Looks like I need a broom and a container...\"", 60, 580);
 		}
 
+		if (!essayWritten && showEssayMessage && !essaySubmitted) {
+			int index = suki.searchInventory("Sharp Pencil");
+			if (index < 0) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("\"Dang... I need to find a pencil.\"", 60, 580);
+			} else {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("\"I should my essay.\"", 60, 580);
+			}
+		} else if (essayWritten && !essaySubmitted) {
+			g.setColor(Color.WHITE);
+			g.fillRect(50, 550, 400, 100);
+			g.setColor(Color.BLACK);
+			g.drawString("\"Wow! Mrs. Kim is going to love this one!\"", 60, 580);
+		}
+
 		if (healing && !fullHP) {
 			g.setColor(Color.WHITE);
 			g.fillRect(50, 550, 400, 100);
@@ -970,6 +1005,21 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				if (currentMap.getNPCs() != null) {
 					for (NPC npc : currentMap.getNPCs()) {
 						if (npc.interactable()) {
+							if (currentMap == maps.get(3) && npc == currentMap.getNPCs().get(1)) {
+								if (npc.getState() == 1 && essayWritten && !essaySubmitted) {
+									int index = suki.searchInventory("Written Essay");
+									if (index >= 0) {
+										suki.getInventory().remove(index);
+										currentMap.getNPCs().get(1).setState(2);
+										currentDialogue = "Thank you for submitting your essay!";
+										dialogueActive = true;
+										dialogueEndTime = System.currentTimeMillis() + 4000; // Reset 4-second timer
+									}
+									essaySubmitted = true;
+								} else {
+									essaySubmitted = false;
+								}
+							}
 
 							// Get the current dialogue set based on NPC's state
 							if (npc.getState() < npc.getDialogues().length) {
@@ -1415,6 +1465,29 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					} else {
 						showBeakerMessage = true;
 					}
+				} else if (currentMap == maps.get(310)) {
+					int index = suki.searchInventory("Sharp Pencil");
+					if (index >= 0) {
+						JTextArea textArea = new JTextArea(collectible.getDescription());
+						textArea.setEditable(true);
+						JScrollPane scrollPane = new JScrollPane(textArea);
+						JOptionPane.showMessageDialog(null, scrollPane, "My Synthesis Essay",
+								JOptionPane.INFORMATION_MESSAGE);
+						String input = textArea.getText();
+						if (input != null && !input.trim().isEmpty()) {
+							maps.get(3).getNPCs().get(1).setState(1);
+							Collectible essay = collectible;
+							collectible.setDescription(input);
+							collectible.setImage(ImageIO.read(getClass().getResource("/sprites/writtenEssay.png")));
+							essayWritten = true;
+							essayWalkCount++;
+							collectibleIterator.remove();
+							player.getInventory().add(essay);
+							System.out.println("Essay written.");
+						} else {
+							showBeakerMessage = true;
+						}
+					}
 				} else {
 					collectibleIterator.remove(); // Remove from map
 					player.getInventory().add(collectible); // Add to player's inventory
@@ -1423,6 +1496,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			} else {
 				showBeakerMessage = false; // Disable the message when not near the beaker
+				showEssayMessage = false; // disable essay message when not near the paper
 			}
 		}
 
