@@ -43,6 +43,9 @@ abstract class Item implements Comparable{
         return new Rectangle (gamePos.x, gamePos.y, image.getWidth(), image.getHeight());
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int compareTo(Item i) {
         if (i == null) {

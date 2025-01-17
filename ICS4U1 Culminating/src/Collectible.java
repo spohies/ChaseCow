@@ -20,4 +20,5 @@ public class Collectible extends Item{
     public void setImage(BufferedImage image) {
         this.image = image;
     }
+
 }
