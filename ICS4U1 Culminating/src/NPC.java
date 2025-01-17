@@ -75,6 +75,10 @@ public class NPC {
         this.state = i;
     }
 
+    public void setCurrentDialogueIndex(int i) {
+        this.currentDialogueIndex = i;
+    }
+
 
     // public boolean hasFinishedDialogue() {
     //     return itemGiven || currentDialogueIndex >= dialogue.length;

@@ -128,7 +128,7 @@ Be careful…The cows ate my multimeters :(
 100 425
 310
 3150 2450
-375 275
+500 225
 341
 1200 3600
 500 275
@@ -655,7 +655,7 @@ Foolscap
 Working hard or hardly working?
 0
 /sprites/pencil.png
-300 300
+300 250
 0
 1
 3

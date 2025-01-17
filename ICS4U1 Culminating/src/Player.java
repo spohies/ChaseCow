@@ -144,6 +144,10 @@ public class Player {
         inventory.sort(new SortByName());
     }
 
+    public void removeFromInventory(int index) {
+        inventory.remove(index);
+    }
+
     public int searchInventory(String itemName) {
         return Collections.binarySearch(inventory, new Collectible(itemName, null, null, null, 0), new SortByName());
     }
