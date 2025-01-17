@@ -1,4 +1,4 @@
-27
+48
 /inner walls/325labBenchF.png
 /inner walls/325labBenchB.png
 /inner walls/325labBenchL.png
@@ -26,3 +26,24 @@
 /inner walls/doubleWBDeskSetL.png
 /inner walls/doubleWBDeskSetR.png
 /inner walls/FITNESSbenches.png
+/inner walls/longDeskF.png
+/inner walls/longDeskR.png
+/inner walls/MATHSTORAGEshelf.png
+/inner walls/MATHSTORAGEshelf2.png
+/inner walls/MATHSTORAGEshelf3.png
+/inner walls/roundTable2ChairsL.png
+/inner walls/roundTable2ChairsR.png
+/inner walls/roundTable4Chairs.png
+/inner walls/smallBlackChairB.png
+/inner walls/smallBlackChairL.png
+/inner walls/smallBlackChairR.png
+/inner walls/smallDeskF.png
+/inner walls/smallDeskR.png
+/inner walls/smallDrawer.png
+/inner walls/STAFFLOUNGEcoffeeTable.png
+/inner walls/STAFFLOUNGEtableSet.png
+/inner walls/tallWBDeskSetL.png
+/inner walls/tallWBDeskSetR.png
+/inner walls/teacherDeskF.png
+/inner walls/teacherDeskR.png
+/inner walls/doubleDeskSetF.png
