@@ -965,6 +965,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.setColor(Color.BLACK);
 			g.drawString("Suki is hydrated.", 60, 580);
 		}
+
+		// Draw border walls of each map
+		if (currentMap != null) {
+			g.setColor(Color.RED); // Set color for border walls
+			for (Wall wall : currentMap.getRectWalls()) {
+					int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
+					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
+					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
+			}
+		}
 	}
 
 	@Override
@@ -1058,6 +1068,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						currentMap = maps.get(door.getMapDest());
 						suki.setGameX(door.getExitPos().x);
 						suki.setGameY(door.getExitPos().y);
+						currentMap.setTLLocation(new Point(0, 0)); 
+						up = down = left = right = false;
+
 					}
 				}
 
@@ -1123,22 +1136,23 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// Check for collisions with rectangular walls
 			boolean collision = false;
-			for (Wall wall : currentMap.getRectWalls()) {
-				if (futureHitbox.intersects(wall.getRect())) {
-					collision = true;
-					break;
-				}
-			}
+			// for (Wall wall : currentMap.getRectWalls()) {
+			// 	if (futureHitbox.intersects(wall.getRect())) {
+			// 		System.out.println(wall.getRect());
+			// 		collision = true;
+			// 		break;
+			// 	}
+			// }
 
 			// Check for collisions with triangular walls
-			if (!collision) {
-				for (Triangle triangle : currentMap.getTriWalls()) {
-					if (triangle.intersects(futureHitbox) > 0) {
-						collision = true;
-						break;
-					}
-				}
-			}
+			// if (!collision) {
+			// 	for (Triangle triangle : currentMap.getTriWalls()) {
+			// 		if (triangle.intersects(futureHitbox) > 0) {
+			// 			collision = true;
+			// 			break;
+			// 		}
+			// 	}
+			// }
 
 			// Only update coordinates if no collision is detected
 			if (!collision) {
@@ -1525,7 +1539,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			// System.out.println();
 			// check if player touches wall
 			if (playerRect.intersects(wallRect)) {
-
 				// stop the player from moving
 				double left1 = playerRect.getX();
 				double right1 = playerRect.getX() + playerRect.getWidth();
