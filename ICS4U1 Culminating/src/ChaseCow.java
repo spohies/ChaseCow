@@ -669,43 +669,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
 
-			Set<Wall> wallsBehind = currentMap.getInnerWalls()
-					.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
-			for (Wall wall : wallsBehind) {
-				g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
-						(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
-						wall.getImage().getHeight(), this);
-				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
-						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
-			}
+			drawInnerWalls(g2, playerX, playerY);
 
-			if (currentMap == maps.get(3) && !spillCleaned) {
-				int spillScreenX = (4400 - suki.getGamePos().x) + (screenWidth / 2);
-				int spillScreenY = (1900 - suki.getGamePos().y) + (screenHeight / 2);
-				g.drawImage(spillImage, spillScreenX, spillScreenY, 100, 150, this);
-			}
-
-			// System.out.println("walls behind:" + wallsBehind.size());
-			if (suki.getCurrentSprite() != null) {
-				g.drawImage(suki.getCurrentSprite(),
-						(screenWidth - suki.getHitboxC().width) / 2,
-						(screenHeight - suki.getHitboxC().height) / 2,
-						suki.getHitboxC().width,
-						suki.getHitboxC().height,
-						this);
-				// g2.fill(suki.getHitboxM());
-			} else {
-				System.out.println("Player image is null");
-			}
-			Set<Wall> wallsInFront = currentMap.getInnerWalls()
-					.tailSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
-			for (Wall wall : wallsInFront) {
-				g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
-						(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
-						wall.getImage().getHeight(), this);
-				g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
-						(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
-			}
 			for (Triangle tri : currentMap.getTriWalls()) {
 				Point[] vertices = tri.getVertices();
 				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
@@ -977,6 +942,46 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
 					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
 			}
+		}
+	}
+
+	public void drawInnerWalls(Graphics2D g, int playerX, int playerY){
+		Set<Wall> wallsBehind = currentMap.getInnerWalls()
+					.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
+		for (Wall wall : wallsBehind) {
+			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
+					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
+					wall.getImage().getHeight(), this);
+			g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
+					(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
+		}
+
+		if (currentMap == maps.get(3) && !spillCleaned) {
+			int spillScreenX = (4400 - suki.getGamePos().x) + (screenWidth / 2);
+			int spillScreenY = (1900 - suki.getGamePos().y) + (screenHeight / 2);
+			g.drawImage(spillImage, spillScreenX, spillScreenY, 100, 150, this);
+		}
+
+		// System.out.println("walls behind:" + wallsBehind.size());
+		if (suki.getCurrentSprite() != null) {
+			g.drawImage(suki.getCurrentSprite(),
+					(screenWidth - suki.getHitboxC().width) / 2,
+					(screenHeight - suki.getHitboxC().height) / 2,
+					suki.getHitboxC().width,
+					suki.getHitboxC().height,
+					this);
+			// g2.fill(suki.getHitboxM());
+		} else {
+			System.out.println("Player image is null");
+		}
+		Set<Wall> wallsInFront = currentMap.getInnerWalls()
+				.tailSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
+		for (Wall wall : wallsInFront) {
+			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
+					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
+					wall.getImage().getHeight(), this);
+			g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
+					(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 		}
 	}
 
