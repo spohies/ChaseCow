@@ -142,4 +142,8 @@ public class FloorMap {
     public void removeCow(Cow cow) {
         this.cows.remove(cow);
     }
+
+    public int getMapID() {
+        return mapID;
+    }
 }

@@ -111,6 +111,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage keyImage;
 	boolean showVentMessage = false;
 
+	// STAGE 4
+	int tissueCount = 0;
+	BufferedImage boxPileImage;
+	BufferedImage tissueImage;
+	int balconyKeyCount = 0;
+	boolean avTalkedTo = false;
+	boolean showBoxMessage = false;
+	boolean boxesMoved = false;
+	boolean showLockedBalconyMessage = false;
+	boolean showLockedLoungeMessage = false;
+	boolean showStairwellLockedMessage = false;
+
 	public ChaseCow() throws IOException {
 		importImages();
 		initialize();
@@ -278,6 +290,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
 			keyImage = ImageIO.read(getClass().getResource("/sprites/key.png"));
+			tissueImage = ImageIO.read(getClass().getResource("/sprites/tissueBox.png"));
+			boxPileImage = ImageIO.read(getClass().getResource("/map files/boxPile.png"));
 
 			System.out.println("spill loaded");
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 250,
@@ -421,6 +435,49 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			if (currentMap == maps.get(2)) {
+				Rectangle waterFountain = new Rectangle(6500, 950, 100, 25);
+				Rectangle waterFountain2 = new Rectangle(1075, 3450, 50, 25);
+				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+				if (waterFountain.intersects(playerRect) || waterFountain2.intersects(playerRect)) {
+					healing = true;
+				} else {
+					healing = false;
+				}
+
+				Rectangle boxesRect = new Rectangle(4614, 1849, 189, 198);
+				if (boxesRect.intersects(playerRect) && !boxesMoved) {
+					double left1 = playerRect.getX();
+					double right1 = playerRect.getX() + playerRect.getWidth();
+					double right2 = boxesRect.getX() + boxesRect.getWidth();
+					if (left1 < right2 && right1 > right2) {
+						// Collision from right
+						suki.setGameX(suki.getGamePos().x + suki.getSpeed());
+					}
+					if (avTalkedTo) {
+						boxesMoved = true;
+						System.out.println("Boxes moved.");
+					} else {
+						showBoxMessage = true;
+					}
+				} else {
+					showSpillMessage = false;
+				}
+
+				Rectangle msKimThreshold = new Rectangle(3200, 2625, 100, 200);
+				if (msKimThreshold.intersects(playerRect) && !essaySubmitted) {
+					// stop the player from moving
+					double top1 = playerRect.getY();
+					double bottom1 = playerRect.getY() + playerRect.getHeight();
+					double top2 = msKimThreshold.y;
+					if (bottom1 > top2 && top1 < top2) {
+						// player collides from top side of the wall
+						suki.setGameY((int) (suki.getGamePos().y - suki.getSpeed()));
+					}
+				}
+			}
+
 			long lastHealTime = 0;
 			int healCooldown = 300; // 1 second cooldown for healing
 			if (healing && !fullHP) {
@@ -446,11 +503,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		BufferedReader b = new BufferedReader(
 				new InputStreamReader(getClass().getResourceAsStream("/map files/mapInfo.txt")));
 		try {
-			int numMaps = Integer.parseInt(b.readLine());
+			int numMaps = Integer.parseInt(b.readLine().trim());
 			for (int i = 0; i < numMaps; i++) {
-				int mapID = Integer.parseInt(b.readLine());
+				int mapID = Integer.parseInt(b.readLine().trim());
 				System.out.println("Loading map " + mapID);
-				String bgPath = b.readLine();
+				String bgPath = b.readLine().trim();
 				BufferedImage bg = ImageIO.read(getClass().getResource(bgPath));
 				HashSet<Wall> rectWalls = new HashSet<>();
 				TreeSet<Wall> innerWalls = new TreeSet<>();
@@ -459,19 +516,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				ArrayList<Collectible> collectibles = new ArrayList<>();
 				ArrayList<NPC> npcs = new ArrayList<>();
 				ArrayList<Door> doors = new ArrayList<>();
-				int numRectWalls = Integer.parseInt(b.readLine());
+				int numRectWalls = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numRectWalls; j++) {
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					rectWalls.add(
 							new Wall(null, null, new Rectangle(tlPoint.x, tlPoint.y, Integer.parseInt(st.nextToken()),
 									Integer.parseInt(st.nextToken()))));
 					System.out.println("loaded walls");
 				}
-				int numTriWalls = Integer.parseInt(b.readLine());
+				int numTriWalls = Integer.parseInt(b.readLine().trim());
 				HashSet<Triangle> triWalls = new HashSet<>();
 				for (int j = 0; j < numTriWalls; j++) {
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point[] vertices = new Point[3];
 					for (int k = 0; k < 3; k++) {
 						vertices[k] = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
@@ -479,85 +536,84 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					triWalls.add(new Triangle(vertices[0], vertices[1], vertices[2]));
 					System.out.println("loaded triangles");
 				}
-				int numInnerWalls = Integer.parseInt(b.readLine());
+				int numInnerWalls = Integer.parseInt(b.readLine().trim());
 				System.out.println("number of inner walls:" + numInnerWalls);
 				for (int j = 0; j < numInnerWalls; j++) {
-					StringTokenizer str = new StringTokenizer(b.readLine());
+					StringTokenizer str = new StringTokenizer(b.readLine().trim());
 					Rectangle hitbox = new Rectangle(Integer.parseInt(str.nextToken()),
 							Integer.parseInt(str.nextToken()), Integer.parseInt(str.nextToken()),
 							Integer.parseInt(str.nextToken()));
 					System.out.println(hitbox);
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					System.out.println(tlPoint);
-					int imageIdx = Integer.parseInt(b.readLine());
+					int imageIdx = Integer.parseInt(b.readLine().trim());
 					BufferedImage img = innerWallImages[imageIdx];
 					innerWalls.add(new Wall(tlPoint, img, hitbox));
 					System.out.println("loaded inside walls");
 					System.out.println("total inner walls:" + innerWalls.size());
 				}
-				int numWeapons = Integer.parseInt(b.readLine());
+				int numWeapons = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numWeapons; j++) {
-					String name = b.readLine();
-					String desc = b.readLine();
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					String name = b.readLine().trim();
+					String desc = b.readLine().trim();
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					int reach = Integer.parseInt(st.nextToken());
 					int damage = Integer.parseInt(st.nextToken());
-					String imgPath = b.readLine();
+					String imgPath = b.readLine().trim();
 					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
-					StringTokenizer stk = new StringTokenizer(b.readLine());
+					StringTokenizer stk = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
 					weapons.add(new Weapon(name, desc, reach, damage, img, tlPoint));
 					System.out.println("loaded weapons");
 				}
-				int numCollectibles = Integer.parseInt(b.readLine());
+				int numCollectibles = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numCollectibles; j++) {
-					String name = b.readLine();
-					String desc = b.readLine();
-					int reach = Integer.parseInt(b.readLine());
-					String imgPath = b.readLine();
+					String name = b.readLine().trim();
+					String desc = b.readLine().trim();
+					int reach = Integer.parseInt(b.readLine().trim());
+					String imgPath = b.readLine().trim();
 					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
-					StringTokenizer stk = new StringTokenizer(b.readLine());
+					StringTokenizer stk = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
 					collectibles.add(new Collectible(name, desc, img, tlPoint, reach));
 					System.out.println("loaded collectibles");
 				}
-				int numNPCs = Integer.parseInt(b.readLine());
+				int numNPCs = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numNPCs; j++) {
-					String name = b.readLine();
-					String imgPath = b.readLine();
+					String name = b.readLine().trim();
+					String imgPath = b.readLine().trim();
 					BufferedImage img = ImageIO.read(getClass().getResource(imgPath));
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-					int numStates = Integer.parseInt(b.readLine());
+					int numStates = Integer.parseInt(b.readLine().trim());
 					String[][] dialogue = new String[numStates][];
 					for (int k = 0; k < numStates; k++) {
-						int numDialogues = Integer.parseInt(b.readLine());
+						int numDialogues = Integer.parseInt(b.readLine().trim());
 						dialogue[k] = new String[numDialogues]; // Initialize the inner array for this state
 						for (int l = 0; l < numDialogues; l++) {
-							dialogue[k][l] = b.readLine();
+							dialogue[k][l] = b.readLine().trim();
 						}
 					}
 					npcs.add(new NPC(name, tlPoint, dialogue, img));
 					System.out.println("loaded npcs");
 				}
-				int numDoors = Integer.parseInt(b.readLine());
-				System.out.println(numDoors);
+				int numDoors = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numDoors; j++) {
 					System.out.println("loading doors");
-					Integer mapDest = Integer.parseInt(b.readLine());
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					Integer mapDest = Integer.parseInt(b.readLine().trim());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-					StringTokenizer stk = new StringTokenizer(b.readLine());
+					StringTokenizer stk = new StringTokenizer(b.readLine().trim());
 					Point exitPos = new Point(Integer.parseInt(stk.nextToken()), Integer.parseInt(stk.nextToken()));
 					doors.add(new Door(new Rectangle(tlPoint.x, tlPoint.y, 50, 50), mapDest, exitPos));
 					System.out.println("loaded doors");
 				}
 				// maps.add(new FloorMap(mapID, new Point(0, 0), bg, rectWalls, triWalls));
-				int numCows = Integer.parseInt(b.readLine());
+				int numCows = Integer.parseInt(b.readLine().trim());
 				System.out.println("cows in " + mapID + ": " + numCows);
 				for (int j = 0; j < numCows; j++) {
-					StringTokenizer st = new StringTokenizer(b.readLine());
+					StringTokenizer st = new StringTokenizer(b.readLine().trim());
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					int cowType = Integer.parseInt(st.nextToken());
 					System.out.println(tlPoint + " " + cowType);
@@ -581,10 +637,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				new InputStreamReader(getClass().getResourceAsStream("/inner walls/wallFiles.txt")));
 		System.out.println("Found wall file");
 		try {
-			int numImages = Integer.parseInt(b.readLine());
+			int numImages = Integer.parseInt(b.readLine().trim());
 			innerWallImages = new BufferedImage[numImages];
 			for (int i = 0; i < numImages; i++) {
-				String imgPath = b.readLine();
+				String imgPath = b.readLine().trim();
 				innerWallImages[i] = ImageIO.read(getClass().getResource(imgPath));
 				System.out.println("Loaded inner wall image: " + imgPath);
 			}
@@ -609,7 +665,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		Graphics2D g3 = (Graphics2D) g;
-		// white background
+		// black background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, screenWidth, screenHeight);
 
@@ -636,18 +692,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			int playerX = suki.getGamePos().x + (int) suki.getHitboxC().getWidth() / 2;
 			int playerY = suki.getGamePos().y - (int) suki.getHitboxC().getHeight() / 2;
 			g2.setColor(Color.GREEN);
-			Iterator<Wall> it = currentMap.getRectWalls().iterator();
-			while (it.hasNext()) {
+			// Iterator<Wall> it = currentMap.getRectWalls().iterator();
+			// while (it.hasNext()) {
 
-				Wall wall = it.next();
-				int wallScreenX = (wall.getRect().x - playerX) + (screenWidth / 2);
-				int wallScreenY = (wall.getRect().y - playerY) + (screenHeight / 2);
-				int wallWidth = wall.getRect().width;
-				int wallHeight = wall.getRect().height;
+			// 	Wall wall = it.next();
+			// 	int wallScreenX = (wall.getRect().x - playerX) + (screenWidth / 2);
+			// 	int wallScreenY = (wall.getRect().y - playerY) + (screenHeight / 2);
+			// 	int wallWidth = wall.getRect().width;
+			// 	int wallHeight = wall.getRect().height;
 
-				// Ensure alignment between rectangle and image
-				g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wallWidth, wallHeight, this);
-			}
+			// 	// Ensure alignment between rectangle and image
+			// 	g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wallWidth, wallHeight, this);
+			// }
 
 			g2.setFont(new Font("Dialog", Font.PLAIN, 16));
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
@@ -667,7 +723,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				int destWidth = srcX2 - srcX;
 				int destHeight = srcY2 - srcY;
 
-				// Draw the background (scaled to the screen dimensions if necessary)
+				// Draw the background 
+				setBackground(Color.BLACK);
 				g.drawImage(currentMap.getBG(),
 						0, 0, destWidth, destHeight, // Destination rectangle
 						srcX, srcY, srcX2, srcY2, // Source rectangle
@@ -902,14 +959,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						timer.setRepeats(false);
 						timer.start();
 					} else {
-						g.drawString("Shattered Glass has been Sweeped.", 60, 580);
+						g.drawString("Shattered Glass has been sweeped.", 60, 580);
 					}
-					g.drawString("Shattered Glass has been Sweeped.", 60, 580);
+					g.drawString("Shattered Glass has been sweeped.", 60, 580);
 				} else {
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
 					g.setColor(Color.BLACK);
-					g.drawString("Shattered Glass has been Sweeped.", 60, 580);
+					g.drawString("Shattered Glass has been sweeped.", 60, 580);
 				}
 			} else if (!beakerCleaned && showBeakerMessage) {
 				g.setColor(Color.WHITE);
@@ -936,7 +993,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
 					g.setColor(Color.BLACK);
-					g.drawString("\"I should my essay.\"", 60, 580);
+					g.drawString("\"I should write my essay.\"", 60, 580);
 				}
 			} else if (essayWritten && !essaySubmitted) {
 
@@ -948,13 +1005,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			
 			if (chipsStolen) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
-				g.drawString("Mr. Lee: Hey Kid! That's not for you! >:(", 60, 580);
+				g.drawString("Mr. Lee: Hey kid! That's not for you! >:(", 60, 580);
 			}
-
+			
 			if (showLockedMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -962,12 +1020,41 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("This door is locked...?", 60, 580);
 			}
 
+			if (showLockedBalconyMessage) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("???: Help! I'm locked in here!", 60, 580);
+			}
+
+			if (showLockedLoungeMessage) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("Only teachers have the key to this room...", 60, 580);
+			}
+			
+			if (!boxesMoved && showBoxMessage) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("\"There are too many boxes, I can't move all of them myself.\"", 60, 580);
+			}
+
+			if (showStairwellLockedMessage) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("This door is locked, but it looks a little beat up...", 60, 580);
+			}
+
+
 			if (showVentMessage) {
 				System.out.println("aaaaa");
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
-				g.drawString("Looks like I need to use a screw driver", 60, 580);
+				g.drawString("Looks like I need to unscrew this to get through.", 60, 580);
 			}
 
 			if (healing && !fullHP) {
@@ -1131,8 +1218,41 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 									if (index >= 0 && chipCount == 0) {
 										chipCount++;
 										suki.addToInventory(new Collectible("Math Storage Key",
-												"Key to the electrical room in Math Departmen Printing Room", keyImage,
+												"Key to the Math Department Printing Room", keyImage,
 												new Point(0, 0), 0));
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+								if(currentMap == maps.get(224) && npc == currentMap.getNPCs().get(0)) {
+									int index = suki.searchInventory("Tissue Box");
+									if (index < 0 && tissueCount == 0) {
+										tissueCount++;
+										suki.addToInventory(new Collectible("Tissue Box", "A box of tissues Sophie & Claire delivered to Ms. Wong", tissueImage,
+												new Point(0, 0), 0));
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+								if(currentMap == maps.get(225) && npc == currentMap.getNPCs().get(0)) {
+									int index = suki.searchInventory("Tissue Box");
+									int index2 = suki.searchInventory("Staff Lounge Key");
+									if (index < 0) {
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+									} else if(index2 < 0) {
+										suki.addToInventory(new Collectible("Staff Lounge Key", "Key to the Staff Lounge", keyImage,
+												new Point(0, 0), 0));
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+								if(currentMap == maps.get(21) && npc == currentMap.getNPCs().get(0)) {
+									if (!avTalkedTo) {
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+										avTalkedTo = true;
+									} else if(avTalkedTo && boxesMoved) {
 										npc.setState(1);
 										npc.setCurrentDialogueIndex(0);
 									}
@@ -1192,6 +1312,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					if (door.interactable()) {
 						System.out.println(door.getMapDest());
+						System.out.println(maps.get(door.getMapDest()));
 						currentMap = maps.get(door.getMapDest());
 						suki.setGameX(door.getExitPos().x);
 						suki.setGameY(door.getExitPos().y);
@@ -1575,7 +1696,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 		Rectangle doorRect = door.getDoorRect();
 		if (playerRect.intersects(doorRect)) {
-			if (door.getMapDest() == 34) {
+			if (door.getMapDest() == 33) {
 				int index = suki.searchInventory("Math Storage Key");
 				if (index >= 0) {
 					door.setInteractable(true);
@@ -1596,17 +1717,46 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					showVentMessage = false;
 					door.setInteractable(true);
 				}
+			} else if(door.getMapDest() == 1 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("20kg Weight") ;
+				if(index >= 0) {
+					door.setInteractable(true);
+					showStairwellLockedMessage = false;
+				} else {
+					door.setInteractable(false);
+					showStairwellLockedMessage = true;
+				}
+			} else if(door.getMapDest() == 20 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("Staff Lounge Key") ;
+				if(index >= 0) {
+					door.setInteractable(true);
+					showLockedLoungeMessage = false;
+				} else {
+					door.setInteractable(false);
+					showLockedLoungeMessage = true;
+				}
+			} else if(door.getMapDest() == 21 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("Balcony Key") ;
+				if(index >= 0) {
+					door.setInteractable(true);
+					showLockedBalconyMessage = false;
+				} else {
+					door.setInteractable(false);
+					showLockedBalconyMessage = true;
+				}
 			} else {
 				door.setInteractable(true);
-				showLockedMessage = false;
-				showVentMessage = false;
+				showLockedLoungeMessage = false;
+				showBoxMessage = false;
+				showStairwellLockedMessage = false;
 			}
 		} else {
 			door.setInteractable(false);
-			if (currentMap == maps.get(34)) {
-				// showVentMessage = false;
-			} else if (currentMap == maps.get(33)) {
-				showLockedMessage = false;
+			if (currentMap == maps.get(2)) {
+				showLockedLoungeMessage = false;
+				showLockedBalconyMessage = false;
+				showBoxMessage = false;
+				showStairwellLockedMessage = false;
 			}
 		}
 
@@ -1686,7 +1836,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					player.getInventory().add(collectible); // Add to player's inventory
 					player.getInventory().sort(new SortByName());
 					System.out.println("Picked up collectible: " + collectible.getName());
-				} else {
+				} 
+				else {
 					collectibleIterator.remove(); // Remove from map
 					player.getInventory().add(collectible); // Add to player's inventory
 					player.getInventory().sort(new SortByName());
