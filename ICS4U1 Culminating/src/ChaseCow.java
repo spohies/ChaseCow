@@ -82,6 +82,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	long dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
 	boolean dialogueActive = false; // Flag to track if dialogue is currently active
 
+	// CUTSCENE IMAGES
+	BufferedImage floor3SceneImg;
+	BufferedImage floor2SceneImg;
+	BufferedImage floor1SceneImg;
+	BufferedImage ventsSceneImg;
+	BufferedImage stairsSceneImg;
+
 	// STAGE 1
 	boolean beakerCleaned = false;
 	int beakerWalkCount = 0;
@@ -98,10 +105,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean essaySubmitted = true;
 
 	// STAGE 3
+	int chipCount = 0;
 	boolean chipsStolen = false;
 	boolean showLockedMessage = false;
 	BufferedImage keyImage;
-
+	boolean showVentMessage = false;
 
 	public ChaseCow() throws IOException {
 		importImages();
@@ -261,8 +269,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			BufferedImage playerImageUp = ImageIO.read(getClass().getResource("/sprites/sukiUp.png"));
 			BufferedImage playerImageRight = ImageIO.read(getClass().getResource("/sprites/sukiRight.png"));
 			BufferedImage playerImageLeft = ImageIO.read(getClass().getResource("/sprites/sukiLeft.png"));
+
+			floor3SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR3SCENE.png"));
+			floor2SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR2SCENE.png"));
+			floor1SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR1SCENE.png"));
+			ventsSceneImg = ImageIO.read(getClass().getResource("/menu/VENTSCENE.png"));
+			stairsSceneImg = ImageIO.read(getClass().getResource("/menu/STAIRSCENE.png"));
+
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
-			keyImage = ImageIO.read(getClass().getResource("/map files/key.png"));
+			keyImage = ImageIO.read(getClass().getResource("/sprites/key.png"));
+
 			System.out.println("spill loaded");
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 250,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
@@ -353,7 +369,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			if (currentMap == maps.get(3)) {
 				Rectangle waterFountain = new Rectangle(6500, 950, 100, 25);
-				Rectangle waterFountain2 = new Rectangle (1075, 3450, 50, 25);
+				Rectangle waterFountain2 = new Rectangle(1075, 3450, 50, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 				if (waterFountain.intersects(playerRect) || waterFountain2.intersects(playerRect)) {
@@ -868,113 +884,145 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-		}
-
-		if (beakerCleaned && showBeakerMessage) {
-			if (beakerWalkCount == 1) {
-				g.setColor(Color.WHITE);
-				g.fillRect(50, 550, 400, 100);
-				g.setColor(Color.BLACK);
+			if (beakerCleaned && showBeakerMessage) {
 				if (beakerWalkCount == 1) {
-					g.drawString("Sweeping. . .", 60, 580);
-					javax.swing.Timer timer = new javax.swing.Timer(3000, new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							showBeakerMessage = false;
-							beakerWalkCount++;
-							repaint();
-						}
-					});
-					timer.setRepeats(false);
-					timer.start();
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					if (beakerWalkCount == 1) {
+						g.drawString("Sweeping. . .", 60, 580);
+						javax.swing.Timer timer = new javax.swing.Timer(3000, new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								showBeakerMessage = false;
+								beakerWalkCount++;
+								repaint();
+							}
+						});
+						timer.setRepeats(false);
+						timer.start();
+					} else {
+						g.drawString("Shattered Glass has been Sweeped.", 60, 580);
+					}
+					g.drawString("Shattered Glass has been Sweeped.", 60, 580);
 				} else {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
 					g.drawString("Shattered Glass has been Sweeped.", 60, 580);
 				}
-				g.drawString("Shattered Glass has been Sweeped.", 60, 580);
-			} else {
+			} else if (!beakerCleaned && showBeakerMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
-				g.drawString("Shattered Glass has been Sweeped.", 60, 580);
+				g.drawString("\"If only I had a broom...\"", 60, 580);
 			}
-		} else if (!beakerCleaned && showBeakerMessage) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("\"If only I had a broom...\"", 60, 580);
-		}
 
-		if (!spillCleaned && showSpillMessage) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("\"Looks like I need a broom and a container...\"", 60, 580);
-		}
-
-		if (!essayWritten && showEssayMessage && !essaySubmitted) {
-			int index = suki.searchInventory("Sharp Pencil");
-			if (index < 0) {
+			if (!spillCleaned && showSpillMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
-				g.drawString("\"Dang... I need to find a pencil.\"", 60, 580);
-			} else {
-				g.setColor(Color.WHITE);
-				g.fillRect(50, 550, 400, 100);
-				g.setColor(Color.BLACK);
-				g.drawString("\"I should my essay.\"", 60, 580);
+				g.drawString("\"Looks like I need a broom and a container...\"", 60, 580);
 			}
-		} else if (essayWritten && !essaySubmitted) {
-			
-			if (currentMap == maps.get(310)) {
+
+			if (!essayWritten && showEssayMessage && !essaySubmitted) {
+				int index = suki.searchInventory("Sharp Pencil");
+				if (index < 0) {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					g.drawString("\"Dang... I need to find a pencil.\"", 60, 580);
+				} else {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					g.drawString("\"I should my essay.\"", 60, 580);
+				}
+			} else if (essayWritten && !essaySubmitted) {
+
+				if (currentMap == maps.get(310)) {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					g.drawString("\"Wow! Mrs. Kim is going to love this one!\"", 60, 580);
+				}
+			}
+
+			if (chipsStolen) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
-				g.drawString("\"Wow! Mrs. Kim is going to love this one!\"", 60, 580);
+				g.drawString("Mr. Lee: Hey Kid! That's not for you! >:(", 60, 580);
 			}
-		}
 
-		if (chipsStolen) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("Mr. Lee: Hey Kid! That's not for you! >:(", 60, 580);
-		}
+			if (showLockedMessage) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("This door is locked...?", 60, 580);
+			}
 
-		if (showLockedMessage) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("This door is locked...?", 60, 580);
-		}
+			if (showVentMessage) {
+				System.out.println("aaaaa");
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("Looks like I need to use a screw driver", 60, 580);
+			}
 
-		if (healing && !fullHP) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("Healing...", 60, 580);
-			System.out.println(suki.getHP());
-		} else if (healing && fullHP) {
-			g.setColor(Color.WHITE);
-			g.fillRect(50, 550, 400, 100);
-			g.setColor(Color.BLACK);
-			g.drawString("Suki is hydrated.", 60, 580);
-		}
+			if (healing && !fullHP) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("Healing...", 60, 580);
+				System.out.println(suki.getHP());
+			} else if (healing && fullHP) {
+				g.setColor(Color.WHITE);
+				g.fillRect(50, 550, 400, 100);
+				g.setColor(Color.BLACK);
+				g.drawString("Suki is hydrated.", 60, 580);
+			}
 
-		// Draw border walls of each map
-		if (currentMap != null) {
-			g.setColor(Color.RED); // Set color for border walls
-			for (Wall wall : currentMap.getRectWalls()) {
+			// Draw border walls of each map
+			if (currentMap != null) {
+				g.setColor(Color.RED); // Set color for border walls
+				for (Wall wall : currentMap.getRectWalls()) {
 					int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
 					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
 					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
+				}
 			}
+		}
+
+		// floor 3 start screen
+		if (screen == 6) {
+			g.drawImage(floor3SceneImg, 0, 0, floor3SceneImg.getWidth(), floor3SceneImg.getHeight(), this);
+		}
+
+		// vent cutscene
+		if (screen == 7) {
+			g.drawImage(ventsSceneImg, 0, 0, ventsSceneImg.getWidth(), ventsSceneImg.getHeight(), this);
+		}
+
+		// floor 2 start screen
+		if (screen == 8) {
+			g.drawImage(floor2SceneImg, 0, 0, floor2SceneImg.getWidth(), floor2SceneImg.getHeight(), this);
+		}
+
+		// stairwell cutscene
+		if (screen == 9) {
+			g.drawImage(stairsSceneImg, 0, 0, stairsSceneImg.getWidth(), stairsSceneImg.getHeight(), this);
+		}
+
+		// floor 1 start screen
+		if (screen == 10) {
+			g.drawImage(floor1SceneImg, 0, 0, floor1SceneImg.getWidth(), floor1SceneImg.getHeight(), this);
 		}
 	}
 
-	public void drawInnerWalls(Graphics2D g, int playerX, int playerY){
+	public void drawInnerWalls(Graphics2D g, int playerX, int playerY) {
 		Set<Wall> wallsBehind = currentMap.getInnerWalls()
-					.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
+				.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
 		for (Wall wall : wallsBehind) {
 			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
 					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
@@ -1080,11 +1128,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 								if (currentMap == maps.get(345) && npc == currentMap.getNPCs().get(1)) {
 									int index = suki.searchInventory("Lays Classic Chips");
-									if (index < 0) {
-										npc.setState(0);
-										npc.setCurrentDialogueIndex(0);
-									} else {
-										suki.addToInventory(new Collectible("Math Storage Key", "Key to the electrical room in Math Departmen Printing Room", keyImage, new Point(0, 0), 0));
+									if (index >= 0 && chipCount == 0) {
+										chipCount++;
+										suki.addToInventory(new Collectible("Math Storage Key",
+												"Key to the electrical room in Math Departmen Printing Room", keyImage,
+												new Point(0, 0), 0));
 										npc.setState(1);
 										npc.setCurrentDialogueIndex(0);
 									}
@@ -1119,12 +1167,35 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			if (key == KeyEvent.VK_C) {
 				for (Door door : currentMap.getDoors()) {
+					if (door.interactable() && door.getMapDest() == 224 && currentMap == maps.get(34)) {
+						screen = 7;
+						Timer timer1 = new Timer(3000, new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								screen = 8;
+								repaint();
+								Timer timer2 = new Timer(2000, new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										screen = 5;
+										repaint();
+									}
+								});
+								timer2.setRepeats(false);
+								timer2.start();
+							}
+						});
+						timer1.setRepeats(false);
+						timer1.start();
+						repaint();
+					}
+
 					if (door.interactable()) {
 						System.out.println(door.getMapDest());
 						currentMap = maps.get(door.getMapDest());
 						suki.setGameX(door.getExitPos().x);
 						suki.setGameY(door.getExitPos().y);
-						currentMap.setTLLocation(new Point(0, 0)); 
+						currentMap.setTLLocation(new Point(0, 0));
 						up = down = left = right = false;
 
 					}
@@ -1193,21 +1264,21 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			// Check for collisions with rectangular walls
 			boolean collision = false;
 			// for (Wall wall : currentMap.getRectWalls()) {
-			// 	if (futureHitbox.intersects(wall.getRect())) {
-			// 		System.out.println(wall.getRect());
-			// 		collision = true;
-			// 		break;
-			// 	}
+			// if (futureHitbox.intersects(wall.getRect())) {
+			// System.out.println(wall.getRect());
+			// collision = true;
+			// break;
+			// }
 			// }
 
 			// Check for collisions with triangular walls
 			// if (!collision) {
-			// 	for (Triangle triangle : currentMap.getTriWalls()) {
-			// 		if (triangle.intersects(futureHitbox) > 0) {
-			// 			collision = true;
-			// 			break;
-			// 		}
-			// 	}
+			// for (Triangle triangle : currentMap.getTriWalls()) {
+			// if (triangle.intersects(futureHitbox) > 0) {
+			// collision = true;
+			// break;
+			// }
+			// }
 			// }
 
 			// Only update coordinates if no collision is detected
@@ -1500,42 +1571,45 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void checkCollision(Door door) {
-		if (door.getMapDest() == 34) {
-			int index = suki.searchInventory("Math Storage Key");
-			if (index >= 0) {
-				door.setInteractable(true);
-			} else {
-				door.setInteractable(false);
-			}
-
-			if (!door.interactable()) {
-				showLockedMessage = true;
-			} else {
-				showLockedMessage = false;
-			}
-		} else if (door.getMapDest() == 224 && currentMap == maps.get(34)) {
-			if (suki.getInventory().get(suki.getEquippedItem()).getName() == "Screwdriver") {
+		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+		Rectangle doorRect = door.getDoorRect();
+		if (playerRect.intersects(doorRect)) {
+			if (door.getMapDest() == 34) {
+				int index = suki.searchInventory("Math Storage Key");
+				if (index >= 0) {
 					door.setInteractable(true);
+					showLockedMessage = false;
+
 				} else {
 					door.setInteractable(false);
-			}
-
-			if (!door.interactable()) {
-				showLockedMessage = true;
+					showLockedMessage = true;
+				}
+			} else if (door.getMapDest() == 224 && currentMap == maps.get(34)) {
+				int equippedIndex = suki.getEquippedItem();
+				if (equippedIndex < 0 || equippedIndex >= suki.getInventory().size() || 
+					!suki.getInventory().get(equippedIndex).getName().equals("Screwdriver")) {
+					door.setInteractable(false);
+					showVentMessage = true;
+					repaint();
+				} else {
+					showVentMessage = false;
+					door.setInteractable(true);
+				}
 			} else {
+				door.setInteractable(true);
 				showLockedMessage = false;
+				showVentMessage = false;
 			}
 		} else {
-			Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
-					(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
-			Rectangle doorRect = door.getDoorRect();
-			if (playerRect.intersects(doorRect)) {
-				door.setInteractable(true);
-			} else {
-				door.setInteractable(false);
+			door.setInteractable(false);
+			if (currentMap == maps.get(34)) {
+				// showVentMessage = false;
+			} else if (currentMap == maps.get(33)) {
+				showLockedMessage = false;
 			}
 		}
-		
+
 	}
 
 	public void checkPlayerCollisions(Player player) throws IOException {
@@ -1576,6 +1650,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						if (input != null && !input.trim().isEmpty()) {
 							maps.get(3).getNPCs().get(1).setState(1);
 							maps.get(3).getNPCs().get(1).setCurrentDialogueIndex(0);
+							left = right = up = down = false;
 							Collectible essay = collectible;
 							collectible.setDescription(input);
 							collectible.setImage(ImageIO.read(getClass().getResource("/sprites/writtenEssay.png")));
@@ -1595,18 +1670,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						}
 					}
 				} else if (currentMap == maps.get(341)) {
-						chipsStolen = true;
-						repaint();
-						Timer timer = new Timer(4000, new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								chipsStolen = false;
-								repaint();
-							}
-						});
-						timer.setRepeats(false);
-						timer.start();
-						repaint();
+					chipsStolen = true;
+					repaint();
+					Timer timer = new Timer(4000, new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							chipsStolen = false;
+							repaint();
+						}
+					});
+					timer.setRepeats(false);
+					timer.start();
+					repaint();
 					collectibleIterator.remove(); // Remove from map
 					player.getInventory().add(collectible); // Add to player's inventory
 					player.getInventory().sort(new SortByName());
