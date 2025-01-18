@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 public class Player {
     private int hp;
@@ -20,6 +21,7 @@ public class Player {
     BufferedImage playerImageRight;
     BufferedImage playerImageLeft;
     int equippedItem= 0;
+    String equippedItemName = "";
 
     public Player(int hp, int speed, Rectangle hitboxM, Rectangle hitboxC, int startPosX, int startPosY, BufferedImage spriteDown, BufferedImage spriteUp, BufferedImage spriteRight, BufferedImage spriteLeft) throws IOException {
         this.hp = hp;
@@ -71,6 +73,7 @@ public class Player {
         this.hp -= damage;
         System.out.println("hp: " + this.hp);
         if (this.hp <= 0) {
+            this.hp = 0;
             System.out.println("suki died.");
         }
     }
@@ -161,5 +164,13 @@ public class Player {
     
     public int getMaxHP() {
         return maxHp;
+    }
+
+    public void setEquippedItemName(String name) {
+        equippedItemName = name;
+    }
+
+    public String getEquippedItemName() {
+        return equippedItemName;
     }
 }

@@ -20,9 +20,9 @@ import java.awt.image.*;
  */
 
 @SuppressWarnings("serial") // funky warning, just suppress it. It's not gonna do anything.
-public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener {
+public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 	// big boss variable
-	int screen = 5;
+	int screen = 0;
 	static JPanel myPanel;
 	static JFrame frame;
 
@@ -34,23 +34,20 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean up, down, left, right;
 	boolean interactable = false;
 
-	// main screen
-	Rectangle recAbout, recOptions, recPlay, recExit;
-	boolean hoverAbout, hoverOptions, hoverPlay, hoverExit;
-	BufferedImage titleScreenBG, title, play, play2, about, about2, settings, settings2, options, options2, exit, exit2;
-
-	// start screen
+	// main screen + start screen
+	Rectangle recAbout, recPlay, recOptions;
+	boolean hoverAbout, hoverOptions, hoverPlay;
+	BufferedImage titleScreenBG, title, play, play2, about, about2, settings, settings2, options, options2, back, back2;
 	Rectangle recLB, recNewGame, recBack;
 	boolean hoverNewGame, hoverLB, hoverBack;
-	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2, back;
+	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2;
 
 	// settings
-	ArrayList<Rectangle> recVolume;
+	Rectangle recVolume;
 	// im thinking we have like 5 buttons and its just 5 levels of volume next to
+	Rectangle recQuitGame;
 	// each other so its like a fake slider
-	ArrayList<Rectangle> recDifficulty;
-	// maybe we just have hp regen vs no regen for difficulty
-	BufferedImage volumeImg, difficultyImg;
+	BufferedImage volumeImg, quitGame;
 	// int difficulty = 1; // maybe just 1=easy 2=hard?
 	int volume = 3; // 1-5??
 
@@ -60,7 +57,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	// Rectangle player = new Rectangle(517, 328, 46, 64);
 	// HashSet <Rectangle> walls = new HashSet <Rectangle>();
-	BufferedImage tempBG, playerImage, cowImage;
+	BufferedImage playerImage, cowImage;
 	Player suki;
 	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap;
@@ -74,13 +71,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			"spaceCow",
 			"wasteCow"
 	};
-	int currentCowType = 0;
-
-	// NPC DIALOGUE
-	// Dialogue variables
-	String currentDialogue = null; // Current line of dialogue to display
-	long dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
-	boolean dialogueActive = false; // Flag to track if dialogue is currently active
 
 	// CUTSCENE IMAGES
 	BufferedImage floor3SceneImg;
@@ -88,54 +78,76 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage floor1SceneImg;
 	BufferedImage ventsSceneImg;
 	BufferedImage stairsSceneImg;
+	BufferedImage healthBar;
 
+	int currentCowType;
+	// NPC DIALOGUE
+	// Dialogue variables
+	String currentDialogue; // Current line of dialogue to display
+	long dialogueEndTime; // Timestamp when the dialogue box should disappear
+	boolean dialogueActive; // Flag to track if dialogue is currently active
 	// STAGE 1
-	boolean beakerCleaned = false;
-	int beakerWalkCount = 0;
-	boolean showBeakerMessage = false;
+	boolean beakerCleaned;
+	int beakerWalkCount;
+	boolean showBeakerMessage;
 	BufferedImage spillImage;
-	boolean spillCleaned = true;
-	int spillWalkCount = 0;
-	boolean showSpillMessage = false;
+	boolean spillCleaned;
+	int spillWalkCount;
+	boolean showSpillMessage;
 
 	// STAGE 2
-	boolean essayWritten = true;
-	int essayWalkCount = 0;
-	boolean showEssayMessage = false;
-	boolean essaySubmitted = true;
+	boolean essayWritten;
+	int essayWalkCount;
+	boolean showEssayMessage;
+	boolean essaySubmitted;
 
 	// STAGE 3
-	int chipCount = 0;
-	boolean chipsStolen = false;
-	boolean showLockedMessage = false;
+	int chipCount;
+	boolean chipsStolen;
+	boolean showLockedMessage;
 	BufferedImage keyImage;
-	boolean showVentMessage = false;
+	boolean showVentMessage;
 
 	// STAGE 4
-	int tissueCount = 0;
+	int tissueCount;
 	BufferedImage boxPileImage;
 	BufferedImage tissueImage;
-	int balconyKeyCount = 0;
-	boolean avTalkedTo = false;
-	boolean showBoxMessage = false;
-	boolean boxesMoved = false;
-	boolean showLockedBalconyMessage = false;
-	boolean showLockedLoungeMessage = false;
-	boolean showStairwellLockedMessage = false;
+	int balconyKeyCount;
+	boolean avTalkedTo;
+	boolean showBoxMessage;
+	boolean boxesMoved;
+	boolean showLockedBalconyMessage;
+	boolean showLockedLoungeMessage;
+	boolean showStairwellLockedMessage;
+	int chowCount;
+
+	// STAGE 5
+	BufferedImage mopImage;
+	boolean mopped;
+	boolean showWaterMessage;
+	boolean showMopMessage;
+	BufferedImage weightImage;
+	BufferedImage floodImage;
+	boolean moppable;
+	int weightCount;
 
 	public ChaseCow() throws IOException {
 		importImages();
+		// resetVariables();
 		initialize();
-		initializeMaps();
+		currentMap = maps.get(224);
+		setPreferredSize(new Dimension(1080, 720));
 
 		// sets up JPanel
-		setPreferredSize(new Dimension(1080, 720));
+		frame.getContentPane().add(this);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
 		setVisible(true);
 		setFocusable(true); // Ensure the panel is focusable
 		requestFocusInWindow(); // Request focus for key events
 		addMouseListener(this);
+		addMouseMotionListener(this);
 		addKeyListener(this); // Add KeyListener to the panel
-
 		// addKeyListener(this);
 		// starting the thread
 		thread = new Thread(this);
@@ -149,7 +161,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			try {
 				update();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			this.repaint();
@@ -165,6 +176,54 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	public void initialize() throws IOException {
+		currentCowType = 0;
+		// NPC DIALOGUE
+		// Dialogue variables
+		currentDialogue = null; // Current line of dialogue to display
+		dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
+		dialogueActive = false; // Flag to track if dialogue is currently active
+		// STAGE 1
+		beakerCleaned = false;
+		beakerWalkCount = 0;
+		showBeakerMessage = false;
+		spillImage = null;
+		spillCleaned = true;
+		spillWalkCount = 0;
+		showSpillMessage = false;
+
+		// STAGE 2
+		essayWritten = true;
+		essayWalkCount = 0;
+		showEssayMessage = false;
+		essaySubmitted = true;
+
+		// STAGE 3
+		chipCount = 0;
+		chipsStolen = false;
+		showLockedMessage = false;
+		keyImage = null;
+		showVentMessage = false;
+
+		// STAGE 4
+		tissueCount = 0;
+		boxPileImage = null;
+		tissueImage = null;
+		balconyKeyCount = 0;
+		avTalkedTo = false;
+		showBoxMessage = false;
+		boxesMoved = false;
+		showLockedBalconyMessage = false;
+		showLockedLoungeMessage = false;
+		showStairwellLockedMessage = false;
+		chowCount = 0;
+
+		// STAGE 5
+		mopImage = null;
+		mopped = false;
+		showWaterMessage = false;
+		showMopMessage = false;
+		moppable = false;
+		weightCount = 0;
 
 		try {
 			titleScreenBG = ImageIO.read(getClass().getResource("/menu/titleBG.png"));
@@ -179,103 +238,34 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// screen 0 (main menu)
 			title = ImageIO.read(getClass().getResource("/menu/title.png"));
-			// System.out.println("Loaded title image");
 			play = ImageIO.read(getClass().getResource("/menu/playbutton.png"));
-			// System.out.println("Loaded play button image");
 			about = ImageIO.read(getClass().getResource("/menu/aboutbutton.png"));
-			// System.out.println("Loaded about button image");
 			play2 = ImageIO.read(getClass().getResource("/menu/playbutton2.png"));
-			// System.out.println("Loaded play button 2 image");
 			about2 = ImageIO.read(getClass().getResource("/menu/aboutbutton2.png"));
-			// System.out.println("Loaded about button 2 image");
-			// settings = ImageIO.read(getClass().getResource("/menu/settingsbutton.png"));
-			// System.out.println("Loaded settings button image");
-			// settings2 =
-			// ImageIO.read(getClass().getResource("/menu/settingsbutton2.png"));
-			// System.out.println("Loaded settings button 2 image");
-			// options = ImageIO.read(getClass().getResource("/menu/optionsbutton.png"));
-			// System.out.println("Loaded options button image");
-			// options2 = ImageIO.read(getClass().getResource("/menu/optionsbutton2.png"));
-			// System.out.println("Loaded options button 2 image");
-			// exit = ImageIO.read(getClass().getResource("/menu/exitbutton.png"));
-			// System.out.println("Loaded exit button image");
-			// exit2 = ImageIO.read(getClass().getResource("/menu/exitbutton2.png"));
-			// System.out.println("Loaded exit button 2 image");
-			// newGame = ImageIO.read(getClass().getResource("/menu/newgamebutton.png"));
-			// System.out.println("Loaded new game button image");
-			// newGame2 = ImageIO.read(getClass().getResource("/menu/newgamebutton2.png"));
-			// System.out.println("Loaded new game button 2 image");
-			// leaderboard =
-			// ImageIO.read(getClass().getResource("/menu/leaderboardbutton.png"));
-			// System.out.println("Loaded leaderboard button image");
-			// leaderboard2 =
-			// ImageIO.read(getClass().getResource("/menu/leaderboardbutton2.png"));
-			// System.out.println("Loaded leaderboard button 2 image");
-			// back = ImageIO.read(getClass().getResource("/menu/backbutton.png"));
-			// System.out.println("Loaded back button image");
-			// volumeImg = ImageIO.read(getClass().getResource("/menu/volume.png"));
-			// System.out.println("Loaded volume image");
+			options = ImageIO.read(getClass().getResource("/menu/optionsbutton.png"));
+			options2 = ImageIO.read(getClass().getResource("/menu/optionsbutton2.png"));
+			back = ImageIO.read(getClass().getResource("/menu/backbutton.png"));
+			back2 = ImageIO.read(getClass().getResource("/menu/backbutton2.png"));
+			newGame = ImageIO.read(getClass().getResource("/menu/newgamebutton.png"));
+			newGame2 = ImageIO.read(getClass().getResource("/menu/newgamebutton2.png"));
+			leaderboard = ImageIO.read(getClass().getResource("/menu/lbbutton.png"));
+			leaderboard2 = ImageIO.read(getClass().getResource("/menu/lbbutton2.png"));
+			quitGame = ImageIO.read(getClass().getResource("/menu/quitgamebutton.png"));
+			volumeImg = ImageIO.read(getClass().getResource("/menu/volume.png"));
+
 			// DIMENSION NEED TO BE CHANGED!!!!!!
 			recPlay = new Rectangle(100, 200, play.getWidth(), play.getHeight());
 			recAbout = new Rectangle(100, 300, about.getWidth(), about.getHeight());
-
-			// screen 1 (start menu)
-
-			// screen 2 (wtvwtv )... so on
-
-			// screen 5
-			// starting room
-			// HashSet<Wall> electricalWalls = new HashSet<>();
-			// BufferedImage wallImage = ImageIO.read(getClass().getResource("/map
-			// files/tempWall.png"));
-			// System.out.println("Loaded wall image");
-			// electricalWalls
-			// .add(new Wall(wallImage, new Rectangle(7300, 200, wallImage.getWidth(),
-			// wallImage.getHeight())));
-			// electricalWalls
-			// .add(new Wall(wallImage, new Rectangle(7400, 40, wallImage.getWidth(),
-			// wallImage.getHeight())));
-			// electricalWalls
-			// .add(new Wall(wallImage, new Rectangle(7630, 100, wallImage.getWidth(),
-			// wallImage.getHeight())));
-			// electricalWalls
-			// .add(new Wall(wallImage, new Rectangle(7480, 150, wallImage.getWidth(),
-			// wallImage.getHeight())));
-			// electricalWalls
-			// .add(new Wall(wallImage, new Rectangle(7500, 350, wallImage.getWidth(),
-			// wallImage.getHeight())));
-			// tempBG = ImageIO.read(getClass().getResource("/map files/FLOOR3.png"));
-			// System.out.println("Loaded tempBG image");
-
-			// HashSet<Triangle> tempWalls = new HashSet<>();
-			// HashSet<Cow> electricalCows = new HashSet<>();
-
-			// TEMPORARY (THERE WILL BE AN NPC ARRAYLIST)
-			// BufferedImage npcImage =
-			// ImageIO.read(getClass().getResource("/sprites/npc1.png"));
-			// BufferedImage stickImage =
-			// ImageIO.read(getClass().getResource("/sprites/pencil.png"));
-			// NPC npc = new NPC("npc", new Point(8100, 200),
-			// new String[] { "ive been here for four hours help", "PLEASE WORK I AM
-			// BEGGINGG" }, npcImage);
-			// ArrayList<NPC> tempNPCs = new ArrayList<>();
-			// tempNPCs.add(npc);
-
-			// ArrayList<Weapon> weapons = new ArrayList<>();
-			// ArrayList<Collectible> items = new ArrayList<>();
-			// Weapon tempWeapon = new Weapon("stick", "use to attack", 80, 30, stickImage,
-			// new Point(7400, 370));
-			// weapons.add(tempWeapon);
-			// TO BE CHANGE TO ACTUAL LOCATIONS
-			// tempWalls.add(new Triangle(new Point(7100, 100), new Point(7200, 200), new
-			// Point(7300, 100)));
-			// tempWalls.add(new Triangle(new Point(7300, 600), new Point(7360, 800), new
-			// Point(7510, 700)));
-			// currentMap = new FloorMap(new Point(0, 0), electricalWalls, tempWalls, null,
-			// tempBG, null,
-			// electricalCows, tempNPCs, weapons, items);
-
-			// playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
+			recOptions = new Rectangle(990, 30, options.getWidth(), options.getHeight());
+			recBack = new Rectangle(30, 30, back.getWidth(), back.getHeight());
+			recNewGame = new Rectangle(100, 200, newGame.getWidth(), newGame.getHeight());
+			recLB = new Rectangle(100, 300, leaderboard.getWidth(), leaderboard.getHeight());
+			recQuitGame = new Rectangle(400, 400, quitGame.getWidth(), quitGame.getHeight());
+			recVolume = new Rectangle(100, 200, volumeImg.getWidth(), volumeImg.getHeight());
+			// for (int i = 0; i < 5; i++) {
+			// recVolume.add(new Rectangle(100 + i * 50, 200, volumeImg.getWidth(),
+			// volumeImg.getHeight()));
+			// }
 
 			BufferedImage playerImageDown = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
 			BufferedImage playerImageUp = ImageIO.read(getClass().getResource("/sprites/sukiUp.png"));
@@ -288,56 +278,42 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			ventsSceneImg = ImageIO.read(getClass().getResource("/menu/VENTSCENE.png"));
 			stairsSceneImg = ImageIO.read(getClass().getResource("/menu/STAIRSCENE.png"));
 
+			healthBar = ImageIO.read(getClass().getResource("/menu/HPBAR.png"));
+
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
 			keyImage = ImageIO.read(getClass().getResource("/sprites/key.png"));
 			tissueImage = ImageIO.read(getClass().getResource("/sprites/tissueBox.png"));
 			boxPileImage = ImageIO.read(getClass().getResource("/map files/boxPile.png"));
+			mopImage = ImageIO.read(getClass().getResource("/sprites/mop.png"));
+			weightImage = ImageIO.read(getClass().getResource("/sprites/weight.png"));
+			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
 
 			System.out.println("spill loaded");
-			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 250,
+			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 225, 275,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
-			// currentMap.getCows().add(new BaseCow(8300, 200,
-			// cowImages.get(currentCowType), currentMap, suki));
-			// currentMap.getCows().add(new BaseCow(7800, 300,
-			// cowImages.get(currentCowType), currentMap, suki));
-			// currentMap.getCows().add(new BaseCow(7700, 400,
-			// cowImages.get(currentCowType), currentMap, suki));
-			// currentMap.getCows().add(new BaseCow(8000, 350,
-			// cowImages.get(currentCowType), currentMap, suki));
-			// currentMap.getCows().add(new BaseCow(7600, 200,
-			// cowImages.get(currentCowType), currentMap, suki));
-			// // other images
-			// tempBG = ImageIO.read(getClass().getResource("/menu/tempBG.png"));
-			// System.out.println("Loaded tempBG image");
 			playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
 			System.out.println("Loaded player image");
 			cowImage = ImageIO.read(getClass().getResource("/sprites/baseCow.png"));
 			System.out.println("Loaded cow image");
-			// currentMap = maps.get(0);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// spawnCows();
 	}
 
-	public static void resetVariables() {
-		// RESETS ALL CHANGING VARIABLES WHEN NEW GAME IS STARTED
+	public void resetVariables() throws IOException {
+		initialize();
+		initializeMaps();
 	}
-
-	// public void spawnCows() {
-
-	// }
 
 	public void update() throws IOException {
 		// update stuff
 
 		if (screen == 5) {
-			// System.out.println("suki: " + suki.getGamePos());
-			// System.out.println(suki.getGamePos());
+			if (suki.getHP() <= 0) {
+				showGameOverPanel();
+			}
 			move();
-			keepInBound();
 			if (currentMap != null) {
 				currentMap.updateCows(suki);
 			} else {
@@ -409,7 +385,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						spill.setImage(ImageIO.read(getClass().getResource("/sprites/beakergoop.png")));
 						spill.setDescription("Beaker of mysterious purple liquid.");
 						spill.setName("Beaker with Goop");
+						updateEquippedItemIndexBeforeChange();
 						suki.getInventory().remove(suki.searchInventory("Beaker"));
+						updateEquippedItemIndexAfterChange();
 						suki.getInventory().add(spill);
 						System.out.println("Spill cleaned.");
 						currentMap.getNPCs().get(0).setState(1);
@@ -436,8 +414,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 
 			if (currentMap == maps.get(2)) {
-				Rectangle waterFountain = new Rectangle(6500, 950, 100, 25);
-				Rectangle waterFountain2 = new Rectangle(1075, 3450, 50, 25);
+				Rectangle waterFountain = new Rectangle(475, 3400, 50, 25);
+				Rectangle waterFountain2 = new Rectangle(6850, 950, 50, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 				if (waterFountain.intersects(playerRect) || waterFountain2.intersects(playerRect)) {
@@ -446,7 +424,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					healing = false;
 				}
 
-				Rectangle boxesRect = new Rectangle(4614, 1849, 189, 198);
+				Rectangle boxesRect = new Rectangle(4600, 1800, 200, 500);
 				if (boxesRect.intersects(playerRect) && !boxesMoved) {
 					double left1 = playerRect.getX();
 					double right1 = playerRect.getX() + playerRect.getWidth();
@@ -462,24 +440,54 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						showBoxMessage = true;
 					}
 				} else {
-					showSpillMessage = false;
+					showBoxMessage = false;
 				}
 
-				Rectangle msKimThreshold = new Rectangle(3200, 2625, 100, 200);
-				if (msKimThreshold.intersects(playerRect) && !essaySubmitted) {
-					// stop the player from moving
-					double top1 = playerRect.getY();
-					double bottom1 = playerRect.getY() + playerRect.getHeight();
-					double top2 = msKimThreshold.y;
-					if (bottom1 > top2 && top1 < top2) {
-						// player collides from top side of the wall
-						suki.setGameY((int) (suki.getGamePos().y - suki.getSpeed()));
+				Rectangle floodRect = new Rectangle(1100, 3450, 150, 50);
+				if (floodRect.intersects(playerRect) && !mopped) {
+					showWaterMessage = true;
+				} else {
+					showWaterMessage = false;
+				}
+			}
+
+			Rectangle floodRect1 = new Rectangle(50, 425, 100, 150);
+			if (currentMap == maps.get(23)) {
+				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+				System.out.println(suki.getGamePos());
+				if (floodRect1.intersects(playerRect) && !mopped) {
+					showMopMessage = true;
+					int index = suki.searchInventory("Mop");
+					if (index >= 0 && suki.getEquippedItem() == index) {
+						moppable = true;
+					} else {
+						moppable = false;
 					}
+				} else {
+					showMopMessage = false;
+				}
+			}
+
+			Rectangle floodRect2 = new Rectangle(150, 400, 100, 150);
+			if (currentMap == maps.get(22)) {
+				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
+						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+				if (floodRect2.intersects(playerRect) && !mopped) {
+					int index = suki.searchInventory("Mop");
+					if (index >= 0 && suki.getEquippedItem() == index) {
+						moppable = true;
+					} else {
+						moppable = false;
+					}
+					showMopMessage = true;
+				} else {
+					showMopMessage = false;
 				}
 			}
 
 			long lastHealTime = 0;
-			int healCooldown = 300; // 1 second cooldown for healing
+			int healCooldown = 500; // 0.5 second cooldown for healing
 			if (healing && !fullHP) {
 				System.out.println("HEALING");
 				if (System.currentTimeMillis() - lastHealTime >= healCooldown) {
@@ -617,13 +625,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					int cowType = Integer.parseInt(st.nextToken());
 					System.out.println(tlPoint + " " + cowType);
-					cows.add(new BaseCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
+					if (cowType == 0) {
+						cows.add(new BaseCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
+					}
+					if (cowType == 1) {
+						cows.add(new SpaceCow(tlPoint.x, tlPoint.y, cowImages.get(cowType), currentMap, suki));
+					}
 					System.out.println("loaded cows");
 				}
 				System.out.println("Loaded map " + mapID);
 				currentMap = maps.get(30);
 				maps.put(mapID, new FloorMap(new Point(0, 0), rectWalls, triWalls, innerWalls, bg, doors, cows, npcs,
 						weapons, collectibles));
+				repaint();
 			}
 		} catch (NumberFormatException e) {
 			System.out.println("Error reading map info file");
@@ -663,47 +677,51 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		Graphics2D g3 = (Graphics2D) g;
+
 		// black background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, screenWidth, screenHeight);
 
+		Graphics2D g2 = (Graphics2D) g;
+		Graphics2D g3 = (Graphics2D) g;
 		// main screen
 		if (screen == 0) {
 			// g.drawImage(titleScreenBG, 0, 0, titleScreenBG.getWidth(),
 			// titleScreenBG.getHeight(), this);
 			g.drawImage(title, 100, 100, title.getWidth(), title.getHeight(), this);
-			g.drawImage(play, 100, 200, play.getWidth(), play.getHeight(), this);
-			g.drawImage(about, 100, 300, about.getWidth(), about.getHeight(), this);
+			g.drawImage(hoverPlay ? play2 : play, 100, 200, play.getWidth(), play.getHeight(), this);
+			g.drawImage(hoverAbout ? about2 : about, 100, 300, about.getWidth(), about.getHeight(), this);
 		}
 
 		// start game screen
 		if (screen == 1) {
-			// g.drawImage(newGame, 100, 200, newGame.getWidth(), newGame.getHeight(),
-			// this);
-			// g.drawImage(leaderboard, 100, 300, leaderboard.getWidth(),
-			// leaderboard.getHeight(), this);
-			// g.drawImage(back, 20, 20, back.getWidth(), back.getHeight(), this);
+			g.drawImage(hoverNewGame ? newGame2 : newGame, 100, 200, newGame.getWidth(), newGame.getHeight(),
+					this);
+			g.drawImage(hoverLB ? leaderboard2 : leaderboard, 100, 300, leaderboard.getWidth(),
+					leaderboard.getHeight(), this);
+			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
 		}
 
-		// draw stuff
+		// about screen
+		if (screen == 2) {
+			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
+		}
+
+		if (screen == 3) {
+			g.drawImage(hoverBack ? back2 : back, 30, 30, back.getWidth(), back.getHeight(), this);
+			g.drawImage(volumeImg, 100, 200, volumeImg.getWidth(), volumeImg.getHeight(), this);
+			g.drawImage(quitGame, 400, 400, quitGame.getWidth(), quitGame.getHeight(), this);
+		}
+
+		if (screen == 4) {
+			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
+		}
+
+		// game screen
 		if (screen == 5) { // Game screen
 			int playerX = suki.getGamePos().x + (int) suki.getHitboxC().getWidth() / 2;
 			int playerY = suki.getGamePos().y - (int) suki.getHitboxC().getHeight() / 2;
 			g2.setColor(Color.GREEN);
-			// Iterator<Wall> it = currentMap.getRectWalls().iterator();
-			// while (it.hasNext()) {
-
-			// 	Wall wall = it.next();
-			// 	int wallScreenX = (wall.getRect().x - playerX) + (screenWidth / 2);
-			// 	int wallScreenY = (wall.getRect().y - playerY) + (screenHeight / 2);
-			// 	int wallWidth = wall.getRect().width;
-			// 	int wallHeight = wall.getRect().height;
-
-			// 	// Ensure alignment between rectangle and image
-			// 	g.drawImage(wall.getImage(), wallScreenX, wallScreenY, wallWidth, wallHeight, this);
-			// }
 
 			g2.setFont(new Font("Dialog", Font.PLAIN, 16));
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
@@ -723,7 +741,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				int destWidth = srcX2 - srcX;
 				int destHeight = srcY2 - srcY;
 
-				// Draw the background 
+				// Draw the background
 				setBackground(Color.BLACK);
 				g.drawImage(currentMap.getBG(),
 						0, 0, destWidth, destHeight, // Destination rectangle
@@ -754,6 +772,47 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
+
+			if (!mopped) {
+				if (showMopMessage && (currentMap == maps.get(22) || currentMap == maps.get(23))) {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					g.drawString("Looks like I need the mop", 60, 580);
+
+				}
+				if (currentMap == maps.get(23)) {
+					int floodScreenX = (25 - suki.getGamePos().x) + (screenWidth / 2);
+					int floodScreenY = (425 - suki.getGamePos().y) + (screenHeight / 2);
+					g.drawImage(floodImage, floodScreenX, floodScreenY, floodImage.getWidth(), floodImage.getHeight(),
+							this);
+					if (moppable && showMopMessage) {
+						g.setColor(Color.WHITE);
+						g.fillRect(50, 550, 400, 100);
+						g.setColor(Color.BLACK);
+						g.drawString("Press F to mop", 60, 580);
+					}
+				}
+				if (currentMap == maps.get(22)) {
+					int floodScreenX = (125 - suki.getGamePos().x) + (screenWidth / 2);
+					int floodScreenY = (400 - suki.getGamePos().y) + (screenHeight / 2);
+					g.drawImage(floodImage, floodScreenX, floodScreenY, floodImage.getWidth(), floodImage.getHeight(),
+							this);
+					if (moppable && showMopMessage) {
+						g.setColor(Color.WHITE);
+						g.fillRect(50, 550, 400, 100);
+						g.setColor(Color.BLACK);
+						g.drawString("Press F to mop", 60, 580);
+					}
+
+				}
+				if (showWaterMessage && currentMap == maps.get(2)) {
+					g.setColor(Color.WHITE);
+					g.fillRect(50, 550, 400, 100);
+					g.setColor(Color.BLACK);
+					g.drawString("Ew! Ew! Ew! I hate water.", 60, 580);
+				}
+			}
 
 			drawInnerWalls(g2, playerX, playerY);
 
@@ -1005,14 +1064,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-			
 			if (chipsStolen) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
 				g.drawString("Mr. Lee: Hey kid! That's not for you! >:(", 60, 580);
 			}
-			
+
 			if (showLockedMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1033,12 +1091,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.setColor(Color.BLACK);
 				g.drawString("Only teachers have the key to this room...", 60, 580);
 			}
-			
+
 			if (!boxesMoved && showBoxMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
 				g.drawString("\"There are too many boxes, I can't move all of them myself.\"", 60, 580);
+			} else if (!boxesMoved) {
+				g.drawImage(boxPileImage, 4520, 1975, boxPileImage.getWidth(), boxPileImage.getHeight(), this);
 			}
 
 			if (showStairwellLockedMessage) {
@@ -1048,9 +1108,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("This door is locked, but it looks a little beat up...", 60, 580);
 			}
 
-
 			if (showVentMessage) {
-				System.out.println("aaaaa");
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
@@ -1079,6 +1137,31 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
 				}
 			}
+
+			int barWidth = suki.getHP() * 4; // Each HP point is 4 pixels
+			int barHeight = 20;
+			int barX = screenWidth - 445;
+			int barY = screenHeight - barHeight - 45;
+			g3.setColor(Color.RED);
+			g3.fillRect(barX, barY, barWidth, barHeight);
+			g.drawImage(healthBar, screenWidth - 460, screenHeight - 130, healthBar.getWidth(), healthBar.getHeight(),
+					this);
+			// Draw equipped item icon if available
+			int equippedIndex = suki.getEquippedItem();
+			if (equippedIndex >= 0 && equippedIndex < suki.getInventory().size()) {
+				Item equippedItem = suki.getInventory().get(equippedIndex);
+				BufferedImage equippedItemImage = equippedItem.getImage();
+
+				if (equippedItemImage != null) {
+					int itemX = screenWidth - 460 - equippedItemImage.getWidth() - 40; // Position to the left of health
+																						// bar
+					int itemY = screenHeight - 130 + 20; // Align vertically with health bar
+					g.drawImage(equippedItemImage, itemX, itemY, equippedItemImage.getWidth() + 20,
+							equippedItemImage.getHeight() + 20, this);
+				}
+			}
+
+			g.drawImage(options, 990, 30, options.getWidth(), options.getHeight(), this);
 		}
 
 		// floor 3 start screen
@@ -1127,12 +1210,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// System.out.println("walls behind:" + wallsBehind.size());
 		if (suki.getCurrentSprite() != null) {
 			g.drawImage(suki.getCurrentSprite(),
-					(screenWidth - suki.getHitboxC().width) / 2,
-					(screenHeight - suki.getHitboxC().height) / 2,
-					suki.getHitboxC().width,
-					suki.getHitboxC().height,
+					(screenWidth - suki.getCurrentSprite().getWidth()) / 2,
+					(screenHeight - suki.getCurrentSprite().getHeight()) / 2,
 					this);
 			// g2.fill(suki.getHitboxM());
+			// g.setColor(Color.GREEN); // Draw the hitbox in green for visibility
+			// g.drawRect(suki.getHitboxC().x, suki.getHitboxC().y, suki.getHitboxC().width,
+			// suki.getHitboxC().height);
+
 		} else {
 			System.out.println("Player image is null");
 		}
@@ -1191,7 +1276,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 									if (index >= 0) {
 										System.out.println(index);
 										if (index >= 0) {
+											updateEquippedItemIndexBeforeChange();
 											suki.removeFromInventory(index);
+											updateEquippedItemIndexAfterChange();
 											essaySubmitted = true;
 										} else {
 											System.out.println("Invalid index: " + index);
@@ -1216,45 +1303,72 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								if (currentMap == maps.get(345) && npc == currentMap.getNPCs().get(1)) {
 									int index = suki.searchInventory("Lays Classic Chips");
 									if (index >= 0 && chipCount == 0) {
+										updateEquippedItemIndexBeforeChange();
+										suki.removeFromInventory(index);
 										chipCount++;
 										suki.addToInventory(new Collectible("Math Storage Key",
 												"Key to the Math Department Printing Room", keyImage,
 												new Point(0, 0), 0));
+										updateEquippedItemIndexAfterChange();
 										npc.setState(1);
 										npc.setCurrentDialogueIndex(0);
 									}
 								}
-								if(currentMap == maps.get(224) && npc == currentMap.getNPCs().get(0)) {
+								if (currentMap == maps.get(224) && npc == currentMap.getNPCs().get(0)) {
 									int index = suki.searchInventory("Tissue Box");
-									if (index < 0 && tissueCount == 0) {
+									if (index < 0 && tissueCount == 0 && npc.getCurrentDialogueIndex() == 2) {
 										tissueCount++;
-										suki.addToInventory(new Collectible("Tissue Box", "A box of tissues Sophie & Claire delivered to Ms. Wong", tissueImage,
+										updateEquippedItemIndexBeforeChange();
+										suki.addToInventory(new Collectible("Tissue Box",
+												"A box of tissues Sophie & Claire delivered to Ms. Wong", tissueImage,
 												new Point(0, 0), 0));
-										npc.setState(0);
-										npc.setCurrentDialogueIndex(0);
-									}
-								}
-								if(currentMap == maps.get(225) && npc == currentMap.getNPCs().get(0)) {
-									int index = suki.searchInventory("Tissue Box");
-									int index2 = suki.searchInventory("Staff Lounge Key");
-									if (index < 0) {
-										npc.setState(0);
-										npc.setCurrentDialogueIndex(0);
-									} else if(index2 < 0) {
-										suki.addToInventory(new Collectible("Staff Lounge Key", "Key to the Staff Lounge", keyImage,
-												new Point(0, 0), 0));
+										updateEquippedItemIndexAfterChange();
 										npc.setState(1);
 										npc.setCurrentDialogueIndex(0);
 									}
 								}
-								if(currentMap == maps.get(21) && npc == currentMap.getNPCs().get(0)) {
+								if (currentMap == maps.get(225) && npc == currentMap.getNPCs().get(0)) {
+									int index = suki.searchInventory("Tissue Box");
+									if (index >= 0 && chowCount == 0) {
+										updateEquippedItemIndexBeforeChange();
+										suki.removeFromInventory(index);
+										chowCount++;
+										suki.addToInventory(
+												new Collectible("Staff Lounge Key", "Key to the Staff Lounge", keyImage,
+														new Point(0, 0), 0));
+										updateEquippedItemIndexAfterChange();
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+								if (currentMap == maps.get(21) && npc == currentMap.getNPCs().get(0)) {
 									if (!avTalkedTo) {
 										npc.setState(0);
 										npc.setCurrentDialogueIndex(0);
 										avTalkedTo = true;
-									} else if(avTalkedTo && boxesMoved) {
+									} else if (avTalkedTo && boxesMoved) {
 										npc.setState(1);
 										npc.setCurrentDialogueIndex(0);
+									}
+								}
+
+								if (currentMap == maps.get(24)) {
+									if (!mopped && npc.getState() == 0 && npc.getCurrentDialogueIndex() == 2) {
+										updateEquippedItemIndexBeforeChange();
+										suki.addToInventory(new Weapon("Mop", "A Mop for Mopping.", 60, 100, mopImage,
+												new Point(0, 0)));
+										updateEquippedItemIndexAfterChange();
+									} else if (mopped) {
+										npc.setState(1);
+										if (weightCount == 0) {
+											weightCount++;
+											updateEquippedItemIndexBeforeChange();
+											suki.addToInventory(
+													new Weapon("10lb Weight", "For gettin' those gainz!", 40,
+															120, weightImage,
+															new Point(0, 0)));
+											updateEquippedItemIndexAfterChange();
+										}
 									}
 								}
 								// Get the current line of dialogue
@@ -1308,6 +1422,29 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						timer1.setRepeats(false);
 						timer1.start();
 						repaint();
+					} else if (door.interactable() && door.getMapDest() == 1 && currentMap == maps.get(2)) {
+						screen = 9;
+						Timer timer1 = new Timer(3000, new ActionListener() {
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								screen = 10;
+								repaint();
+								Timer timer2 = new Timer(2000, new ActionListener() {
+									@Override
+									public void actionPerformed(ActionEvent e) {
+										screen = 5;
+										repaint();
+									}
+								});
+								timer2.setRepeats(false);
+								timer2.start();
+							}
+
+						});
+						timer1.setRepeats(false);
+						timer1.start();
+						repaint();
 					}
 
 					if (door.interactable()) {
@@ -1318,10 +1455,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						suki.setGameY(door.getExitPos().y);
 						currentMap.setTLLocation(new Point(0, 0));
 						up = down = left = right = false;
-
+						repaint();
 					}
 				}
 
+			}
+			if (currentMap == maps.get(23) && key == KeyEvent.VK_F) {
+				if (moppable) {
+					showMopMessage = false;
+					mopped = true;
+				}
 			}
 		}
 
@@ -1539,6 +1682,20 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		Point mousePoint = e.getPoint();
+
+		// Update hover states for buttons on the current screen
+		hoverPlay = recPlay.contains(mousePoint);
+		hoverAbout = recAbout.contains(mousePoint);
+		hoverNewGame = recNewGame.contains(mousePoint);
+		hoverLB = recLB.contains(mousePoint);
+		hoverBack = recBack.contains(mousePoint);
+
+		repaint(); // Repaint to reflect changes
+	}
+
 	/*
 	 * screen 0 = main menu
 	 * screen 1 = start menu
@@ -1555,98 +1712,65 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			if (recPlay.contains(selectedPoint)) {
 				screen = 1;
 				myPanel.repaint();
-				// try {
-				// // button = true;
-				// // soundPlayer();
-				// } catch (UnsupportedAudioFileException | IOException |
-				// LineUnavailableException e1) {
-				// e1.printStackTrace();
-				// }
+
 			} else if (recAbout.contains(selectedPoint)) {
 				screen = 2;
 				myPanel.repaint();
-				// try {
-				// // button = true;
-				// // soundPlayer();
-				// } catch (UnsupportedAudioFileException | IOException |
-				// LineUnavailableException e1) {
-				// e1.printStackTrace();
-				// }
+
 			}
 		}
 
 		// start menu
 		// starts a new game, shows leaderboard, or returns to main menu
 
-		// else if (screen == 1) {
-		// if (recNewGame.contains(selectedPoint)) {
-		// screen = 5;
-		// // try {
-		// // // button = true;
-		// // // soundPlayer();
-		// // // music.stop();
-		// // // musicPlayer();
-		// // } catch (UnsupportedAudioFileException | IOException |
-		// LineUnavailableException e1) {
-		// // e1.printStackTrace();
-		// // }
+		else if (screen == 1) {
+			if (recNewGame.contains(selectedPoint)) {
+				try {
+					resetVariables();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				screen = 5;
 
-		// myPanel.repaint();
-		// // timer = new Timer("Timer");
-		// // timer.scheduleAtFixedRate(new ThreadTimer(), 10, 1000);
-		// resetVariables();
-		// } else if (recLB.contains(selectedPoint)) {
-		// screen = 4;
-		// myPanel.repaint();
-		// // try {
-		// // // button = true;
-		// // // soundPlayer();
-		// // } catch (UnsupportedAudioFileException | IOException |
-		// LineUnavailableException e1) {
-		// // e1.printStackTrace();
-		// // }
-		// } else if (recBack.contains(selectedPoint)) {
-		// screen = 0;
-		// myPanel.repaint();
-		// // try {
-		// // // button = true;
-		// // // soundPlayer();
-		// // } catch (UnsupportedAudioFileException | IOException |
-		// LineUnavailableException e1) {
-		// // e1.printStackTrace();
-		// // }
-		// }
-		// }
-		// // about menu
-		// else if (screen == 2) {
-		// if (recBack.contains(selectedPoint)) {
-		// screen = 0;
-		// }
+			}
+			if (recLB.contains(selectedPoint)) {
+				screen = 4;
+				myPanel.repaint();
 
-		// }
-		// // settings menu
-		// else if (screen == 3) {
-		// if (recBack.contains(selectedPoint)) {
-		// screen = 5;
-		// }
+			} else if (recBack.contains(selectedPoint)) {
+				screen = 0;
+				myPanel.repaint();
+			}
+		}
+		// about menu
+		else if (screen == 2) {
+			if (recBack.contains(selectedPoint)) {
+				screen = 0;
+			}
 
-		// }
-		// // leaderboard
-		// else if (screen == 4) {
-		// if (recBack.contains(selectedPoint)) {
-		// screen = 1;
-		// }
-		// }
-		// // main game
-		// else if (screen == 5) {
-		// if (showInventory) {
-		// // add inventory buttons
-		// }
+		}
+		// settings menu
+		else if (screen == 3) {
+			if (recBack.contains(selectedPoint)) {
+				screen = 5;
+			}
+			if (recQuitGame.contains(selectedPoint)) {
+				screen = 0;
+			}
 
-		// if (recOptions.contains(selectedPoint)) {
-		// screen = 3;
-		// }
-		// }
+		}
+		// leaderboard
+		else if (screen == 4) {
+			if (recBack.contains(selectedPoint)) {
+				screen = 1;
+			}
+		}
+		// main game
+		else if (screen == 5) {
+			if (recOptions.contains(selectedPoint)) {
+				screen = 3;
+			}
+		}
 	}
 
 	@Override
@@ -1669,97 +1793,136 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	}
 
-	// TO BE FIXED
-	public void keepInBound() {
-		// game screen
-		// MUST CHANGE 100 and mapWidth to changing variables -> instance variables for
-		// currentMap
-		if (screen == 5) {
-			// if (suki.getHitboxM().x < 100)
-			// suki.getHitboxM().x = 100;
-			// else if (suki.getHitboxM().x > currentMap.getBG().getWidth() -
-			// suki.getHitboxM().width)
-			// suki.getHitboxM().x = currentMap.getBG().getWidth() -
-			// suki.getHitboxM().width;
-			// if (suki.getHitboxM().y < 100)
-			// suki.getHitboxM().y = 100;
-			// else if (suki.getHitboxM().y > currentMap.getBG().getHeight() -
-			// suki.getHitboxM().height)
-			// suki.getHitboxM().y = currentMap.getBG().getHeight() -
-			// suki.getHitboxM().height;
+	public void updateEquippedItemIndexBeforeChange() {
+		// Get the name of the currently equipped item before any inventory changes
+		int equippedIndex = suki.getEquippedItem();
+		Item equippedItem = (equippedIndex >= 0 && equippedIndex < suki.getInventory().size())
+				? suki.getInventory().get(equippedIndex)
+				: null;
+
+		if (equippedItem != null) {
+			suki.setEquippedItemName(equippedItem.getName()); // Store the item's name
+		} else {
+			suki.setEquippedItemName(null); // Clear the name if no item is equipped
+		}
+	}
+
+	public void updateEquippedItemIndexAfterChange() {
+		// Get the stored name of the previously equipped item
+		String equippedItemName = suki.getEquippedItemName();
+
+		if (equippedItemName != null) {
+			// Try to find the item's new index in the inventory
+			int newIndex = suki.searchInventory(equippedItemName);
+			if (newIndex >= 0) {
+				suki.setEquippedItem(newIndex); // Update the equipped index to the new position
+				return;
+			}
 		}
 
+		// If the item is no longer in the inventory, equip the first item or unequip
+		if (!suki.getInventory().isEmpty()) {
+			suki.setEquippedItem(0);
+		} else {
+			suki.setEquippedItem(-1); // No items equipped
+		}
 	}
 
 	public void checkCollision(Door door) {
 		Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
 				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 		Rectangle doorRect = door.getDoorRect();
+
 		if (playerRect.intersects(doorRect)) {
+			// Check conditions for each door
 			if (door.getMapDest() == 33) {
 				int index = suki.searchInventory("Math Storage Key");
 				if (index >= 0) {
 					door.setInteractable(true);
 					showLockedMessage = false;
-
 				} else {
 					door.setInteractable(false);
 					showLockedMessage = true;
 				}
 			} else if (door.getMapDest() == 224 && currentMap == maps.get(34)) {
 				int equippedIndex = suki.getEquippedItem();
-				if (equippedIndex < 0 || equippedIndex >= suki.getInventory().size() || 
-					!suki.getInventory().get(equippedIndex).getName().equals("Screwdriver")) {
+				if (equippedIndex < 0 || !suki.getInventory().get(equippedIndex).getName().equals("Screwdriver")) {
 					door.setInteractable(false);
 					showVentMessage = true;
-					repaint();
 				} else {
-					showVentMessage = false;
 					door.setInteractable(true);
+					showVentMessage = false;
 				}
-			} else if(door.getMapDest() == 1 && currentMap == maps.get(2)) {
-				int index = suki.searchInventory("20kg Weight") ;
-				if(index >= 0) {
+			} else if (door.getMapDest() == 1 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("10lb Weight");
+				if (suki.getEquippedItem() == index) {
 					door.setInteractable(true);
 					showStairwellLockedMessage = false;
 				} else {
 					door.setInteractable(false);
 					showStairwellLockedMessage = true;
 				}
-			} else if(door.getMapDest() == 20 && currentMap == maps.get(2)) {
-				int index = suki.searchInventory("Staff Lounge Key") ;
-				if(index >= 0) {
+			} else if (door.getMapDest() == 20 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("Staff Lounge Key");
+				if (index >= 0) {
 					door.setInteractable(true);
 					showLockedLoungeMessage = false;
 				} else {
 					door.setInteractable(false);
 					showLockedLoungeMessage = true;
 				}
-			} else if(door.getMapDest() == 21 && currentMap == maps.get(2)) {
-				int index = suki.searchInventory("Balcony Key") ;
-				if(index >= 0) {
+			} else if (door.getMapDest() == 21 && currentMap == maps.get(2)) {
+				int index = suki.searchInventory("Balcony Key");
+				if (index >= 0) {
 					door.setInteractable(true);
 					showLockedBalconyMessage = false;
 				} else {
 					door.setInteractable(false);
 					showLockedBalconyMessage = true;
 				}
+			} else if (door.getMapDest() == 22 || door.getMapDest() == 23) {
+				int index = suki.searchInventory("Mop");
+				if (index >= 0) {
+					door.setInteractable(true);
+					showWaterMessage = false;
+				} else {
+					door.setInteractable(false);
+					showWaterMessage = true;
+				}
+			} else if (door.getMapDest() == 1 && currentMap == maps.get(2)) {
+				int equippedIndex = suki.getEquippedItem();
+				if (equippedIndex < 0 || !suki.getInventory().get(equippedIndex).getName().equals("Weight")) {
+					door.setInteractable(false);
+					showVentMessage = true;
+				} else {
+					door.setInteractable(true);
+					showVentMessage = false;
+				}
 			} else {
+				// Default behavior for unlocked doors
 				door.setInteractable(true);
 				showLockedLoungeMessage = false;
 				showBoxMessage = false;
 				showStairwellLockedMessage = false;
 			}
 		} else {
-			door.setInteractable(false);
-			if (currentMap == maps.get(2)) {
-				showLockedLoungeMessage = false;
-				showLockedBalconyMessage = false;
-				showBoxMessage = false;
+			// Reset only the message for the current door if the player walks away
+			if (door.getMapDest() == 33) {
+				showLockedMessage = false;
+			} else if (door.getMapDest() == 224 && currentMap == maps.get(34)) {
+				showVentMessage = false;
+			} else if (door.getMapDest() == 1 && currentMap == maps.get(2)) {
 				showStairwellLockedMessage = false;
+			} else if (door.getMapDest() == 20 && currentMap == maps.get(2)) {
+				showLockedLoungeMessage = false;
+			} else if (door.getMapDest() == 21 && currentMap == maps.get(2)) {
+				showLockedBalconyMessage = false;
+			} else if (door.getMapDest() == 22 || door.getMapDest() == 23) {
+				showWaterMessage = false;
 			}
+			// Disable door interaction when not colliding
+			door.setInteractable(false);
 		}
-
 	}
 
 	public void checkPlayerCollisions(Player player) throws IOException {
@@ -1781,8 +1944,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						collectible.setImage(ImageIO.read(getClass().getResource("/sprites/beaker.png")));
 						Collectible beaker = collectible;
 						System.out.println("Picked up collectible: " + collectible.getName());
+						updateEquippedItemIndexBeforeChange();
 						player.addToInventory(beaker);
-						// player.getInventory().sort(new SortByName());
+						updateEquippedItemIndexAfterChange();
 						collectibleIterator.remove();
 						beakerWalkCount++;
 					} else {
@@ -1807,7 +1971,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 							essayWritten = true;
 							essayWalkCount++;
 							collectibleIterator.remove();
+							updateEquippedItemIndexBeforeChange();
 							player.addToInventory(essay);
+							updateEquippedItemIndexAfterChange();
 							System.out.println("Essay written.");
 						} else {
 							showEssayMessage = true;
@@ -1833,14 +1999,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					timer.start();
 					repaint();
 					collectibleIterator.remove(); // Remove from map
-					player.getInventory().add(collectible); // Add to player's inventory
-					player.getInventory().sort(new SortByName());
+					updateEquippedItemIndexBeforeChange();
+					player.addToInventory(collectible); // Add to player's inventory
+					updateEquippedItemIndexAfterChange();
 					System.out.println("Picked up collectible: " + collectible.getName());
-				} 
-				else {
+				} else {
 					collectibleIterator.remove(); // Remove from map
-					player.getInventory().add(collectible); // Add to player's inventory
-					player.getInventory().sort(new SortByName());
+					updateEquippedItemIndexBeforeChange();
+					player.addToInventory(collectible); // Add to player's inventory
+					updateEquippedItemIndexAfterChange();
 					System.out.println("Picked up collectible: " + collectible.getName());
 				}
 			} else {
@@ -1857,7 +2024,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					weapon.getImage().getWidth(), weapon.getImage().getHeight());
 			if (playerRect.intersects(itemRect)) {
 				weaponIterator.remove(); // Remove from map
-				player.getInventory().add(weapon); // Add to player's inventory
+				updateEquippedItemIndexBeforeChange();
+				player.addToInventory(weapon); // Add to player's inventory
+				updateEquippedItemIndexAfterChange();
 				System.out.println("Picked up weapon: " + weapon.getName());
 			}
 		}
@@ -2090,6 +2259,37 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	public void showGameOverPanel() {
+		// Create the Game Over panel
+		JPanel gameOverPanel = new JPanel();
+		gameOverPanel.setLayout(new BorderLayout());
+		gameOverPanel.setBackground(Color.BLACK);
+
+		// Add "Game Over" label
+		JLabel gameOverLabel = new JLabel("GAME OVER", SwingConstants.CENTER);
+		gameOverLabel.setFont(new Font("Arial", Font.BOLD, 36));
+		gameOverLabel.setForeground(Color.RED);
+		gameOverPanel.add(gameOverLabel, BorderLayout.CENTER);
+
+		// Add "Return to Home Screen" button
+		JButton returnButton = new JButton("Return to Home Screen");
+		returnButton.setFont(new Font("Arial", Font.PLAIN, 18));
+		returnButton.addActionListener(e -> {
+			screen = 0; // Set the screen to the home screen
+			frame.getContentPane().remove(gameOverPanel); // Remove the Game Over panel
+			frame.getContentPane().add(this); // Add the main game panel
+			frame.revalidate();
+			frame.repaint();
+		});
+		gameOverPanel.add(returnButton, BorderLayout.SOUTH);
+
+		// Display the Game Over panel
+		frame.getContentPane().remove(this); // Remove the game panel
+		frame.getContentPane().add(gameOverPanel); // Add the Game Over panel
+		frame.revalidate();
+		frame.repaint();
+	}
+
 	public static void main(String[] args) throws IOException {
 
 		// The following lines creates your window
@@ -2112,5 +2312,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		frame.setLocationRelativeTo(null);
 		// without this, your thread will keep running even when you windows is closed!
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'mouseDragged'");
 	}
 }

@@ -1,11 +1,11 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-class BaseCow extends Cow {
+class SpaceCow extends Cow {
     private FloorMap currentMap;
 
-    public BaseCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
-        super(100, 4, 2, x, y, image, currentMap, false, suki);
+    public SpaceCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
+        super(150, 8, 3, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 
@@ -56,10 +56,8 @@ class BaseCow extends Cow {
         double dy = player.getHitboxC().y - this.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 10) {
+        if (distance < 20) {
             player.takeDamage(this.getDamage());
         }
-
-        // TODO Auto-generated method stub
     }
 }

@@ -303,7 +303,7 @@ Whoever sharpened this pencil must have a really good sharpener…
 Meter Stick
 Stick for measuring metres.
 100 30
-/sprites/pencil.png
+/sprites/metreStick.png
 625 275
 0
 0
@@ -440,7 +440,7 @@ Stick for measuring metres.
 Broom
 Great for cleaning up lab spills.
 0
-/sprites/pencil.png
+/sprites/broom.png
 700 250
 0
 1
@@ -576,11 +576,11 @@ Great for cleaning up lab spills.
 Beaker
 Fragile container to hold dangerous substances.
 0
-/sprites/pencil.png
+/sprites/beakerEmpty.png
 325 675
 1
 Mr. Mckillop
-/sprites/kim.png
+/sprites/mckillop.png
 300 275
 2
 3
@@ -670,7 +670,7 @@ The beaker should help you get out of here.
 Foolscap
 Working hard or hardly working?
 0
-/sprites/pencil.png
+/sprites/foolscap.png
 300 250
 0
 1
@@ -751,11 +751,11 @@ Working hard or hardly working?
 Lays Classic Chips
 Crunch, crunch, crunch.
 0
-/sprites/pencil.png
+/sprites/chips.png
 100 600
 1
 Mr. Lee
-/sprites/kim.png
+/sprites/lee.png
 500 550
 2
 1
@@ -840,13 +840,13 @@ What’s going on?
 0
 2
 Mr. Achong
-/sprites/kim.png
+/sprites/achong.png
 200 550
 1
 1
 No, you can’t have your test back.
 Mr. Lien
-/sprites/kim.png
+/sprites/lien.png
 100 550
 2
 2
@@ -1101,11 +1101,13 @@ I guess you can have the key to the storage room.
 Ms. Wong
 /sprites/wong.png
 138 582
-1
+2
 3
 Hi Suki! Why are you here?
 Could you bring this back to Mr. Chow? 
 I think he might have something that can help you out.
+1
+You should probably leave! It’s super dangerous here.
 1
 2
 100 250 
@@ -1191,7 +1193,10 @@ There might be something useful in there.
 2
 500 250
 6900 225
-0
+3
+375 325 1
+475 475 1
+375 624 1
 20 
 /map files/STAFFLOUNGE.png
 7
@@ -1231,7 +1236,15 @@ Key to the Balcony of the Cafeteria
 2
 700 200
 6300 1125
-0
+8
+525 425 1
+125 425 1
+600 425 1
+550 550 1
+375 475 1
+350 350 1
+200 600 1
+750 300 1
 21 
 /map files/BALCONY.png
 7
@@ -1320,9 +1333,28 @@ Why are you still here?
 26
 0
 0
-0
+1
+Mr. Cheung
+/sprites/cheung.png
+100 300
+2
+3
+There’s a flood in the washrooms.
+Would you do me a favour and clean it up?
+Here’s a mop.
+3
+Oh! Thank you so much.
+Here’s a weight. Maybe the locked stairwell doors can be smashed?
+Be careful around the glass!
 1
 2
 700 550
 400 3425
-0
+7
+525 475 1
+675 375 1
+550 350 1
+150 500 1
+350 300 1
+700 450 1
+100 400 1
