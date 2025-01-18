@@ -1,3 +1,11 @@
+// ICS4U1 Culminating Assignment
+// ChaseCow: Markville Cow Invasion
+// Claire Hung & Sophie Jiang
+// January 2025
+// Description: See readme.txt! 
+
+
+// imports
 import java.awt.event.*;
 import java.util.*;
 import java.awt.*;
@@ -7,7 +15,6 @@ import javax.imageio.*;
 // import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.Timer;
-
 import java.awt.image.*;
 
 /* 
@@ -19,9 +26,9 @@ import java.awt.image.*;
  * screen 5 = game ??????
  */
 
-@SuppressWarnings("serial") // funky warning, just suppress it. It's not gonna do anything.
+@SuppressWarnings("serial") // suppressing random warning
 public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener, MouseMotionListener {
-	// big boss variable
+	// big boss variables
 	int screen = 0;
 	static JPanel myPanel;
 	static JFrame frame;
@@ -31,37 +38,31 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	Thread thread;
 	int screenWidth = 1080;
 	int screenHeight = 720;
-	boolean up, down, left, right;
-	boolean interactable = false;
 
-	// main screen + start screen
+	// movement variables
+	boolean up, down, left, right;
+	
+	// main screen + start screen buttons
 	Rectangle recAbout, recPlay, recOptions;
 	boolean hoverAbout, hoverOptions, hoverPlay;
 	BufferedImage titleScreenBG, title, play, play2, about, about2, settings, settings2, options, options2, back, back2;
 	Rectangle recLB, recNewGame, recBack;
 	boolean hoverNewGame, hoverLB, hoverBack;
 	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2;
-
+	
 	// settings
 	Rectangle recVolume;
-	// im thinking we have like 5 buttons and its just 5 levels of volume next to
 	Rectangle recQuitGame;
-	// each other so its like a fake slider
 	BufferedImage volumeImg, quitGame;
-	// int difficulty = 1; // maybe just 1=easy 2=hard?
-	int volume = 3; // 1-5??
+	int volume = 3;
 
+	// games global variables
 	boolean showInventory = false;
-	// game
+	boolean interactable = false;
 	ArrayList<BufferedImage> cowImages = new ArrayList<BufferedImage>();
-
-	// Rectangle player = new Rectangle(517, 328, 46, 64);
-	// HashSet <Rectangle> walls = new HashSet <Rectangle>();
 	BufferedImage playerImage, cowImage;
 	Player suki;
-	// HashSet<Cow> cows = new HashSet<Cow>();
 	FloorMap currentMap;
-	// ArrayList<FloorMap> maps = new ArrayList<>();
 	HashMap<Integer, FloorMap> maps = new HashMap<>();
 	BufferedImage[] innerWallImages;
 	boolean healing = false;
@@ -71,6 +72,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			"spaceCow",
 			"wasteCow"
 	};
+	int currentCowType;
 
 	// CUTSCENE IMAGES
 	BufferedImage floor3SceneImg;
@@ -80,12 +82,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage stairsSceneImg;
 	BufferedImage healthBar;
 
-	int currentCowType;
 	// NPC DIALOGUE
-	// Dialogue variables
-	String currentDialogue; // Current line of dialogue to display
-	long dialogueEndTime; // Timestamp when the dialogue box should disappear
-	boolean dialogueActive; // Flag to track if dialogue is currently active
+	// dialogue variables
+	String currentDialogue; // current line of dialogue to display
+	long dialogueEndTime; // timestamp when the dialogue box should disappear
+	boolean dialogueActive; //  track if dialogue is happening
+	
 	// STAGE 1
 	boolean beakerCleaned;
 	int beakerWalkCount;
@@ -131,57 +133,65 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean moppable;
 	int weightCount;
 
+	// constructor
 	public ChaseCow() throws IOException {
+		// initialize variables
 		importImages();
-		// resetVariables();
 		initialize();
-		currentMap = maps.get(224);
 		setPreferredSize(new Dimension(1080, 720));
 
-		// sets up JPanel
+		// set up JPanel
 		frame.getContentPane().add(this);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		setVisible(true);
-		setFocusable(true); // Ensure the panel is focusable
-		requestFocusInWindow(); // Request focus for key events
+		setFocusable(true);
+		requestFocusInWindow();
+
+		// checks for user input in mouse and keyboard
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		addKeyListener(this); // Add KeyListener to the panel
-		// addKeyListener(this);
-		// starting the thread
+		addKeyListener(this);
+
+		// makes sure program can run
 		thread = new Thread(this);
 		thread.start();
 	}
 
+	// Description: always running
+	// Parameters: n/a
+	// Return: void
 	@Override
 	public void run() {
+		// main game loop
 		while (true) {
-			// main game loop
+			// update ingame variables
 			try {
 				update();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			// update visuals
 			this.repaint();
+			// frames
 			try {
 				Thread.sleep(1000 / FPS);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-			// IF SCREEN IS ON A GAME SCREEN ie != screen 0 1 2 3 4 or smth
-			// then do stuff that needs to happen at all times during game
 		}
 	}
 
+	// Description: initialize variables
+	// Parameters: n/a
+	// Return: void
 	public void initialize() throws IOException {
 		currentCowType = 0;
 		// NPC DIALOGUE
 		// Dialogue variables
-		currentDialogue = null; // Current line of dialogue to display
-		dialogueEndTime = 0; // Timestamp when the dialogue box should disappear
-		dialogueActive = false; // Flag to track if dialogue is currently active
+		currentDialogue = null; // current line of dialogue to display
+		dialogueEndTime = 0; // timestamp when the dialogue box should disappear
+		dialogueActive = false; // Flag to track if dialogue is currently happening
 		// STAGE 1
 		beakerCleaned = false;
 		beakerWalkCount = 0;
@@ -225,18 +235,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		moppable = false;
 		weightCount = 0;
 
+		// read in non-map images, initialize variables
 		try {
 			titleScreenBG = ImageIO.read(getClass().getResource("/menu/titleBG.png"));
-			// System.out.println("Loaded titleScreenBG image");
 			int numCows = cowNames.length;
 			for (int i = 0; i < numCows; i++) {
 				String cowPath = "/sprites/" + cowNames[i] + ".png";
 				cowImage = ImageIO.read(getClass().getResource(cowPath));
 				cowImages.add(cowImage);
-				// System.out.println("Loaded cow image: " + cowPath);
 			}
 
-			// screen 0 (main menu)
+			// screen 0, 1, 2, 3, 4 (menu)
 			title = ImageIO.read(getClass().getResource("/menu/title.png"));
 			play = ImageIO.read(getClass().getResource("/menu/playbutton.png"));
 			about = ImageIO.read(getClass().getResource("/menu/aboutbutton.png"));
@@ -253,7 +262,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			quitGame = ImageIO.read(getClass().getResource("/menu/quitgamebutton.png"));
 			volumeImg = ImageIO.read(getClass().getResource("/menu/volume.png"));
 
-			// DIMENSION NEED TO BE CHANGED!!!!!!
+			// rectangles to detect if button is pressed
 			recPlay = new Rectangle(100, 200, play.getWidth(), play.getHeight());
 			recAbout = new Rectangle(100, 300, about.getWidth(), about.getHeight());
 			recOptions = new Rectangle(990, 30, options.getWidth(), options.getHeight());
@@ -262,24 +271,24 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			recLB = new Rectangle(100, 300, leaderboard.getWidth(), leaderboard.getHeight());
 			recQuitGame = new Rectangle(400, 400, quitGame.getWidth(), quitGame.getHeight());
 			recVolume = new Rectangle(100, 200, volumeImg.getWidth(), volumeImg.getHeight());
-			// for (int i = 0; i < 5; i++) {
-			// recVolume.add(new Rectangle(100 + i * 50, 200, volumeImg.getWidth(),
-			// volumeImg.getHeight()));
-			// }
 
+			// player sprites
 			BufferedImage playerImageDown = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
 			BufferedImage playerImageUp = ImageIO.read(getClass().getResource("/sprites/sukiUp.png"));
 			BufferedImage playerImageRight = ImageIO.read(getClass().getResource("/sprites/sukiRight.png"));
 			BufferedImage playerImageLeft = ImageIO.read(getClass().getResource("/sprites/sukiLeft.png"));
 
+			// cutscenes for when a level is beat
 			floor3SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR3SCENE.png"));
 			floor2SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR2SCENE.png"));
 			floor1SceneImg = ImageIO.read(getClass().getResource("/menu/FLOOR1SCENE.png"));
 			ventsSceneImg = ImageIO.read(getClass().getResource("/menu/VENTSCENE.png"));
 			stairsSceneImg = ImageIO.read(getClass().getResource("/menu/STAIRSCENE.png"));
 
+			// health bar image
 			healthBar = ImageIO.read(getClass().getResource("/menu/HPBAR.png"));
 
+			// images for specific stages
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
 			keyImage = ImageIO.read(getClass().getResource("/sprites/key.png"));
 			tissueImage = ImageIO.read(getClass().getResource("/sprites/tissueBox.png"));
@@ -288,53 +297,66 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			weightImage = ImageIO.read(getClass().getResource("/sprites/weight.png"));
 			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
 
-			System.out.println("spill loaded");
+			// initialize player
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 225, 275,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
+			// set playerImage to facing down
 			playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
-			System.out.println("Loaded player image");
+			// load first cow as basecow
 			cowImage = ImageIO.read(getClass().getResource("/sprites/baseCow.png"));
-			System.out.println("Loaded cow image");
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	// Description: resets all variables for when a new game starts
+	// Parameters: n/a
+	// Return: void
 	public void resetVariables() throws IOException {
 		initialize();
 		initializeMaps();
 	}
 
+	// Description: updates the game at every frame
+	// Parameters: n/a
+	// Return: void
 	public void update() throws IOException {
-		// update stuff
 
+		// on game screen:
 		if (screen == 5) {
+			// if suki dies, show game over screen
 			if (suki.getHP() <= 0) {
 				showGameOverPanel();
 			}
+			// allow player to move
 			move();
+
+			// makes sure map isnt null, and updates cows to follow suki
 			if (currentMap != null) {
 				currentMap.updateCows(suki);
 			} else {
 				System.out.println("No current map is set.");
 			}
 
+			// check collision for all outer walls
 			Iterator<Wall> it = currentMap.getRectWalls().iterator();
 			while (it.hasNext()) {
 				checkCollision(it.next());
 			}
 
+			// check collision for all inner walls
 			Iterator<Wall> iter = currentMap.getInnerWalls().iterator();
 			while (iter.hasNext()) {
 				checkCollision(iter.next());
 			}
 
+			// check collision for all triangular walls
 			Iterator<Triangle> itr = currentMap.getTriWalls().iterator();
 			while (itr.hasNext()) {
 				checkCollision(itr.next());
 			}
 
+			// check collision for all cows
 			if (!currentMap.getCows().isEmpty()) {
 				Iterator<Cow> cowItr = currentMap.getCows().iterator();
 				while (cowItr.hasNext()) {
@@ -343,8 +365,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// check if player walks through any items
 			checkPlayerCollisions(suki);
 
+			// check if player is within range of an npc
 			if (currentMap.getNPCs() != null) {
 				for (NPC npc : currentMap.getNPCs()) {
 					double distance = getNPCDistance(suki, npc);
@@ -353,11 +377,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			}
 
+			// check if player is within range of a door
 			for (Door door : currentMap.getDoors()) {
 				checkCollision(door);
 			}
 
+			// FLOOR 3
 			if (currentMap == maps.get(3)) {
+				// MS WONG CHEAT: HEALING AT WATER FOUNTAINS
 				Rectangle waterFountain = new Rectangle(6500, 950, 100, 25);
 				Rectangle waterFountain2 = new Rectangle(1075, 3450, 50, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
@@ -368,19 +395,24 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					healing = false;
 				}
 
+				// STAGE 1
 				Rectangle spillRect = new Rectangle(4400, 1850, 100, 300);
+				// if at goop spill:
 				if (spillRect.intersects(playerRect) && !spillCleaned) {
+					// find player coords
 					double left1 = playerRect.getX();
 					double right1 = playerRect.getX() + playerRect.getWidth();
 					double right2 = spillRect.getX() + spillRect.getWidth();
 					if (left1 < right2 && right1 > right2) {
-						// Collision from right
+						// collision from right
 						suki.setGameX(suki.getGamePos().x + suki.getSpeed());
 					}
 					Collectible spill = new Collectible("Goop", "goopy goop", spillImage, new Point(4400, 1850), 0);
+					// ensure that necessary items are in inventory
 					int index1 = suki.searchInventory("Beaker");
 					int index2 = suki.searchInventory("Broom");
 					if (index1 >= 0 && index2 >= 0) {
+						// get beaker with goop!
 						spillCleaned = true;
 						spill.setImage(ImageIO.read(getClass().getResource("/sprites/beakergoop.png")));
 						spill.setDescription("Beaker of mysterious purple liquid.");
@@ -390,30 +422,36 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						updateEquippedItemIndexAfterChange();
 						suki.getInventory().add(spill);
 						System.out.println("Spill cleaned.");
+						// update dialogue for av guy
 						currentMap.getNPCs().get(0).setState(1);
 						currentMap.getNPCs().get(0).setCurrentDialogueIndex(0);
+						// ensure it can only occur once
 						spillWalkCount++;
 					} else {
 						showSpillMessage = true;
 					}
 				} else {
+					// only show spill message if suki is in range
 					showSpillMessage = false;
 				}
 
+				// STAGE 2
 				Rectangle msKimThreshold = new Rectangle(3200, 2625, 100, 200);
 				if (msKimThreshold.intersects(playerRect) && !essaySubmitted) {
-					// stop the player from moving
+					// stop the player from moving at wall if essay NOT submitted
 					double top1 = playerRect.getY();
 					double bottom1 = playerRect.getY() + playerRect.getHeight();
 					double top2 = msKimThreshold.y;
 					if (bottom1 > top2 && top1 < top2) {
-						// player collides from top side of the wall
+						// player collides from top of the wall
 						suki.setGameY((int) (suki.getGamePos().y - suki.getSpeed()));
 					}
 				}
 			}
 
+			// FLOOR 2
 			if (currentMap == maps.get(2)) {
+				// MS WONG CHEAT: WATERFOUNTAIN HEALING!
 				Rectangle waterFountain = new Rectangle(475, 3400, 50, 25);
 				Rectangle waterFountain2 = new Rectangle(6850, 950, 50, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
@@ -424,25 +462,31 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					healing = false;
 				}
 
+				// STAGE 4
+				// CAN'T WALK PAST BOXES UNLESS STAGE COMPLETE.
 				Rectangle boxesRect = new Rectangle(4600, 1800, 200, 500);
 				if (boxesRect.intersects(playerRect) && !boxesMoved) {
 					double left1 = playerRect.getX();
 					double right1 = playerRect.getX() + playerRect.getWidth();
 					double right2 = boxesRect.getX() + boxesRect.getWidth();
 					if (left1 < right2 && right1 > right2) {
-						// Collision from right
+						// collision from right
 						suki.setGameX(suki.getGamePos().x + suki.getSpeed());
 					}
 					if (avTalkedTo) {
+						// move boxes if spoken to AV Guy.
 						boxesMoved = true;
 						System.out.println("Boxes moved.");
 					} else {
 						showBoxMessage = true;
 					}
 				} else {
+					// only show box message if suki is in range.
 					showBoxMessage = false;
 				}
 
+				// STAGE 5
+				// if player touches water, show message about water
 				Rectangle floodRect = new Rectangle(1100, 3450, 150, 50);
 				if (floodRect.intersects(playerRect) && !mopped) {
 					showWaterMessage = true;
@@ -451,6 +495,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// FLOOD IN WASHROOMS LOGIC (washroom1)
 			Rectangle floodRect1 = new Rectangle(50, 425, 100, 150);
 			if (currentMap == maps.get(23)) {
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
@@ -469,6 +514,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// FLOOD IN WASHROOMS LOGIC (washroom2)
 			Rectangle floodRect2 = new Rectangle(150, 400, 100, 150);
 			if (currentMap == maps.get(22)) {
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
@@ -486,8 +532,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// healing timer so it is not instant healing. player must wait to heal.
 			long lastHealTime = 0;
-			int healCooldown = 500; // 0.5 second cooldown for healing
+			int healCooldown = 800; // 0.5 second cooldown for healing
 			if (healing && !fullHP) {
 				System.out.println("HEALING");
 				if (System.currentTimeMillis() - lastHealTime >= healCooldown) {
@@ -498,6 +545,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// if suki is at full hp, stop healing.
 			if (suki.getHP() >= suki.getMaxHP()) {
 				fullHP = true;
 			} else {
@@ -506,12 +554,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	// Description: initialize all maps from SUPER LONG text file
+	// Paramters: n/a
+	// Return: void
 	public void initializeMaps() throws IOException {
-		// Create and add FloorMap objects to the maps list
+		// create and add floormap objects to the maps list
 		BufferedReader b = new BufferedReader(
 				new InputStreamReader(getClass().getResourceAsStream("/map files/mapInfo.txt")));
 		try {
+
 			int numMaps = Integer.parseInt(b.readLine().trim());
+			// loop for each map
 			for (int i = 0; i < numMaps; i++) {
 				int mapID = Integer.parseInt(b.readLine().trim());
 				System.out.println("Loading map " + mapID);
@@ -524,6 +577,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				ArrayList<Collectible> collectibles = new ArrayList<>();
 				ArrayList<NPC> npcs = new ArrayList<>();
 				ArrayList<Door> doors = new ArrayList<>();
+				// load all exterior walls
 				int numRectWalls = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numRectWalls; j++) {
 					StringTokenizer st = new StringTokenizer(b.readLine().trim());
@@ -533,6 +587,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 									Integer.parseInt(st.nextToken()))));
 					System.out.println("loaded walls");
 				}
+				// load all triangular walls
 				int numTriWalls = Integer.parseInt(b.readLine().trim());
 				HashSet<Triangle> triWalls = new HashSet<>();
 				for (int j = 0; j < numTriWalls; j++) {
@@ -544,6 +599,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					triWalls.add(new Triangle(vertices[0], vertices[1], vertices[2]));
 					System.out.println("loaded triangles");
 				}
+				// load all interior walls ie. chairs tables etc.
 				int numInnerWalls = Integer.parseInt(b.readLine().trim());
 				System.out.println("number of inner walls:" + numInnerWalls);
 				for (int j = 0; j < numInnerWalls; j++) {
@@ -561,6 +617,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					System.out.println("loaded inside walls");
 					System.out.println("total inner walls:" + innerWalls.size());
 				}
+				// load all weapons
 				int numWeapons = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numWeapons; j++) {
 					String name = b.readLine().trim();
@@ -575,6 +632,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					weapons.add(new Weapon(name, desc, reach, damage, img, tlPoint));
 					System.out.println("loaded weapons");
 				}
+				// load all collectibles
 				int numCollectibles = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numCollectibles; j++) {
 					String name = b.readLine().trim();
@@ -587,6 +645,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					collectibles.add(new Collectible(name, desc, img, tlPoint, reach));
 					System.out.println("loaded collectibles");
 				}
+				// load all npcs
 				int numNPCs = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numNPCs; j++) {
 					String name = b.readLine().trim();
@@ -596,6 +655,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					Point tlPoint = new Point(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 					int numStates = Integer.parseInt(b.readLine().trim());
 					String[][] dialogue = new String[numStates][];
+					// load npc dialogue
 					for (int k = 0; k < numStates; k++) {
 						int numDialogues = Integer.parseInt(b.readLine().trim());
 						dialogue[k] = new String[numDialogues]; // Initialize the inner array for this state
@@ -606,6 +666,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					npcs.add(new NPC(name, tlPoint, dialogue, img));
 					System.out.println("loaded npcs");
 				}
+				// load all door rectangles
 				int numDoors = Integer.parseInt(b.readLine().trim());
 				for (int j = 0; j < numDoors; j++) {
 					System.out.println("loading doors");
@@ -617,7 +678,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					doors.add(new Door(new Rectangle(tlPoint.x, tlPoint.y, 50, 50), mapDest, exitPos));
 					System.out.println("loaded doors");
 				}
-				// maps.add(new FloorMap(mapID, new Point(0, 0), bg, rectWalls, triWalls));
+				// load all cows
 				int numCows = Integer.parseInt(b.readLine().trim());
 				System.out.println("cows in " + mapID + ": " + numCows);
 				for (int j = 0; j < numCows; j++) {
@@ -634,17 +695,23 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					System.out.println("loaded cows");
 				}
 				System.out.println("Loaded map " + mapID);
-				currentMap = maps.get(30);
+				// add map to map list
 				maps.put(mapID, new FloorMap(new Point(0, 0), rectWalls, triWalls, innerWalls, bg, doors, cows, npcs,
-						weapons, collectibles));
+				weapons, collectibles));
+				//set first map to spawn point
+				currentMap = maps.get(30);
 				repaint();
 			}
 		} catch (NumberFormatException e) {
+			// incase there is a reading error
 			System.out.println("Error reading map info file");
 		}
 		b.close();
 	}
 
+	// Description: imports all interior wall images
+	// Paramters: void
+	// Return: n/a
 	public void importImages() throws IOException {
 		// IMPORTS ALL IMAGES
 		BufferedReader b = new BufferedReader(
@@ -659,10 +726,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				System.out.println("Loaded inner wall image: " + imgPath);
 			}
 		} catch (NumberFormatException e) {
+			// incase an error occurs...
 			System.out.println("Error reading wall files");
 		}
 	}
 
+	// Description: find distance from npc to player
+	// Parameters: npc and suki (finding distance between them)
+	// Return: distance between the two
 	public double getNPCDistance(Player suki, NPC npc) {
 		// Get NPC center coordinates
 		int npcCenterX = npc.getGamePos().x + (npc.getImage().getWidth() / 2);
@@ -675,6 +746,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		return Math.sqrt(Math.pow(playerCenterX - npcCenterX, 2) + Math.pow(playerCenterY - npcCenterY, 2));
 	}
 
+	// Description: paintComponent... paints everything ???
+	// Parameters: Graphics... this thing lets it paint stuff
+	// Return: void
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
@@ -682,12 +756,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, screenWidth, screenHeight);
 
+		// extra stuff for different styles
 		Graphics2D g2 = (Graphics2D) g;
 		Graphics2D g3 = (Graphics2D) g;
+		
+		// all buttons have 2 options. will change depending on if you hover over the button or not
 		// main screen
 		if (screen == 0) {
-			// g.drawImage(titleScreenBG, 0, 0, titleScreenBG.getWidth(),
-			// titleScreenBG.getHeight(), this);
+			// g.drawImage(titleScreenBG, 0, 0, titleScreenBG.getWidth(), titleScreenBG.getHeight(), this);
 			g.drawImage(title, 100, 100, title.getWidth(), title.getHeight(), this);
 			g.drawImage(hoverPlay ? play2 : play, 100, 200, play.getWidth(), play.getHeight(), this);
 			g.drawImage(hoverAbout ? about2 : about, 100, 300, about.getWidth(), about.getHeight(), this);
@@ -707,73 +783,86 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
 		}
 
+		// settings
 		if (screen == 3) {
 			g.drawImage(hoverBack ? back2 : back, 30, 30, back.getWidth(), back.getHeight(), this);
 			g.drawImage(volumeImg, 100, 200, volumeImg.getWidth(), volumeImg.getHeight(), this);
 			g.drawImage(quitGame, 400, 400, quitGame.getWidth(), quitGame.getHeight(), this);
 		}
 
+		// leaderboard
 		if (screen == 4) {
 			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
 		}
 
 		// game screen
-		if (screen == 5) { // Game screen
+		if (screen == 5) { 
+			// get player game coordinates
 			int playerX = suki.getGamePos().x + (int) suki.getHitboxC().getWidth() / 2;
 			int playerY = suki.getGamePos().y - (int) suki.getHitboxC().getHeight() / 2;
 			g2.setColor(Color.GREEN);
 
+			// change styles
 			g2.setFont(new Font("Dialog", Font.PLAIN, 16));
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
+			
+			// paint map if it isnt null
 			if (currentMap.getBG() != null) {
+				// this was so confusing 
 
-				// Visible area dimensions
+				// visible area dimensions
 				int visibleWidth = screenWidth;
 				int visibleHeight = screenHeight;
 
-				// Calculate the source rectangle based on player position
+				// calculate the source rectangle based on player position
 				int srcX = playerX - visibleWidth / 2;
 				int srcY = playerY - visibleHeight / 2;
 				int srcX2 = srcX + visibleWidth;
 				int srcY2 = srcY + visibleHeight;
 
-				// Adjust the destination rectangle dimensions
+				// adjust the rectangle dimensions
 				int destWidth = srcX2 - srcX;
 				int destHeight = srcY2 - srcY;
 
-				// Draw the background
+				//background
 				setBackground(Color.BLACK);
 				g.drawImage(currentMap.getBG(),
-						0, 0, destWidth, destHeight, // Destination rectangle
-						srcX, srcY, srcX2, srcY2, // Source rectangle
+						0, 0, destWidth, destHeight, // destination rectangle
+						srcX, srcY, srcX2, srcY2, // source rectangle
 						this);
 
 			} else {
+				// incase background is null
 				System.out.println("Background image is null");
 			}
 
+			// print all NPCs on the current map
 			if (currentMap.getNPCs() != null) {
 				Iterator<NPC> npcIt = currentMap.getNPCs().iterator();
 				while (npcIt.hasNext()) {
 					NPC npc = npcIt.next();
-					// Translate NPC's in-game position to screen coordinates
+					// translate NPCs in-game position to screen coordinates
 					int npcScreenX = (npc.getGamePos().x - playerX) + ((screenWidth / 2));
 					int npcScreenY = (npc.getGamePos().y - playerY) + ((screenHeight / 2));
 
-					// Draw NPC
+					// draw NPC
 					if (npc.getImage() != null) {
 						g.drawImage(npc.getImage(), npcScreenX, npcScreenY, npc.getImage().getWidth(),
 								npc.getImage().getHeight(),
 								this);
 					} else {
-						g.setColor(Color.BLUE);
-						g.fillRect(npcScreenX, npcScreenY, 50, 50); // Placeholder
+						g.setColor(Color.RED);
+						g.fillRect(npcScreenX, npcScreenY, 50, 50); // placeholder if npc image is null for some reason
 					}
 				}
 			}
+			// change font again
 			g.setFont(new Font("Dialog", Font.PLAIN, 16));
 
+			// STAGE 4 (BUSINESS WASHROOM)
+			// if not mopped...
 			if (!mopped) {
+				// prompt user to hold mop
 				if (showMopMessage && (currentMap == maps.get(22) || currentMap == maps.get(23))) {
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
@@ -781,7 +870,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.drawString("Looks like I need the mop", 60, 580);
 
 				}
+				// prompt user to mop
 				if (currentMap == maps.get(23)) {
+					// find flood screen coords based on game coords
 					int floodScreenX = (25 - suki.getGamePos().x) + (screenWidth / 2);
 					int floodScreenY = (425 - suki.getGamePos().y) + (screenHeight / 2);
 					g.drawImage(floodImage, floodScreenX, floodScreenY, floodImage.getWidth(), floodImage.getHeight(),
@@ -793,7 +884,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						g.drawString("Press F to mop", 60, 580);
 					}
 				}
+				// prompt user to mop
 				if (currentMap == maps.get(22)) {
+					// find flood in screen coords based on gamecoords
 					int floodScreenX = (125 - suki.getGamePos().x) + (screenWidth / 2);
 					int floodScreenY = (400 - suki.getGamePos().y) + (screenHeight / 2);
 					g.drawImage(floodImage, floodScreenX, floodScreenY, floodImage.getWidth(), floodImage.getHeight(),
@@ -806,6 +899,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					}
 
 				}
+				// if suki steps in water, display that suki hates water (CAUSE SHES A CAT)
 				if (showWaterMessage && currentMap == maps.get(2)) {
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
@@ -814,8 +908,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// layer player and inner walls based on location
 			drawInnerWalls(g2, playerX, playerY);
 
+			// FOR TESTING PURPOSES (COMMENT OUT INCASE MS Wong WANTs TO SEE THE TRIANGLES)
 			for (Triangle tri : currentMap.getTriWalls()) {
 				Point[] vertices = tri.getVertices();
 				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
@@ -825,15 +921,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						(vertices[2].y - playerY) + (screenHeight / 2) };
 				g2.fillPolygon(xPoints, yPoints, 3);
 			}
-			// System.out.println("walls in front:" + wallsInFront.size());
 
+			// print all cows
 			if (!currentMap.getCows().isEmpty()) {
 				for (Cow cow : currentMap.getCows()) {
-					// Translate the cow's in-game position to screen coordinates
+					// find the cow's in-game position to screen coordinates
 					int cowScreenX = (cow.getGamePos().x - playerX) + ((screenWidth / 2));
 					int cowScreenY = (cow.getGamePos().y - playerY) + ((screenHeight / 2));
 
-					// Draw the cow image or placeholder
+					// draw the cow image or placeholder
 					BufferedImage cowImage = cow.getImage();
 					if (cowImage != null) {
 						g.drawImage(cowImage,
@@ -841,14 +937,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								cow.getHitbox().width, cow.getHitbox().height,
 								this);
 					} else {
-						// Placeholder if the image is missing
+						// placeholder if it breaks
 						g.setColor(Color.RED);
 						g.fillRect(cowScreenX, cowScreenY, cow.getHitbox().width, cow.getHitbox().height);
 					}
 				}
 			}
+
+			// print all weapons on the ground
 			if (currentMap.getWeapons() != null) {
 				for (Weapon w : currentMap.getWeapons()) {
+					// find inscreen location based on game coords
 					int itemScreenX = (w.getGamePos().x - suki.getGamePos().x) + (screenWidth / 2);
 					int itemScreenY = (w.getGamePos().y - suki.getGamePos().y) + (screenHeight / 2);
 
@@ -857,8 +956,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// print all collectible items
 			if (currentMap.getItems() != null) {
 				for (Collectible c : currentMap.getItems()) {
+					// find screen coords based on game coords
 					int itemScreenX = (c.getGamePos().x - suki.getGamePos().x) + (screenWidth / 2);
 					int itemScreenY = (c.getGamePos().y - suki.getGamePos().y) + (screenHeight / 2);
 
@@ -868,35 +969,37 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 
 			double distance;
+			// print all npcs
 			if (currentMap.getNPCs() != null) {
 				for (NPC npc : currentMap.getNPCs()) {
 					g2.setFont(new Font("Dialog", Font.PLAIN, 16));
 					distance = getNPCDistance(suki, npc);
+					// if close to npc, prompt user to speak to them
 					if (distance < 75) {
 						g.setColor(Color.WHITE);
 						g.fillRect(50, 550, 400, 100);
 						g.setColor(Color.BLACK);
 						g.drawString("Press SPACE to interact", 60, 580);
 					}
-					// Render dialogue box if active
+					// render dialogue box if dialogue is active
 					if (dialogueActive) {
-						// Draw dialogue box with same dimensions and style as the interaction box
+						// draw dialogue box
 						g2.setColor(Color.WHITE);
-						g2.fillRect(50, 550, 600, 100); // Same size and position as the interaction box
+						g2.fillRect(50, 550, 600, 100); 
 						g2.setColor(Color.BLACK);
 						g2.drawRect(50, 550, 600, 100);
 
-						// Draw dialogue text inside the box
+						// draw text inside the box
 						if (currentDialogue != null) {
 							String[] lines = currentDialogue.split("\n");
-							int yPosition = 580; // Start text slightly below the top of the box
+							int yPosition = 580;
 							for (String line : lines) {
-								g2.drawString(line, 60, yPosition); // Indent slightly from the left
-								yPosition += 20; // Spacing between lines
+								g2.drawString(line, 60, yPosition);
+								yPosition += 20; // spacing between lines
 							}
 						}
 
-						// Hide dialogue box after the timer expires
+						// hide dialogue box after some time passes
 						if (System.currentTimeMillis() > dialogueEndTime) {
 							dialogueActive = false;
 							currentDialogue = null;
@@ -905,19 +1008,22 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// display inventory if user opens inventory
 			if (showInventory) {
-				int boxSize = 50; // Size of each inventory box
-				int padding = 10; // Padding between boxes
-				int startX = 60; // Starting X position for the grid
-				int startY = 100; // Starting Y position for the grid
-				int cols = 6; // Number of columns in the grid
+				int boxSize = 50; // size of each inventory box
+				int padding = 10; // padding between boxes
+				int startX = 60; // starting X position for the grid
+				int startY = 100; // starting Y position for the grid
+				int cols = 6; // number of columns in the grid
 
+				// displaying the box
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 50, 400, 400);
 				g.setColor(Color.BLACK);
 				g.drawString("Inventory", 60, 70);
 				g.drawString("Press E to close", 60, 90);
 
+				// draw every item
 				for (int i = 0; i < suki.getInventory().size(); i++) {
 					Item item = suki.getInventory().get(i);
 					int row = i / cols;
@@ -925,13 +1031,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					int x = startX + col * (boxSize + padding);
 					int y = startY + row * (boxSize + padding);
 
-					// Draw item box
+					// draw item box
 					g.setColor(Color.LIGHT_GRAY);
 					g.fillRect(x, y, boxSize, boxSize);
 					g.setColor(Color.BLACK);
 					g.drawRect(x, y, boxSize, boxSize);
 
-					// Draw item icon
+					// draw item image
 					BufferedImage image = item.getImage();
 					if (image != null) {
 						g.drawImage(image, x + (boxSize - image.getWidth()) / 2, y + (boxSize - image.getHeight()) / 2,
@@ -940,6 +1046,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 				}
 
+				// display details of item if hovering over it
 				Point mousePos = getMousePosition();
 				if (mousePos != null) {
 					for (int i = 0; i < suki.getInventory().size(); i++) {
@@ -955,15 +1062,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								String itemName = item.getName();
 								String itemDescription = item.getDescription();
 								FontMetrics metrics = g.getFontMetrics();
+								// change box based on text width and height
 								int textWidth = Math.max(metrics.stringWidth(itemName),
 										metrics.stringWidth(itemDescription));
 								int textHeight = metrics.getHeight() * 2;
 
-								// Draw background box
-								g.setColor(new Color(255, 255, 255, 200)); // Semi-transparent white
+								// draw background box
+								g.setColor(new Color(255, 255, 255, 200));
 								g.fillRect(mousePos.x, mousePos.y - textHeight, textWidth + 10, textHeight + 10);
 
-								// Draw item name and description
+								// draw item name and description
 								g.setColor(Color.BLACK);
 								Font originalFont = g.getFont();
 								Font boldFont = originalFont.deriveFont(Font.BOLD);
@@ -973,12 +1081,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								g.drawString(itemDescription, mousePos.x + 5,
 										mousePos.y - textHeight + metrics.getHeight() * 2);
 
+								// if weapon... add damage and reach stats
 								if (item instanceof Weapon) {
-									Weapon weapon = (Weapon) item; // Cast the item to Weapon
+									Weapon weapon = (Weapon) item; // cast the item to Weapon
 									String damage = "Damage: " + weapon.getDamage();
 									String reach = "Reach: " + weapon.getReach();
 
-									// Display weapon stats
+									// display weapon stats
 									g.drawString(damage, mousePos.x + 5,
 											mousePos.y - textHeight + metrics.getHeight() * 3);
 									g.drawString(reach, mousePos.x + 5,
@@ -991,15 +1100,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			}
 
+			// prompt suki to interact with door if its in range
 			for (Door door : currentMap.getDoors()) {
 				if (door.interactable()) {
 					g.setColor(Color.WHITE);
-					g.fillRect(50, 550, 400, 100); // Example box size
+					g.fillRect(50, 550, 400, 100); 
 					g.setColor(Color.BLACK);
 					g.drawString("Press C to interact", 60, 580);
 				}
 			}
 
+			// STAGE 1
+			// BEAKER 
 			if (beakerCleaned && showBeakerMessage) {
 				if (beakerWalkCount == 1) {
 					g.setColor(Color.WHITE);
@@ -1007,8 +1119,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.setColor(Color.BLACK);
 					if (beakerWalkCount == 1) {
 						g.drawString("Sweeping. . .", 60, 580);
+						// this doesn't work lol
 						javax.swing.Timer timer = new javax.swing.Timer(3000, new ActionListener() {
 							@Override
+							// if action happens... beaker is cleaned!
 							public void actionPerformed(ActionEvent e) {
 								showBeakerMessage = false;
 								beakerWalkCount++;
@@ -1028,12 +1142,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.drawString("Shattered Glass has been sweeped.", 60, 580);
 				}
 			} else if (!beakerCleaned && showBeakerMessage) {
+				// if no broom, tell user you need a broom
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
 				g.drawString("\"If only I had a broom...\"", 60, 580);
 			}
 
+			// if no broom or beaker, spill will tell you to go get them
 			if (!spillCleaned && showSpillMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1041,21 +1157,25 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("\"Looks like I need a broom and a container...\"", 60, 580);
 			}
 
+			// STAGE 2
+			// WRITE MRS. KIM'S ESSAY
 			if (!essayWritten && showEssayMessage && !essaySubmitted) {
 				int index = suki.searchInventory("Sharp Pencil");
+				// check if pencil exists in inventory
 				if (index < 0) {
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
 					g.setColor(Color.BLACK);
 					g.drawString("\"Dang... I need to find a pencil.\"", 60, 580);
 				} else {
+					// doesn't show because suki will instantly start writing if she walks over the paper
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
 					g.setColor(Color.BLACK);
 					g.drawString("\"I should write my essay.\"", 60, 580);
 				}
 			} else if (essayWritten && !essaySubmitted) {
-
+				// when essay is done, prompt player to give ms kim the essay
 				if (currentMap == maps.get(310)) {
 					g.setColor(Color.WHITE);
 					g.fillRect(50, 550, 400, 100);
@@ -1064,6 +1184,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// IF cat steals the chips, mr lee gets MAD LOL
 			if (chipsStolen) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1071,6 +1192,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("Mr. Lee: Hey kid! That's not for you! >:(", 60, 580);
 			}
 
+			// (later accessible) locked doors will show a message
 			if (showLockedMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1078,6 +1200,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("This door is locked...?", 60, 580);
 			}
 
+			// balcony is locked, show message (person in the balcony talking to you)
 			if (showLockedBalconyMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1085,6 +1208,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("???: Help! I'm locked in here!", 60, 580);
 			}
 
+			// staff lounge locked, show message
 			if (showLockedLoungeMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1092,6 +1216,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("Only teachers have the key to this room...", 60, 580);
 			}
 
+			// move boxes (dialogue for av guy in balcony)
 			if (!boxesMoved && showBoxMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1101,6 +1226,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawImage(boxPileImage, 4520, 1975, boxPileImage.getWidth(), boxPileImage.getHeight(), this);
 			}
 
+			// FLOOR 2 stair well is locked!
 			if (showStairwellLockedMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1108,6 +1234,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("This door is locked, but it looks a little beat up...", 60, 580);
 			}
 
+			// vent message because vent needs screwdriver
 			if (showVentMessage) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1115,6 +1242,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("Looks like I need to unscrew this to get through.", 60, 580);
 			}
 
+			// CHEATS FOR MS WONG:
+			// tells user when they are healing
 			if (healing && !fullHP) {
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
@@ -1122,15 +1251,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("Healing...", 60, 580);
 				System.out.println(suki.getHP());
 			} else if (healing && fullHP) {
+				// tell user if suki is at full health
 				g.setColor(Color.WHITE);
 				g.fillRect(50, 550, 400, 100);
 				g.setColor(Color.BLACK);
 				g.drawString("Suki is hydrated.", 60, 580);
 			}
 
-			// Draw border walls of each map
+			// draw border walls of each map
+			// COMMENT OUT WHEN DONE DEBUGGING (keep for ms wong to see)
 			if (currentMap != null) {
-				g.setColor(Color.RED); // Set color for border walls
+				g.setColor(Color.RED); 
 				for (Wall wall : currentMap.getRectWalls()) {
 					int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
 					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
@@ -1138,7 +1269,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-			int barWidth = suki.getHP() * 4; // Each HP point is 4 pixels
+			// HEALTH BAR ON ALL MAPS:
+			int barWidth = suki.getHP() * 4; // hp point is 4 pixels
 			int barHeight = 20;
 			int barX = screenWidth - 445;
 			int barY = screenHeight - barHeight - 45;
@@ -1146,16 +1278,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g3.fillRect(barX, barY, barWidth, barHeight);
 			g.drawImage(healthBar, screenWidth - 460, screenHeight - 130, healthBar.getWidth(), healthBar.getHeight(),
 					this);
-			// Draw equipped item icon if available
+			// draw equipped item icon if it exists
 			int equippedIndex = suki.getEquippedItem();
 			if (equippedIndex >= 0 && equippedIndex < suki.getInventory().size()) {
 				Item equippedItem = suki.getInventory().get(equippedIndex);
 				BufferedImage equippedItemImage = equippedItem.getImage();
 
 				if (equippedItemImage != null) {
-					int itemX = screenWidth - 460 - equippedItemImage.getWidth() - 40; // Position to the left of health
-																						// bar
-					int itemY = screenHeight - 130 + 20; // Align vertically with health bar
+					int itemX = screenWidth - 460 - equippedItemImage.getWidth() - 40; // left of health bar
+					int itemY = screenHeight - 130 + 20;
 					g.drawImage(equippedItemImage, itemX, itemY, equippedItemImage.getWidth() + 20,
 							equippedItemImage.getHeight() + 20, this);
 				}
@@ -1190,6 +1321,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	// Description: draw all walls based on where it is on the map
+	// WE USED HEADSET MS WONG!!
+	// Parameters: graphics (for painting), player's game coordinates
+	// Return: void
 	public void drawInnerWalls(Graphics2D g, int playerX, int playerY) {
 		Set<Wall> wallsBehind = currentMap.getInnerWalls()
 				.headSet(new Wall(new Point(0, 0), null, new Rectangle(0, playerY, 0, 0)));
@@ -1207,17 +1342,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawImage(spillImage, spillScreenX, spillScreenY, 100, 150, this);
 		}
 
-		// System.out.println("walls behind:" + wallsBehind.size());
 		if (suki.getCurrentSprite() != null) {
 			g.drawImage(suki.getCurrentSprite(),
 					(screenWidth - suki.getCurrentSprite().getWidth()) / 2,
 					(screenHeight - suki.getCurrentSprite().getHeight()) / 2,
 					this);
-			// g2.fill(suki.getHitboxM());
-			// g.setColor(Color.GREEN); // Draw the hitbox in green for visibility
-			// g.drawRect(suki.getHitboxC().x, suki.getHitboxC().y, suki.getHitboxC().width,
-			// suki.getHitboxC().height);
-
 		} else {
 			System.out.println("Player image is null");
 		}
@@ -1232,17 +1361,22 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	// must have because we are implemeting an interface
 	@Override
 	public void keyTyped(KeyEvent e) {
 
 	}
 
+	// Description: detects when key is pressed
+	// Parameters: KeyEvent (the key you pressed)
+	// Return: void
 	@Override
 	public void keyPressed(KeyEvent e) {
 
 		// game screen
 		if (screen == 5) {
 			int key = e.getKeyCode();
+			// detect which direction player wants suki to walk and sets direction
 			if (key == KeyEvent.VK_A) {
 				left = true;
 				right = false;
@@ -1259,13 +1393,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				down = true;
 				up = false;
 				suki.setDirection("down");
-			} else if (key == KeyEvent.VK_E) {
+			} 
+			// toggle inventory button is E
+			else if (key == KeyEvent.VK_E) {
 				if (showInventory == true) {
 					showInventory = false;
 				} else {
 					showInventory = true;
 				}
 			}
+			// interaction with NPCS
 			if (key == KeyEvent.VK_SPACE) {
 				if (currentMap.getNPCs() != null) {
 					for (NPC npc : currentMap.getNPCs()) {
@@ -1399,6 +1536,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
+			// INTERACTION WITH DOORS
 			if (key == KeyEvent.VK_C) {
 				for (Door door : currentMap.getDoors()) {
 					if (door.interactable() && door.getMapDest() == 224 && currentMap == maps.get(34)) {
