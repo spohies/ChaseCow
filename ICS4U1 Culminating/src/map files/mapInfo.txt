@@ -576,12 +576,12 @@ Great for cleaning up lab spills.
 Beaker
 Fragile container to hold dangerous substances.
 0
-/sprites/beakerEmpty.png
+/sprites/beakerBroken.png
 325 675
 1
 Mr. Mckillop
 /sprites/mckillop.png
-300 275
+350 325
 2
 3
 Hiiiiii! How come you haven’t left the building yet?
@@ -1263,7 +1263,7 @@ AV
 2
 2 
 Thanks for unlocking the door! I thought I’d be stuck here forever.
-Could you help me move the boxes in the hallway out of the way?
+Let me help you move the boxes.
 1
 Why are you still here? 
 2
@@ -1399,7 +1399,7 @@ Mr. Moo
 3
 Who are you?
 I am not allowed to let anyone who is unidentified outside.
-Please show me your staff ID.
+Please show me your Moo ID.
 2
 Oh! Waste Cow! It’s you.
 Go right ahead.
@@ -1421,7 +1421,7 @@ Go right ahead.
 0 0 90 337 
 300 0 50 450
 0 0 50 450 
-0 300 450 50
+0 400 350 50
 0
 0
 1

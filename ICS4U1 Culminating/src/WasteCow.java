@@ -5,7 +5,7 @@ public class WasteCow extends Cow{
     private FloorMap currentMap;
 
     public WasteCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
-        super(1000, 7, 0, x, y, image, currentMap, false, suki);
+        super(1000, 2, 0, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 

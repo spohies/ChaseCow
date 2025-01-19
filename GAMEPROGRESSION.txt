@@ -1,0 +1,101 @@
+CHASECOW CHEAT CODE (CCC lol)
+
+FLOOR 1
+- enemies are BaseCows
+
+STAGE 1
+GOAL: Clean up spill in hallway using broom and beaker
+
+- Start in electrical room next to main stairwell on 3rd floor
+	- Screwdriver (Starter Weapon) --> Will need later for Stage 3
+- There is a spill that stops you from walking to English hall
+- AV Guy asks you to help him clean it up
+
+TASK:
+- Room 328 - Mr. Mckillop Quest
+	- (NEED: Broom) -> Gives beaker
+- Room 325 - Metre Stick (Stronger Weapon)
+- Room 322 - Find Broom
+- Water Fountain (gives you max hp)
+
+STAGE 2
+GOAL: Get a pencil, write your essay on the foolscap in the English room (310), and submit to Mrs. Kim in the English Hall.
+- Mrs. Kim blocks you from walking to math hall. You MUST finish your essay.
+
+TASK:
+- Room 310 - Mrs. Kim Quest
+	- Piece of Foolscap Paper (NEED: Pencil)
+	- MUST input (any) text into JTextArea.
+- Boy's Washroom - Pencil (Stronger Weapon)
+
+STAGE 3 
+GOAL: Get to the second floor!
+- Math Dept.
+
+TASK:
+- Hall - Mr. Huang tells you to be careful!
+- Room 341 - Mr. Lee warns you about getting a stronger weapon if you didn't pick up the metre stick in the physics room
+	 - Chips (leftover from SAC Meeting) can be picked up
+- Room 345 - Mr. Lien Quest (NEED: Chips)
+	- Will only help you if you have chips to give him.
+		- Gives you the key to math storage
+	- Mr. Achong - "Sorry, you'll get your test back next week."
+- Storage room - LOCKED
+	- Obtain key from Mr. Lien.
+	- Storage behind storage room
+		- Vent to get to Floor 2
+		- Must be holding Screwdriver to use
+
+FLOOR 2
+- SpaceCows are introduced.
+
+STAGE 4
+GOAL: Get past the boxes in the middle of the hallway to proceed to Business hall
+- Spawn in Ms. Wong's Room.
+
+TASK:
+- Top Right Stairwell - (NEED: dumbbell from MR. JCHEUNG in stage 5)
+- Room 224 - Ms Wong Quest
+	- Tells you to return THE tissue box to Mr. Chow
+- Room 225 - Mr. Chow Quest
+	- Gives you the key to staff lounge (NEED: tissue box from Ms. Wong)
+- Staff Lounge - LOCKED
+	- Obtain key from Mr. Chow
+	- Get Key to Balcony
+- Balcony - LOCKED 
+	- AV Guy -> Speak to him to move boxes out of the way!
+
+STAGE 5
+GOAL: Get to the first floor
+- Business hall
+
+TASK:
+- Fitness Room - Mr. Cheung Quest
+	- Get mop from Mr. Cheung
+	- He asks you to mop the washroom (just one is good)
+- Washrooms - (need: Mop) 
+	- If mop not obtained...
+		- Suki will not voluntarily go into the washroom because she is a cat and cats hate water
+	- If mop obtained...
+		- Enter a washroom and mop the floor (Press F when prompted to)
+- Return to Mr. Cheung to obtain DUMBBELL
+	- RECALL: Stairwell at top right of school (NEED: DUMBBELL)
+		- Return there with a dumbbell that can smash the window
+		- Go through to first floor
+
+FLOOR 1
+- Boss battle
+
+STAGE 6 (FINAL)
+GOAL: Get an ID card to Mr. Moo
+- Spawn in Music Wing
+- Atrium is completely taken over by cows. It is not accessible.
+
+TASK:
+- Speak to Caretaker in Hallway
+	- You can find a better weapon in the music hall storage room
+- CAF QUEST -> DEFEAT WASTECOW
+	- Obtain ID from Waste Cow after it dies
+- Main Entrance - Mr. Moo Quest
+	- Speak to Mr. Moo with ID in hand
+	- Yay!!!! You won!!!
