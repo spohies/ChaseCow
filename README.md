@@ -1,6 +1,5 @@
 # CHASE COW: 
-Claire Hung & Sophie Jiang
-Jan 2025 - ICS4U1
+Claire Hung & Sophie Jiang | Jan 2025 - ICS4U1
 
 ## BEFORE PLAYING:
 
@@ -17,11 +16,11 @@ Jan 2025 - ICS4U1
 The goal of the game is to escape Markville! There are three levels (the floors of the school, from top to bottom) where you will encounter many enemies (🐮🐄) that you have to beat. You will be able to pick up weapons and items to help you defeat the enemies and reach the end. In each room, you will be able to speak to NPCs (teachers) for hints as to where to find keys to help you unlock rooms. Find your way out of the school!
 
 ### Cheats for Ms. Wong: 
-**(!) PLEASE READ GAMEPROGRESSION.txt (!)**
+**(!) PLEASE READ AND FOLLOW GAMEPROGRESSION.txt (!)**
 	- Walking by any water fountain will heal you.
 	- Since the game restarts once you die, this will help you reach the end!
 
-### CHANGES FROM ORIGINAL PLAN:
+### Changes from original plan:
 	- Time permitting features that were not added because time was NOT permitting :(
 		○ Mini Map
 		○ Difficulty Option
@@ -45,26 +44,13 @@ The goal of the game is to escape Markville! There are three levels (the floors 
 ### Who did what?
 
 Claire:
-    > Graphics
-    > Custom Collision Detection
-    > Handling Triangular Collisions
-    > Interior Wall Layering
-    > Most Text File Streaming
-    > Stage 4
-    > Boss Battle
+Graphics, Custom Collision Detection, Handling Triangular Collisions, Interior Wall Layering, Most Text File Streaming, Stage 4, Boss Battle
 
 Sophie:
-    > Menus/Leaderboard
-    > Sound
-    > Player Movement
-    > Coordinate System
-    > Enemy Path Finding
-    > Some Text File Streaming
-    > Stages 1, 2, 3, 5
+Menus/Leaderboard, Sound, Player Movement, Coordinate System, Enemy Path Finding, Some Text File Streaming, Stages 1, 2, 3, 5
 
 Together:
-    > Level and Game Design
-    > Testing and Debugging
+Level and Game Design, Testing and Debugging
 
 ### Any other important info for me to play/mark your game
 moo
