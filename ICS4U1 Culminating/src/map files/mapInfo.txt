@@ -1357,7 +1357,7 @@ Be careful around the glass!
 100 400 1
 1
 /map files/FLOOR1.png
-18
+19
 0 1500 650 300
 0 2250 650 50 
 500 2000 350 250 
@@ -1376,6 +1376,7 @@ Be careful around the glass!
 1250 350 1350 600 
 2600 350 100 550 
 1100 0 3100 200
+2950 1150 300 50
 3
 0 1400 360 2300 0 2300
 1057 1762 634 2182 1476 2070
@@ -1426,7 +1427,7 @@ Go right ahead.
 1
 Wet Floor Sign
 Good thing cats don’t like water!
-130 100
+300 100
 /sprites/wetFloorSign.png
 130 188
 0

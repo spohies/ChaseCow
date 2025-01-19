@@ -5,7 +5,7 @@ abstract class Cow {
     private int hp; 
     private int damage; // damage dealt to player
     private int speed;
-    private BufferedImage image;
+    protected BufferedImage image;
 
     protected int x;
     protected int y;
@@ -109,17 +109,6 @@ abstract class Cow {
 
     // deal damage based on cow type
     abstract public void attack(Player player);
-
-    // public void render(Graphics g) {
-    //     if (image != null) {
-    //         g.drawImage(image, x, y, null);
-
-            
-    //     } else {
-    //         g.setColor(Color.RED); // if sprite breaks
-    //         g.fillRect(x, y, 50, 50); // default size for placeholder
-    //     }
-    // }
 
     public boolean isAlive() {
         return hp > 0;

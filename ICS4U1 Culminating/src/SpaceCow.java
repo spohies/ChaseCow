@@ -5,7 +5,7 @@ class SpaceCow extends Cow {
     private FloorMap currentMap;
 
     public SpaceCow(int x, int y, BufferedImage image, FloorMap currentMap, Player suki) {
-        super(150, 8, 3, x, y, image, currentMap, false, suki);
+        super(150, 4, 3, x, y, image, currentMap, false, suki);
         this.currentMap = currentMap;
     }
 

@@ -14,6 +14,7 @@ public class WasteCow extends Cow{
 
     @Override
     public void attack(Player player) {
+        
         double dx = player.getHitboxC().x - this.getX();
         double dy = player.getHitboxC().y - this.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
