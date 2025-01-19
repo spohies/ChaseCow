@@ -1,4 +1,4 @@
-19
+22
 3
 /map files/FLOOR3.png
 63
@@ -1262,7 +1262,7 @@ Key to the Balcony of the Cafeteria
 1
 AV
 /sprites/av.png
-52 153
+252 125
 2
 2 
 Thanks for unlocking the door! I thought I’d be stuck here forever.
@@ -1358,3 +1358,114 @@ Be careful around the glass!
 350 300 1
 700 450 1
 100 400 1
+1
+/map files/FLOOR1.png
+18
+0 1500 650 300
+0 2250 650 50 
+500 2000 350 250 
+650 1600 150 150
+900 1300 100 250
+1050 1750 200 150
+950 50 150 1450
+1250 1100 350 650 
+1600 1150 150 50 
+1750 1100 1250 50 
+3200 1100 650 50
+3850 800 50 300
+3750 350 450 600
+4150 0 50 350 
+2700 350 900 600 
+1250 350 1350 600 
+2600 350 100 550 
+1100 0 3100 200
+3
+0 1400 360 2300 0 2300
+1057 1762 634 2182 1476 2070
+993 1542 790 1737 706 1454
+0
+0
+0
+2
+Caretaker
+/sprites/caretaker.png
+1425 225
+1
+2
+There may be some spare weapons in the storage room.
+The cows got to the caf food!
+Mr. Moo
+/sprites/mrMoo.png
+400 2050
+2
+3
+Who are you?
+I am not allowed to let anyone who is unidentified outside.
+Please show me your staff ID.
+2
+Oh! Waste Cow! It’s you.
+Go right ahead.
+3
+10
+3500 950
+200 375
+11
+1000 1500
+1000 775
+11
+650 1750
+600 1175
+0
+10
+/map files/MUSICSTORAGE.png
+5
+0 0 350 226
+0 0 90 337 
+300 0 50 450
+0 0 50 450 
+0 300 450 50
+0
+0
+1
+Wet Floor Sign
+Good thing cats don’t like water!
+REACH DAMAGE
+/sprites/wetFloorSign.png
+130 188
+0
+0
+1	
+1
+200 350 
+3500 975
+3
+66 337 1
+219 228 1
+188 335 1
+11
+/map files/CAF.png
+8
+0 0 1150 200 
+0 0 50 1300 
+0 0 350 250 
+0 0 100 500
+0 1100 50 1300 
+0 1250 1150 50 
+650 1150 500 150
+1000 800 150 500 
+2
+344 244 93 493 0 150 
+707 1261 1130 836 1150 1300	
+0
+0
+0
+0
+2	
+1
+1016 750
+1000 1525
+1
+600 1166
+650 1775
+1
+407 553 2
