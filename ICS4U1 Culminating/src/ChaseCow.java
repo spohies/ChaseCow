@@ -1,8 +1,8 @@
 // ICS4U1 Culminating Assignment
-// ChaseCow: Markville Cow Invasion
+// ChaseCow: A Markville Cow Invasion
 // Claire Hung & Sophie Jiang
 // January 2025
-// Description: See readme.txt! 
+// Description: See readme.txt!!!!
 
 // imports
 import java.awt.event.*;
@@ -23,9 +23,9 @@ import java.awt.image.*;
  * screen 0 = main menu
  * screen 1 = start menu
  * screen 2 = about menu
- * screen 3 = settings menu
+ * screen 3 = settings/gamepaused menu
  * screen 4 = leaderboard
- * screen 5 = game ??????
+ * screen 5 = game
  */
 
 @SuppressWarnings("serial") // suppressing random warning
@@ -40,6 +40,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	Thread thread;
 	int screenWidth = 1080;
 	int screenHeight = 720;
+	int bgX = 0;
 
 	// movement variables
 	static boolean up = false;
@@ -56,10 +57,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2;
 
 	// settings
-	Rectangle recVolume;
 	Rectangle recQuitGame;
-	BufferedImage volumeImg, quitGame;
-	int volume = 3;
+	BufferedImage quitGame, quitGame2;
+	boolean hoverQuit;
 
 	// games global variables
 	boolean showInventory = false;
@@ -380,7 +380,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			leaderboard = ImageIO.read(getClass().getResource("/menu/lbbutton.png"));
 			leaderboard2 = ImageIO.read(getClass().getResource("/menu/lbbutton2.png"));
 			quitGame = ImageIO.read(getClass().getResource("/menu/quitgamebutton.png"));
-			volumeImg = ImageIO.read(getClass().getResource("/menu/volume.png"));
+			quitGame2 = ImageIO.read(getClass().getResource("/menu/quitgamebutton2.png"));
 
 			// rectangles to detect if button is pressed
 			recPlay = new Rectangle(340, 400, play.getWidth(), play.getHeight());
@@ -390,7 +390,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			recNewGame = new Rectangle(340, 400, newGame.getWidth(), newGame.getHeight());
 			recLB = new Rectangle(340, 520, leaderboard.getWidth(), leaderboard.getHeight());
 			recQuitGame = new Rectangle(340, 520, quitGame.getWidth(), quitGame.getHeight());
-			recVolume = new Rectangle(340, 400, volumeImg.getWidth(), volumeImg.getHeight());
 
 			// player sprites
 			BufferedImage playerImageDown = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
@@ -448,6 +447,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// Return: void
 	public void update() throws IOException {
 
+
+		if (screen == 0 || screen == 1) {
+			bgX += 1;
+			if (bgX < -screenWidth)
+			bgX = 0;
+			else if (bgX > screenWidth)
+			bgX = 0;
+			repaint();
+		}
 		// on game screen:
 		if (screen == 5) {
 			// if suki dies, show game over screen
@@ -914,8 +922,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// button or not
 		// main screen
 		if (screen == 0) {
-			// g.drawImage(titleScreenBG, 0, 0, titleScreenBG.getWidth(),
-			// titleScreenBG.getHeight(), this);
+			
+			g.drawImage(titleScreenBG, bgX + screenWidth, 0, titleScreenBG.getWidth(), screenHeight, null);
+			g.drawImage(titleScreenBG, bgX - screenWidth, 0, titleScreenBG.getWidth(), screenHeight,null);
+			g.drawImage(titleScreenBG, bgX, 0, titleScreenBG.getWidth(), screenHeight, null);
 			g.drawImage(title, screenWidth / 2 - title.getWidth() / 2, 150, title.getWidth(), title.getHeight(), this);
 			g.drawImage(hoverPlay ? play2 : play, 340, 400, play.getWidth(), play.getHeight(), this);
 			g.drawImage(hoverAbout ? about2 : about, 340, 520, about.getWidth(), about.getHeight(), this);
@@ -923,6 +933,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		// start game screen
 		if (screen == 1) {
+			g.drawImage(titleScreenBG, bgX + screenWidth, 0, titleScreenBG.getWidth(), screenHeight, null);
+			g.drawImage(titleScreenBG, bgX - screenWidth, 0, titleScreenBG.getWidth(), screenHeight, null);
+			g.drawImage(titleScreenBG, bgX, 0, titleScreenBG.getWidth(), screenHeight, null);
+			g.drawImage(title, screenWidth / 2 - title.getWidth() / 2, 150, title.getWidth(), title.getHeight(), this);
 			g.drawImage(hoverNewGame ? newGame2 : newGame, 340, 400, newGame.getWidth(), newGame.getHeight(),
 					this);
 			g.drawImage(hoverLB ? leaderboard2 : leaderboard, 340, 520, leaderboard.getWidth(),
@@ -940,13 +954,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// settings
 		if (screen == 3) {
 			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
-			g.drawImage(volumeImg, 340, 400, volumeImg.getWidth(), volumeImg.getHeight(), this);
-			g.drawImage(quitGame, 340, 520, quitGame.getWidth(), quitGame.getHeight(), this);
+			g.drawImage(hoverQuit ? quitGame2 : quitGame, 340, 520, quitGame.getWidth(), quitGame.getHeight(), this);
 		}
 
 		// leaderboard
 		if (screen == 4) {
-			g.drawImage(titleScreenBG, 0, 0, null);
+			g.setColor(Color.WHITE);
+			g.drawRect(50, 50, 980, 620);
 
 			int[] yCoord = { 220, 285, 345, 410, 475 };
 			for (int i = 0; i < 5; i++) {
@@ -1040,8 +1054,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// prompt user to mop
 				if (currentMap == maps.get(23)) {
 					// find flood screen coords based on game coords
-					int floodScreenX = (50 - suki.getGamePos().x) + (screenWidth / 2);
-					int floodScreenY = (200 - suki.getGamePos().y) + (screenHeight / 2);
+					int floodScreenX = (0 - suki.getGamePos().x) + (screenWidth / 2);
+					int floodScreenY = (0 - suki.getGamePos().y) + (screenHeight / 2);
 					g.drawImage(floodImage2, floodScreenX, floodScreenY, floodImage2.getWidth(),
 							floodImage2.getHeight(),
 							this);
@@ -1055,8 +1069,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// prompt user to mop
 				if (currentMap == maps.get(22)) {
 					// find flood in screen coords based on gamecoords
-					int floodScreenX = (50 - suki.getGamePos().x) + (screenWidth / 2);
-					int floodScreenY = (200 - suki.getGamePos().y) + (screenHeight / 2);
+					int floodScreenX = (0 - suki.getGamePos().x) + (screenWidth / 2);
+					int floodScreenY = (0 - suki.getGamePos().y) + (screenHeight / 2);
 					g.drawImage(floodImage1, floodScreenX, floodScreenY, floodImage1.getWidth(),
 							floodImage1.getHeight(),
 							this);
@@ -1504,7 +1518,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 
-			g.drawImage(options, 1010, 20, options.getWidth() / 2, options.getHeight() / 2, this);
+			g.drawImage(hoverOptions ? options2 : options, 1010, 20, options.getWidth() / 2, options.getHeight() / 2, this);
 		}
 
 		// floor 3 start screen
@@ -2298,6 +2312,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		hoverNewGame = recNewGame.contains(mousePoint);
 		hoverLB = recLB.contains(mousePoint);
 		hoverBack = recBack.contains(mousePoint);
+		hoverQuit = recQuitGame.contains(mousePoint);
+		hoverOptions = recOptions.contains(mousePoint);
 		repaint();
 	}
 
@@ -2357,9 +2373,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						}
 					}
 				});
-				gameTimer.start();
 				try {
 					resetVariables();
+					gameTimer.start();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -2408,10 +2424,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			}
 
 		}
-		// settings menu --> quit game, back
+		// options menu --> quit game, back
 		else if (screen == 3) {
 			if (recBack.contains(selectedPoint)) {
 				screen = 5;
+				if (gameTimer != null) {
+					gameTimer.start();
+				}
 				try {
 					clickSound = true;
 					soundPlayer();
@@ -2422,12 +2441,20 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 			if (recQuitGame.contains(selectedPoint)) {
-				screen = 0;
-				try {
+				int response = JOptionPane.showOptionDialog(frame, "ARE YOU SURE YOU WANT TO QUIT? PROGRESS WILL BE LOST", "Quit Game",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, new String[]{"QUIT", "BACK"}, "BACK");
+				if (response == JOptionPane.YES_OPTION) {
+					screen = 0;
+					if (gameTimer != null) {
+						gameTimer.stop();
+					}
+					try {
 					clickSound = true;
 					soundPlayer();
-				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+					musicPlayer();
+					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
 					e1.printStackTrace();
+					}
 				}
 			}
 
@@ -2448,11 +2475,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		else if (screen == 5) {
 			if (recOptions.contains(selectedPoint)) {
 				screen = 3;
+				if (gameTimer != null) {
+					gameTimer.stop();
+				}
 				try {
 					clickSound = true;
 					soundPlayer();
 					music.stop();
-					musicPlayer();
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
 					e1.printStackTrace();
 				}

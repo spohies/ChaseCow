@@ -1,14 +1,20 @@
+// triangle object
+// Description: for collision detection along diagonal walls
 import java.awt.*;
 
 public class Triangle {
     private Point[] vertices;
 
+    // constructor
     public Triangle(Point p1, Point p2, Point p3) {
         vertices = new Point[]{p1, p2, p3};
     }
 
+    // Description: check if triangle intersects with rectangle
+    // Parameters: rectangle to check
+    // Returns: 0 if no intersection, 1 if rectangle is inside triangle, 2 if triangle is inside rectangle, 3 if there is a line segment intersection
     public int intersects(Rectangle rectangle) {
-        // Check if any vertex of the rectangle is inside the triangle
+        // check if any vertex of the rectangle is inside the triangle
         Point[] rectangleVertices = {new Point(rectangle.getLocation().x, rectangle.getLocation().y),
                 new Point(rectangle.getLocation().x + rectangle.width, rectangle.getLocation().y),
                 new Point(rectangle.getLocation().x + rectangle.width, rectangle.getLocation().y + rectangle.height),
@@ -19,14 +25,14 @@ public class Triangle {
             }
         }
         
-        // Check if any vertex of the triangle is inside the rectangle
+        // check if any vertex of the triangle is inside the rectangle
         for (Point vertex : vertices) {
             if (rectangle.contains(vertex)) {
                 return 2;
             }
         }
         
-        // Check for line segment intersections
+        // check for line segment intersections
         Line[] triangleEdges = {
             new Line(vertices[0], vertices[1]),
             new Line(vertices[1], vertices[2]),
@@ -50,6 +56,9 @@ public class Triangle {
         return 0;
     }
 
+    // Description: check if point is inside triangle
+    // Parameters: point to check
+    // Returns: true if point is inside triangle, false otherwise
     public boolean containsPoint(Point p) {
         int sign1 = getSign(p, vertices[0], vertices[1]);
         int sign2 = getSign(p, vertices[1], vertices[2]);
@@ -58,6 +67,7 @@ public class Triangle {
         return (sign1 >= 0 && sign2 >= 0 && sign3 >= 0) || (sign1 <= 0 && sign2 <= 0 && sign3 <= 0);
     }
 
+    // getters
     public int getSign(Point p1, Point p2, Point p3) {
         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
     }

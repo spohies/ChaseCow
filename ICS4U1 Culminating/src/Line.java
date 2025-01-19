@@ -1,13 +1,19 @@
+// line object
+// Description: used to create a line for the triangles
 import java.awt.*;
 public class Line {
     private Point start;
     private Point end;
 
+    // constructor
     public Line(Point start, Point end) {
         this.start = start;
         this.end = end;
     }
     
+    // Description: check for intersections
+    // Parameters: line
+    // Return: true or false
     public boolean intersects(Line l) {
         int d1 = direction(this.start, this.end, l.start);
         int d2 = direction(this.start, this.end, l.end);
@@ -25,19 +31,29 @@ public class Line {
                 d4 == 0 && onSegment(l.start, this.end, l.end);
     }
 
+    // Description: check if point is on segment
+    // Parameters: 3 points
+    // Return: true or false
     public boolean onSegment(Point p1, Point p2, Point p3) {
         return p2.x <= Math.max(p1.x, p3.x) && p2.x >= Math.min(p1.x, p3.x) &&
                 p2.y <= Math.max(p1.y, p3.y) && p2.y >= Math.min(p1.y, p3.y);
     }
 
+    // Description: check for direction
+    // Parameters: 3 points
+    // Return: int value
     public int direction(Point p1, Point p2, Point p3) {
         return (p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y);
     }
 
+    // Description check if point is on line
+    // Parameters: point
+    // Return: true or false
     public boolean containsPoint(Point p) {
         return direction(this.start, this.end, p) == 0 && onSegment(this.start, p, this.end);
     }
 
+    // Getters
     public double getDistance(Point p){
         double xlength = this.end.x - this.start.x;
         double ylength = this.end.y - this.start.y;
@@ -50,11 +66,25 @@ public class Line {
         }
         return Math.sqrt((p.x - this.start.x - u * xlength) * (p.x - this.start.x - u * xlength) + (p.y - this.start.y - u * ylength) * (p.y - this.start.y - u * ylength));
     }
+    
+    public Point getStart() {
+        return start;
+    }
 
+    public Point getEnd() {
+        return end;
+    }
+
+    // Description: get length of line
+    // Parameters: none
+    // Return: length
     public double length(){
         return Math.sqrt((this.end.x - this.start.x) * (this.end.x - this.start.x) + (this.end.y - this.start.y) * (this.end.y - this.start.y));
     }
 
+    // Description: get closest point to line
+    // Parameters: point
+    // Return: point
     public Point closestPoint(Point p) {
         double ABx = end.x - start.x;
         double ABy = end.y - start.y;
@@ -65,15 +95,7 @@ public class Line {
         double lengthSquared = ABx * ABx + ABy * ABy;
 
         double t = Math.max(0, Math.min(1, dotProduct / lengthSquared));
-
         return new Point((int)(start.x + t * ABx), (int)(start.y + t * ABy));
     }
 
-    public Point getStart() {
-        return start;
-    }
-
-    public Point getEnd() {
-        return end;
-    }
 }

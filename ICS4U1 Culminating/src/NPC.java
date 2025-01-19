@@ -1,16 +1,19 @@
+// NPC object
+// teachers!!!!!
+// Description: holds the dialogue of NPCs and their location
 import java.awt.image.*;
 import java.awt.*;
 
 public class NPC {
     private Point gamePos;
     private BufferedImage image;
-    private String[][] dialogues; // A 2D array for multiple dialogue sets
+    private String[][] dialogues; // 2D array for multiple dialogue sets
     private int state = 0; 
-    private boolean itemGiven = false;
     private String name;
     private boolean withinRange = false;
     private int currentDialogueIndex = 0;
 
+    // Constructor
     public NPC(String name, Point location, String[][] dialogues, BufferedImage image) {
         this.gamePos = location;
         this.dialogues = dialogues;
@@ -18,6 +21,9 @@ public class NPC {
         this.name = name;
     }
 
+    // Description: allows the player to interact with the NPC
+    // Parameter: none
+    // Return: none
     public void interact() {
         if (state >= dialogues.length || currentDialogueIndex >= dialogues[state].length) {
             if (state >= dialogues.length) {
@@ -28,17 +34,19 @@ public class NPC {
             }
             return;
         }
+        // increment dialogue number
         if (currentDialogueIndex < dialogues[state].length) {
             System.out.println(dialogues[state][currentDialogueIndex]);
             currentDialogueIndex++;
         }
-        // Mark interaction complete for this dialogue set
+        // mark interaction complete
         if (currentDialogueIndex >= dialogues[state].length) {
-            currentDialogueIndex = 0; // Reset for next interaction, if needed
+            currentDialogueIndex = 0; // reset for next interaction, if needed
         }
     }
     
 
+    // Getters
     public Point getGamePos() {
         return this.gamePos;
     }
@@ -62,25 +70,21 @@ public class NPC {
     public BufferedImage getImage() {
         return image;
     }
-
-    public void setWithinRange(boolean inRange) {
-        withinRange = inRange;
-    }
-
+    
     public boolean interactable() {
         return withinRange;
     }
 
+    // Setters
+    public void setWithinRange(boolean inRange) {
+        withinRange = inRange;
+    }
+    
     public void setState(int i) {
         this.state = i;
     }
-
+    
     public void setCurrentDialogueIndex(int i) {
         this.currentDialogueIndex = i;
     }
-
-
-    // public boolean hasFinishedDialogue() {
-    //     return itemGiven || currentDialogueIndex >= dialogue.length;
-    // }
 }

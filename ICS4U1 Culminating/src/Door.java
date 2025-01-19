@@ -1,17 +1,21 @@
+// Door object
+// Description: teleports player to a different map
 import java.awt.*;
 
 public class Door {
-    private Rectangle doorRect;
-    private Integer mapDest;
+    private Rectangle doorRect; // hitbox of the door
+    private Integer mapDest; // map that you are teleporting to
     private Point exitPos; // spawn location in the map that you are teleporting to 
-    private boolean interactable = false;
+    private boolean interactable = false; // if the player is within range of the door
     
+    // Constructor
     public Door (Rectangle doorRect, Integer mapDest, Point exitPos) {
         this.doorRect = doorRect;
         this.mapDest = mapDest;
         this.exitPos = exitPos;
     }
 
+    // Getters and Setters
     public Rectangle getDoorRect() {
         return doorRect;
     }
@@ -28,6 +32,9 @@ public class Door {
         interactable = withinRange;
     }
 
+    // Description: checks if the player is within range of the door
+    // Parameters: n/a
+    // Returns: true if the player is within range of the door
     public boolean interactable() {
         return interactable;
     }

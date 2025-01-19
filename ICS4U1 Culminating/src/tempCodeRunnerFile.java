@@ -1,1 +1,0 @@
-currentMap == maps.get(30

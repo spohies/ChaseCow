@@ -1,3 +1,8 @@
+// MAP OBJECT
+// where all the fun stuff happens (miserbale)
+// LOTS OF SETS AND STUFF
+// Description: map class that contains all the walls, cows, npcs, weapons, and collectibles in the map
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -14,24 +19,8 @@ public class FloorMap {
     ArrayList<NPC> npcs;
     BufferedImage bg;
     ArrayList<Door> doors;
-    private Point[] cowLocations;
 
-    // public FloorMap(int mapID, Point TLLocation, BufferedImage bg, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls) {
-    //     this.mapID = mapID;
-    //     this.TLLocation = TLLocation;
-    //     this.bg = bg;
-    //     this.npcs = npcs;
-    //     this.cows = new HashSet<>();
-    //     this.doors = new ArrayList<>();
-    //     this.rectWalls = rectWalls;
-    //     this.triWalls = triWalls;
-    //     this.innerWalls = new TreeSet<>();
-    //     this.weapons = new ArrayList<>();
-    //     this.collectibles = new ArrayList<>();
-    //     this.weapons = new ArrayList<>();
-    //     this.collectibles = new ArrayList<>();
-    // }
-
+    // Constructor
     public FloorMap(Point TLLocation, HashSet<Wall> rectWalls, HashSet<Triangle> triWalls, TreeSet<Wall> innerWalls, BufferedImage bg,
             ArrayList<Door> doors, HashSet<Cow> cows, ArrayList<NPC> npcs, ArrayList<Weapon> weapons, ArrayList<Collectible> collectibles) {
         this.TLLocation = TLLocation;
@@ -48,50 +37,17 @@ public class FloorMap {
         this.collectibles = collectibles;
     }
 
-    public void updateCows(Player player) {
-        Iterator<Cow> iterator = this.cows.iterator();
-
-        while (iterator.hasNext()) {
-            Cow cow = iterator.next();
-
-            // Calculate distance using in-game positions
-            double distance = player.getGamePos().distance(cow.getGamePos());
-
-            // System.out.println(cow.getGamePos());
-            // System.out.println(distance);
-            if (distance < 300) {
-                cow.followPlayer(player);
-                // System.out.println(distance);
-            }
-
-            if (!cow.isAlive()) {
-                iterator.remove();
-            }
-        }
-    }
-
+    // Getters
     public HashSet<Triangle> getTriWalls() {
         return triWalls;
-    }
-
-    public void setTriWalls(HashSet<Triangle> walls) {
-        this.triWalls = walls;
     }
 
     public HashSet<Wall> getRectWalls() {
         return rectWalls;
     }
 
-    public void setRectWalls(HashSet<Wall> walls) {
-        this.rectWalls = walls;
-    }
-
     public HashSet<Cow> getCows() {
         return cows;
-    }
-
-    public void setCows(HashSet<Cow> cows) {
-        this.cows = cows;
     }
 
     public ArrayList<Weapon> getWeapons() {
@@ -102,26 +58,12 @@ public class FloorMap {
         return collectibles;
     }
 
-    public void removeItem(Weapon weapon) {
-        weapons.remove(weapon);
-    }
-
-    // overloaded method
-    public void removeItem(Collectible i) {
-        collectibles.remove(i);
-    }
-
-
     public BufferedImage getBG() {
         return bg;
     }
 
     public Point getTLLocation() {
         return TLLocation;
-    }
-
-    public void setTLLocation(Point TLLocation) {
-        this.TLLocation = TLLocation;
     }
 
     public ArrayList<NPC> getNPCs() {
@@ -136,14 +78,80 @@ public class FloorMap {
         return innerWalls;
     }
 
+    public int getMapID() {
+        return mapID;
+    }
+
+    // Setters
+    public void setTriWalls(HashSet<Triangle> walls) {
+        this.triWalls = walls;
+    }
+
+    public void setRectWalls(HashSet<Wall> walls) {
+        this.rectWalls = walls;
+    }
+
+    public void setCows(HashSet<Cow> cows) {
+        this.cows = cows;
+    }
+
+    public void setTLLocation(Point TLLocation) {
+        this.TLLocation = TLLocation;
+    }
+
+    // OTHER METHODS:
+
+    // Description: updates the cows in the map
+    // Parameters: player 
+    // Returns: void
+    public void updateCows(Player player) {
+
+        // iterate through each cow
+        Iterator<Cow> iterator = this.cows.iterator();
+
+        while (iterator.hasNext()) {
+            Cow cow = iterator.next();
+
+            // calculate distance between player and cow using in-game positions
+            double distance = player.getGamePos().distance(cow.getGamePos());
+
+            // if the distance is less than 300, the cow will follow the player
+            if (distance < 300) {
+                cow.followPlayer(player);
+            }
+
+            // if the cow is dead, remove it from the map
+            if (!cow.isAlive()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    // Description: removes the weapon from the map
+    // Parameters: weapon
+    // Returns: void
+    public void removeItem(Weapon weapon) {
+        weapons.remove(weapon);
+    }
+
+    // Description: removes the collectible from the map
+    // Parameters: collectible
+    // Returns: void
+    public void removeItem(Collectible i) {
+        collectibles.remove(i);
+    }
+
+    // Description: add cow to map
+    // Parameters: cow
+    // Returns: void
     public void addCow(Cow cow) {
         this.cows.add(cow);
     }
+
+    // Description: remove cow from map
+    // Parameters: cow
+    // Returns: void
     public void removeCow(Cow cow) {
         this.cows.remove(cow);
-    }
-
-    public int getMapID() {
-        return mapID;
     }
 }

@@ -1,5 +1,8 @@
+// Description: compare method for sorting items in inventory by name
+
 import java.util.Comparator;
 
+// COMPARATOR!!!!!!!!!!!!!!!!
 public class SortByName implements Comparator<Item> {
     @Override
     public int compare(Item item1, Item item2) {

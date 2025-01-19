@@ -1,3 +1,7 @@
+// abstract Cow class
+// ancestor of all cow types
+// Description: contains all common attributes and methods of cows
+
 import java.awt.image.*;
 import java.awt.*;
 abstract class Cow {
@@ -34,19 +38,24 @@ abstract class Cow {
         updateScreenCoords(player);
     }
 
-      // Update screen coordinates based on player's position
+    // update screen coordinates based on player's position
       public void updateScreenCoords(Player player) {
         this.x = this.inGameX - player.getGamePos().x + (player.getHitboxC().width / 2);
         this.y = this.inGameY - player.getGamePos().y + (player.getHitboxC().height / 2);
     }
 
+    // Description: move the cow
+    // Parameters: speed of cow, player to move towards
+    // Returns: none
     public void move(int speedX, int speedY, Player player) {
         this.inGameX += speedX;
         this.inGameY += speedY;
         updateScreenCoords(player);
     }
 
-
+    // Description: try to attack the player
+    // Parameters: player to attack
+    // Returns: none
     public void tryAttack(Player player) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastAttackTime >= COOLDOWN) {
@@ -74,7 +83,16 @@ abstract class Cow {
     public int getY() {
         return this.inGameY;    
     }
-
+    public Point getGamePos() {
+        return new Point(this.inGameX, this.inGameY);
+    }
+    public Point getMapPos() {
+        return new Point(this.x, this.y);
+    }
+    public Rectangle getHitbox() {
+        return new Rectangle(this.inGameX, this.inGameY, this.image.getWidth(), this.image.getHeight());
+    }
+    
     // Setters
     public void setHP(int hp) {
         this.hp = hp;
@@ -95,57 +113,65 @@ abstract class Cow {
     public void setGameX(int x) {
         this.inGameX = x;
     }
-
+    
     public void setGameY(int y) {
         this.inGameY = y;
-    }
-
-    // get hurt by player
-    public void hurt(int playerDamage) {
-        this.setHP(this.hp - playerDamage);
-    }
-
-    abstract public void followPlayer(Player player);
-
-    // deal damage based on cow type
-    abstract public void attack(Player player);
-
-    public boolean isAlive() {
-        return hp > 0;
-    }
-
-    public Point getGamePos() {
-        return new Point(this.inGameX, this.inGameY);
     }
     public void setGamePos(int x, int y) {
         this.inGameX = x;
         this.inGameY = y;
     }
-    public Point getMapPos() {
-        return new Point(this.x, this.y);
-    }
     public void setMapPos(int x, int y) {
         this.x = x;
         this.y = y;
     }
-    
+    public void setCollision(boolean colliding) {
+        this.colliding = colliding;
+    }
+
+    // Description: decrease cow's health
+    // Parameters: damage dealt to cow
+    // Returns: none
+    public void hurt(int playerDamage) {
+        this.setHP(this.hp - playerDamage);
+    }
+
+    // Description: follow the player
+    // Parameters: player to follow
+    // Returns: none
+    abstract public void followPlayer(Player player);
+
+    // Description: attack the player
+    // Parameters: player to attack
+    // Returns: none
+    abstract public void attack(Player player);
+
+    // Description: check if cow is alive
+    // Parameters: none
+    // Returns: true if cow is alive, false otherwise
+    public boolean isAlive() {
+        return hp > 0;
+    }
+
+    // Description: move in game coordinates
+    // Parameters: amount to move by
+    // Returns: none
     public void inGameMove(int dx, int dy) {
         this.inGameX += dx;
         this.inGameY += dy;
     }
+
+    // Description: move in screen coordinates
+    // Parameters: amount to move by
+    // Returns: none
     public void inScreenMove(int dx, int dy) {
         this.x += dx;
         this.y += dy;
     }
 
-    public Rectangle getHitbox() {
-        return new Rectangle(this.inGameX, this.inGameY, this.image.getWidth(), this.image.getHeight());
-    }
-
-    public void setCollision(boolean colliding) {
-        this.colliding = colliding;
-    }
-
+    // Description: check if cow is colliding
+    // Parameters: none
+    // Returns: true if cow is colliding, false otherwise
     public boolean isColliding() {
         return colliding;
     }
