@@ -148,6 +148,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	HashSet<Projectile> projectiles = new HashSet<>();
 	final int FIRE_RATE = 3000;
 	long lastProjectileTime;
+	boolean bossDefeated;
+	BufferedImage IDcardImage;
 
 	// MUSIC AND SOUND
 
@@ -406,6 +408,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			floodImage1 = ImageIO.read(getClass().getResource("/map files/washroom flood1.png"));
 			floodImage2 = ImageIO.read(getClass().getResource("/map files/washroom flood2.png"));
 			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
+			IDcardImage = ImageIO.read(getClass().getResource("/sprites/IDCard.png"));
 
 			// initialize player
 			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 300,
@@ -655,13 +658,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 			}
 			if (currentMap == maps.get(11)) {
-
-				for (Cow cow : currentMap.getCows()) {
-					spawnProjectiles(cow);
-					updateProjectiles();
-					checkProjectileCollisions();
+				if(!bossDefeated){
+					for (Cow cow : currentMap.getCows()) {
+						spawnProjectiles(cow);
+						updateProjectiles();
+						checkProjectileCollisions();
+					}
+					repaint();
 				}
-				repaint();
 			}
 
 			// healing timer so it is not instant healing. player must wait to heal.
@@ -1721,6 +1725,21 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 										}
 									}
 								}
+
+								// WIN CONDITION
+								// if you have the ID card, mr moo will let you leave the school
+								if(currentMap == maps.get(1)){
+									int index = suki.searchInventory("ID Card");
+									if(index < 0){
+										npc.setState(0);
+										npc.setCurrentDialogueIndex(0);
+									}
+									else{
+										npc.setState(1);
+										npc.setCurrentDialogueIndex(0);
+									}
+								}
+
 								// get the current line of dialogue
 								String currentDialogueLine = npc.getDialogues()[npc.getState()][npc
 										.getCurrentDialogueIndex()];
@@ -1950,6 +1969,11 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					if (!cow.isAlive()) {
 						System.out.println("Cow DIE!");
+						// if the boss is dead, set bossDefeated to true and give the player the ID card
+						if(currentMap == maps.get(11)) {
+							bossDefeated = true;
+							suki.addToInventory(new Collectible("ID Card", "Waste Cow's ID Card", IDcardImage, new Point(0, 0), 0));
+						}
 						currentMap.removeCow(cow); // remove dead cow from the map
 					}
 				}
