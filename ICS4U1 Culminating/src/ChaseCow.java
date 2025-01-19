@@ -706,16 +706,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						weapons, collectibles));
 				// set first map to spawn point
 				currentMap = maps.get(30);
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					repaint();
-				}
 			}
 		} catch (NumberFormatException e) {
 			// incase there is a reading error
 			System.out.println("Error reading map info file");
 		}
 		b.close();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		repaint();
 	}
 
 	// Description: imports all interior wall images
@@ -1587,6 +1588,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					else if (door.interactable() && door.getMapDest() == 1 && currentMap == maps.get(2)) {
 						screen = 9;
 						Timer timer1 = new Timer(3000, new ActionListener() {
+							@Override
 							public void actionPerformed(ActionEvent e) {
 								screen = 10;
 								repaint();
@@ -1600,8 +1602,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								timer2.setRepeats(false);
 								timer2.start();
 							}
-						}
-						);
+						});
 						timer1.setRepeats(false);
 						timer1.start();
 						repaint();
@@ -2068,7 +2069,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					door.setInteractable(false);
 					showWaterMessage = true;
 				}
-			}
 			} else {
 				// default behavior for unlocked doors
 				door.setInteractable(true);
@@ -2463,17 +2463,17 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// Description: projectiles for final boss fight
 	// Parameters: n/a
 	// Return: void
-	public void spawnProjectiles(Cow cow) {
-		long currentTime = System.currentTimeMillis();
-		if(currentTime - lastProjectileTime > 1000){
-			for (int angle = 0; angle < 360; angle += 15) { // fires a projectile for every 15 degrees
-                double radians = Math.toRadians(angle);
-                double dx = Math.cos(radians);
-                double dy = Math.sin(radians);
-                projectiles.add(new Projectile(cow.getRectx / 2, BOSS_Y + BOSS_SIZE / 2, dx, dy));
-            }
-		}
-	}
+	// public void spawnProjectiles(Cow cow) {
+	// 	long currentTime = System.currentTimeMillis();
+	// 	if(currentTime - lastProjectileTime > 1000){
+	// 		for (int angle = 0; angle < 360; angle += 15) { // fires a projectile for every 15 degrees
+    //             double radians = Math.toRadians(angle);
+    //             double dx = Math.cos(radians);
+    //             double dy = Math.sin(radians);
+    //             projectiles.add(new Projectile(cow.getRectx / 2, BOSS_Y + BOSS_SIZE / 2, dx, dy));
+    //         }
+	// 	}
+	// }
 
 	// Description: display game over panel when suki dies
 	// Parameters: n/a
@@ -2522,3 +2522,4 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }
+
