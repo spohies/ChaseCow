@@ -26,7 +26,7 @@ import java.awt.image.*;
  */
 
 @SuppressWarnings("serial") // suppressing random warning
-public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener, MouseMotionListener, ActionListener {
+public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 	// big boss variables
 	int screen = 0;
 	static JPanel myPanel;
@@ -79,7 +79,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage floor1SceneImg;
 	BufferedImage ventsSceneImg;
 	BufferedImage stairsSceneImg;
+
+	// HEALTH BARS
 	BufferedImage healthBar;
+	BufferedImage bossHealthBar;
 
 	// NPC DIALOGUE
 	// dialogue variables
@@ -133,8 +136,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	int weightCount;
 	
 	// STAGE 6
-	ArrayList<Rectangle> projectiles = new ArrayList<>();
-	final int FIRE_RATE = 500;	
+	HashSet<Projectile> projectiles = new HashSet<>();
+	final int FIRE_RATE = 3000;	
+	long lastProjectileTime = 0;
 
 	// constructor
 	public ChaseCow() throws IOException {
@@ -288,8 +292,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			ventsSceneImg = ImageIO.read(getClass().getResource("/menu/VENTSCENE.png"));
 			stairsSceneImg = ImageIO.read(getClass().getResource("/menu/STAIRSCENE.png"));
 
-			// health bar image
+			// health bar images
 			healthBar = ImageIO.read(getClass().getResource("/menu/HPBAR.png"));
+			bossHealthBar = ImageIO.read(getClass().getResource("/menu/WASTECOWHP.png"));
 
 			// images for specific stages
 			spillImage = ImageIO.read(getClass().getResource("/map files/spill.png"));
@@ -301,7 +306,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
 
 			// initialize player
-			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 225, 275,
+			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 400, 400,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
 			// set playerImage to facing down
 			playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
@@ -328,6 +333,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// on game screen:
 		if (screen == 5) {
 			// if suki dies, show game over screen
+			currentMap = maps.get(11); // Spawn in maps.get(1)
 			if (suki.getHP() <= 0) {
 				showGameOverPanel();
 			}
@@ -534,6 +540,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					showMopMessage = false;
 				}
 			}
+			
+			// FLOOR 1
+			if(currentMap == maps.get(11)){
+				for (Cow cow : currentMap.getCows()){
+					spawnProjectiles(cow);
+					updateProjectiles();
+					checkProjectileCollisions();
+				}
+				repaint();
+			}
 
 			// healing timer so it is not instant healing. player must wait to heal.
 			long lastHealTime = 0;
@@ -712,11 +728,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			System.out.println("Error reading map info file");
 		}
 		b.close();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		repaint();
 	}
 
 	// Description: imports all interior wall images
@@ -1255,6 +1266,31 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				g.drawString("Looks like I need to unscrew this to get through.", 60, 580);
 			}
 
+			// BOSS FIGHT
+			if(currentMap == maps.get(11)){
+				// show projectiles
+				HashSet<Projectile> currentProjectiles = new HashSet<>(projectiles);
+				for (Projectile p : currentProjectiles) {
+					g.setColor(Color.YELLOW);
+					g.fillOval((int) (p.getX() - suki.getGamePos().x) + (screenWidth / 2), (int) (p.getY() - suki.getGamePos().y) + (screenHeight / 2), Projectile.getSize(), Projectile.getSize());
+				}
+				// if boss is alive, show boss health bar
+				Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+				while(cowIterator.hasNext()){
+					Cow cow = cowIterator.next();
+					if(cow.getHP() > 0){
+						// draw health bar
+						int barWidth = (int) (cow.getHP() / 2.5); // hp point is 1/3 pixels
+						int barHeight = 30;
+						int barX = screenWidth / 2 - barWidth / 2;
+						int barY = 80; 
+						g3.setColor(Color.RED);
+						g3.fillRect(barX, barY, barWidth, barHeight);
+						g.drawImage(bossHealthBar, screenWidth / 2 - bossHealthBar.getWidth() / 2, 15, 
+							bossHealthBar.getWidth(), bossHealthBar.getHeight(), this);
+					}
+				}
+			}
 			// CHEATS FOR MS WONG:
 			// tells user when they are healing
 			if (healing && !fullHP) {
@@ -1724,8 +1760,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					// damage cow
 					cow.hurt(damage);
 
-					// apply knockback
-					knockback(cow, suki, 50);
+					// apply knockback if not boss battle
+					if(currentMap != maps.get(11)){
+						knockback(cow, suki, 50);
+					}
 
 					if (!cow.isAlive()) {
 						System.out.println("Cow DIE!");
@@ -2446,6 +2484,34 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		cow.setCollision(false);
 	}
 
+
+	public void checkProjectileCollisions() {
+
+		// check for collision with walls
+		Iterator<Projectile> it = projectiles.iterator();
+		Rectangle sukiRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y,
+		(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+		while (it.hasNext()) {
+		 	Projectile projectile = it.next();
+			if(projectile.getRect().intersects((sukiRect))){
+				suki.takeDamage(10);
+				it.remove();
+			}
+			else {
+				for (Wall wall : currentMap.getRectWalls()) {
+					if (projectile.getRect().intersects(wall.getRect())) {
+						it.remove();
+						continue;
+					}
+				}
+				for (Triangle tri : currentMap.getTriWalls()) {
+					if (tri.intersects(projectile.getRect()) > 0) {
+						it.remove();
+					}
+				}
+			}
+		}
+	}
 	// Description: makes cows move
 	// Parameters: n/a
 	// Return: void
@@ -2460,20 +2526,32 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	// Description: projectiles for final boss fight
+	// Descritpion: spawn projectiles for the boss
+	// Parameters: Cow object (boss)
+	// Return: void
+	public void spawnProjectiles(Cow cow) {
+		long currentTime = System.currentTimeMillis();
+		if(currentTime - lastProjectileTime > FIRE_RATE){
+			lastProjectileTime = currentTime;
+			for (int angle = 0; angle < 360; angle += 20) { // fires a projectile for every 20 degrees
+                double radians = Math.toRadians(angle);
+                double dx = Math.cos(radians);
+                double dy = Math.sin(radians);
+				projectiles.add(new Projectile(cow.getHitbox().x + 90, cow.getHitbox().y + 130, dx, dy));
+            }
+		}
+	}
+
+	// Description: moves the projectiles outwards
 	// Parameters: n/a
 	// Return: void
-	// public void spawnProjectiles(Cow cow) {
-	// 	long currentTime = System.currentTimeMillis();
-	// 	if(currentTime - lastProjectileTime > 1000){
-	// 		for (int angle = 0; angle < 360; angle += 15) { // fires a projectile for every 15 degrees
-    //             double radians = Math.toRadians(angle);
-    //             double dx = Math.cos(radians);
-    //             double dy = Math.sin(radians);
-    //             projectiles.add(new Projectile(cow.getRectx / 2, BOSS_Y + BOSS_SIZE / 2, dx, dy));
-    //         }
-	// 	}
-	// }
+	public void updateProjectiles() {
+		Iterator <Projectile> it = projectiles.iterator();
+		while(it.hasNext()){
+			Projectile projectile = it.next();
+			projectile.move();
+		}
+	}
 
 	// Description: display game over panel when suki dies
 	// Parameters: n/a

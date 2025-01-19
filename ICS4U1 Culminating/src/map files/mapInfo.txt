@@ -1000,7 +1000,7 @@ I guess you can have the key to the storage room.
 0
 0
 0
-10
+9
 224
 6750 200
 100 275
@@ -1027,10 +1027,7 @@ I guess you can have the key to the storage room.
 700 575
 1
 8500 250
-0 0
-1
-8550 250
-0 0
+4100 250
 0
 224
 /map files/ROOM224.png
@@ -1429,7 +1426,7 @@ Go right ahead.
 1
 Wet Floor Sign
 Good thing cats don’t like water!
-REACH DAMAGE
+130 100
 /sprites/wetFloorSign.png
 130 188
 0
