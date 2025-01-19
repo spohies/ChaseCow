@@ -158,7 +158,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			loseSound;
 
 	// constructor
-	public ChaseCow() throws IOException {
+	public ChaseCow() throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 		// initialize variables
 		importImages();
 		initialize();
@@ -177,6 +177,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		addMouseMotionListener(this);
 		addKeyListener(this);
 
+		musicPlayer();
 		// makes sure program can run
 		thread = new Thread(this);
 		thread.start();
@@ -236,7 +237,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		} else if (talkSound) {
 			talkSound = false;
 			sound.open(audioInputTalking);
-			sound.loop(Clip.LOOP_CONTINUOUSLY);
 			sound.start();
 			// Play audio for a random amount of time between 0.5 to 2 seconds
 			int randomDuration = 500 + new Random().nextInt(1500);
@@ -256,6 +256,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			walkSound = false;
 			sound.open(audioInputWalking);
 			sound.loop(Clip.LOOP_CONTINUOUSLY);
+		} else if (!up && !down && !left && !right) {
+			sound.stop();
 		}
 	}
 
@@ -406,7 +408,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
 
 			// initialize player
-			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 1000, 700,
+			suki = new Player(100, 4, new Rectangle(517, 382, 46, 10), new Rectangle(517, 328, 46, 64), 250, 300,
 					playerImageDown, playerImageUp, playerImageRight, playerImageLeft);
 			// set playerImage to facing down
 			playerImage = ImageIO.read(getClass().getResource("/sprites/sukiDown.png"));
@@ -433,7 +435,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// on game screen:
 		if (screen == 5) {
 			// if suki dies, show game over screen
-			currentMap = maps.get(1);
 			if (suki.getHP() <= 0) {
 				showGameOverPanel();
 			}
@@ -2091,6 +2092,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		Point selectedPoint = new Point(e.getX(), e.getY());
 		// main screen --> play, about
 		if (screen == 0) {
+
 			System.out.println("clicked" + e.getX() + " " + e.getY());
 			if (recPlay.contains(selectedPoint)) {
 				screen = 1;
@@ -2875,7 +2877,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	// MAIN
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 		frame = new JFrame("ChaseCow");
 		myPanel = new ChaseCow();
 		frame.add(myPanel);
