@@ -50,7 +50,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// main screen + start screen buttons
 	Rectangle recAbout, recPlay, recOptions;
 	boolean hoverAbout, hoverOptions, hoverPlay;
-	BufferedImage titleScreenBG, title, play, play2, about, about2, settings, settings2, options, options2, back, back2;
+	BufferedImage titleScreenBG, title, play, play2, about, about2, aboutInfo, settings, settings2, options, options2, back, back2;
 	Rectangle recLB, recNewGame, recBack;
 	boolean hoverNewGame, hoverLB, hoverBack;
 	BufferedImage menuScreenBackground, gameTitle, newGame, leaderboard, newGame2, leaderboard2;
@@ -370,6 +370,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			about = ImageIO.read(getClass().getResource("/menu/aboutbutton.png"));
 			play2 = ImageIO.read(getClass().getResource("/menu/playbutton2.png"));
 			about2 = ImageIO.read(getClass().getResource("/menu/aboutbutton2.png"));
+			aboutInfo = ImageIO.read(getClass().getResource("/menu/aboutScreen.png"));
 			options = ImageIO.read(getClass().getResource("/menu/optionsbutton.png"));
 			options2 = ImageIO.read(getClass().getResource("/menu/optionsbutton2.png"));
 			back = ImageIO.read(getClass().getResource("/menu/backbutton.png"));
@@ -915,7 +916,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		if (screen == 0) {
 			// g.drawImage(titleScreenBG, 0, 0, titleScreenBG.getWidth(),
 			// titleScreenBG.getHeight(), this);
-			g.drawImage(title, 100, 100, title.getWidth(), title.getHeight(), this);
+			g.drawImage(title, screenWidth / 2 - title.getWidth() / 2, 150, title.getWidth(), title.getHeight(), this);
 			g.drawImage(hoverPlay ? play2 : play, 340, 400, play.getWidth(), play.getHeight(), this);
 			g.drawImage(hoverAbout ? about2 : about, 340, 520, about.getWidth(), about.getHeight(), this);
 		}
@@ -931,6 +932,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 		// about screen
 		if (screen == 2) {
+			g.drawImage(aboutInfo, screenWidth / 2 - aboutInfo.getWidth() / 2, screenHeight / 2 - aboutInfo.getHeight() / 2, 
+				aboutInfo.getWidth(), aboutInfo.getHeight(), this);
 			g.drawImage(hoverBack ? back2 : back, 20, 20, back.getWidth(), back.getHeight(), this);
 		}
 
