@@ -417,7 +417,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			weightImage = ImageIO.read(getClass().getResource("/sprites/weight.png"));
 			floodImage1 = ImageIO.read(getClass().getResource("/map files/washroom flood1.png"));
 			floodImage2 = ImageIO.read(getClass().getResource("/map files/washroom flood2.png"));
-			floodImage = ImageIO.read(getClass().getResource("/map files/flood.png"));
+			floodImage = ImageIO.read(getClass().getResource("/map files/puddle.png"));
 			IDcardImage = ImageIO.read(getClass().getResource("/sprites/IDCard.png"));
 
 			// initialize player
@@ -670,7 +670,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// MS WONG CHEAT: WATERFOUNTAIN HEALING!
 				Rectangle waterFountain = new Rectangle(2600, 900, 100, 25);
 				Rectangle playerRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y - 10,
-						(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 				if (waterFountain.intersects(playerRect)) {
 					healing = true;
 				} else {
@@ -684,8 +684,13 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						updateProjectiles();
 						checkProjectileCollisions();
 					}
-					repaint();
 				}
+				else if(bossDefeated){
+					suki.addToInventory(new Collectible("ID Card", 
+						"Waste Cow's ID Card", IDcardImage, new Point(0, 0), 0));
+						projectiles.clear();
+				}
+				repaint();
 			}
 
 			// healing timer so it is not instant healing. player must wait to heal.
@@ -1271,9 +1276,28 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 										metrics.stringWidth(itemDescription));
 								int textHeight = metrics.getHeight() * 2;
 
-								// draw background box
-								g.setColor(new Color(255, 255, 255, 200));
-								g.fillRect(mousePos.x, mousePos.y - textHeight, textWidth + 10, textHeight + 10);
+								// if weapon... add damage and reach stats
+								if (item instanceof Weapon) {
+									textHeight += metrics.getHeight() * 2;
+									// draw background box (bigger to include damage and reach)
+									g.setColor(new Color(255, 255, 255, 200));
+									g.fillRect(mousePos.x, mousePos.y - textHeight, textWidth + 10, textHeight + 10);
+
+									Weapon weapon = (Weapon) item; // cast the item to Weapon
+									String damage = "Damage: " + weapon.getDamage();
+									String reach = "Reach: " + weapon.getReach();
+									
+									// display weapon stats
+									g.setColor(Color.BLACK);
+									g.drawString(damage, mousePos.x + 5,
+									mousePos.y - textHeight + metrics.getHeight() * 3);
+									g.drawString(reach, mousePos.x + 5,
+									mousePos.y - textHeight + metrics.getHeight() * 4);
+								} else {
+									// draw background box
+									g.setColor(new Color(255, 255, 255, 200));
+									g.fillRect(mousePos.x, mousePos.y - textHeight, textWidth + 10, textHeight + 10);
+								}
 
 								// draw item name and description
 								g.setColor(Color.BLACK);
@@ -1285,18 +1309,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								g.drawString(itemDescription, mousePos.x + 5,
 										mousePos.y - textHeight + metrics.getHeight() * 2);
 
-								// if weapon... add damage and reach stats
-								if (item instanceof Weapon) {
-									Weapon weapon = (Weapon) item; // cast the item to Weapon
-									String damage = "Damage: " + weapon.getDamage();
-									String reach = "Reach: " + weapon.getReach();
-
-									// display weapon stats
-									g.drawString(damage, mousePos.x + 5,
-											mousePos.y - textHeight + metrics.getHeight() * 3);
-									g.drawString(reach, mousePos.x + 5,
-											mousePos.y - textHeight + metrics.getHeight() * 4);
-								}
 							}
 						}
 					}
@@ -1455,7 +1467,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						// draw health bar
 						int barWidth = (int) (cow.getHP() / 2.5); // hp point is 1/3 pixels
 						int barHeight = 30;
-						int barX = screenWidth / 2 - barWidth / 2;
+						int barX = screenWidth / 2 - bossHealthBar.getWidth() / 2;
 						int barY = 80;
 						g3.setColor(Color.RED);
 						g3.fillRect(barX, barY, barWidth, barHeight);
@@ -2184,11 +2196,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					if (!cow.isAlive()) {
 						System.out.println("Cow DIE!");
-						// if the boss is dead, set bossDefeated to true and give the player the ID card
+						// if the boss is dead, set bossDefeated to true
 						if (currentMap == maps.get(11)) {
 							bossDefeated = true;
-							suki.addToInventory(
-									new Collectible("ID Card", "Waste Cow's ID Card", IDcardImage, new Point(0, 0), 0));
 						}
 						currentMap.removeCow(cow); // remove dead cow from the map
 					}
@@ -2682,8 +2692,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						beakerCleaned = true;
 						currentMap.getNPCs().get(0).setState(1);
 						currentMap.getNPCs().get(0).setCurrentDialogueIndex(0);
-						collectible.setImage(ImageIO.read(getClass().getResource("/sprites/beakerEmpty.png")));
 						Collectible beaker = collectible;
+						BufferedImage beakerImage = ImageIO.read(getClass().getResource("/sprites/beakerEmpty.png"));
+						beaker.setImage(beakerImage);
 						System.out.println("Picked up collectible: " + collectible.getName());
 						updateEquippedItemIndexBeforeChange();
 						player.addToInventory(beaker);
@@ -2717,7 +2728,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 							left = right = up = down = false;
 							Collectible essay = collectible;
 							collectible.setDescription(input);
-							collectible.setImage(ImageIO.read(getClass().getResource("/sprites/writtenEssay.png")));
+							collectible.setImage(ImageIO.read(getClass().getResource("/sprites/essay.png")));
 							essayWritten = true;
 							essayWalkCount++;
 							collectibleIterator.remove();
