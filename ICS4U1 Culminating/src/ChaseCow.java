@@ -152,9 +152,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	BufferedImage IDcardImage;
 	int mooCount;
 	int IDCount;
+	public static final Color WASTE_GREEN = new Color(50, 77, 46);
+
 
 	// MUSIC AND SOUND
-
 	static Clip music, sound, talking;
 	static AudioInputStream audioInputStream, audioInputClick, audioInputCow, audioInputDoor, audioInputItem,
 			audioInputSwing, audioInputTalking, audioInputVents, audioInputWin, audioInputLose;
@@ -1325,7 +1326,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			} 
 			
 			if (!boxesMoved && currentMap == maps.get(2)) {
-				System.out.println("printing boxes");
 				int boxScreenX = (4520 - playerX) + (screenWidth / 2);
 				int boxScreenY = (1925 - playerY) + (screenHeight / 2);
 				g.drawImage(boxPileImage, boxScreenX, boxScreenY, boxPileImage.getWidth(), boxPileImage.getHeight(),
@@ -1471,7 +1471,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				if(!bossDefeated){
 					HashSet<Projectile> currentProjectiles = new HashSet<>(projectiles);
 					for (Projectile p : currentProjectiles) {
-						g.setColor(Color.YELLOW);
+						g.setColor(WASTE_GREEN);
 						g.fillOval((int) (p.getX() - suki.getGamePos().x) + (screenWidth / 2),
 								(int) (p.getY() - suki.getGamePos().y) + (screenHeight / 2), Projectile.getSize(),
 								Projectile.getSize());
@@ -2377,19 +2377,19 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						screen = 5;
+						try {
+							clickSound = true;
+							soundPlayer();
+							music.stop();
+							musicPlayer();
+						} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
+							e1.printStackTrace();
+						}
 						repaint();
 					}
 				});
 				timer.setRepeats(false);
 				timer.start();
-				try {
-					clickSound = true;
-					soundPlayer();
-					music.stop();
-					musicPlayer();
-				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
-					e1.printStackTrace();
-				}
 			}
 			if (recLB.contains(selectedPoint)) {
 				screen = 4;
