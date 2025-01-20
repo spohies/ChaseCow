@@ -175,4 +175,5 @@ abstract class Cow {
     public boolean isColliding() {
         return colliding;
     }
+
 }

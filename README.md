@@ -39,7 +39,12 @@ The goal of the game is to escape Markville! There are three levels (the floors 
 
 ### Known bugs / errors in your game
 	- (Known strange feature) Cows do not detect collisions with walls
-	- 
+	- RARE OCCURENCE -> When cow dies, game freezes.
+		- REASON: iterator.remove() and hashSet.remove() implicitly call hashCode and equals function(?) (this is from our research not 100% sure)
+		- hashCode returns a DIFFERENT int sometimes for the same cow because the cow's variables change a lot. 
+			-> we could not write an efficient hashCode method because it would be the same for all cows, or it would be based on HP and coords which would not return the same hashCode each time... UNLESS we added an ID to all cows which would take forever
+			--> it is 1:30 and we want to sleep
+				(this error only occurs once every like 100 cows so we just decided to omit)
 
 ### Who did what?
 
