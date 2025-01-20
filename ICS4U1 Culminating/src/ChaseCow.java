@@ -151,6 +151,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	boolean bossDefeated;
 	BufferedImage IDcardImage;
 	int mooCount;
+	int IDCount;
 
 	// MUSIC AND SOUND
 
@@ -367,6 +368,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		// STAGE 6
 		lastProjectileTime = 0;
 		mooCount = 0;
+		IDCount = 0;
+		bossDefeated = false;
 
 		// read in non-map images, initialize variables
 		try {
@@ -460,8 +463,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// Parameters: n/a
 	// Return: void
 	public void update() throws IOException {
-
-
 		if (screen == 0 || screen == 1) {
 			bgX += 1;
 			if (bgX < -screenWidth)
@@ -691,6 +692,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					healing = false;
 				}
 			}
+
 			if (currentMap == maps.get(11)) {
 				if (!bossDefeated) {
 					for (Cow cow : currentMap.getCows()) {
@@ -698,11 +700,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						updateProjectiles();
 						checkProjectileCollisions();
 					}
-				}
-				else if(bossDefeated){
-					suki.addToInventory(new Collectible("ID Card", 
-						"Waste Cow's ID Card", IDcardImage, new Point(0, 0), 0));
-						projectiles.clear();
 				}
 				repaint();
 			}
@@ -1025,6 +1022,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				int destHeight = srcY2 - srcY;
 
 				// background
+				g.setColor(Color.BLACK);
+				g.fillRect(0, 0, screenWidth, screenHeight);
 				setBackground(Color.BLACK);
 				g.drawImage(currentMap.getBG(),
 						0, 0, destWidth, destHeight, // destination rectangle
@@ -1121,15 +1120,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			drawInnerWalls(g2, playerX, playerY);
 
 			// FOR TESTING PURPOSES (COMMENT OUT INCASE MS Wong WANTs TO SEE THE TRIANGLES)
-			// for (Triangle tri : currentMap.getTriWalls()) {
-			// 	Point[] vertices = tri.getVertices();
-			// 	int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
-			// 			(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
-			// 	int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
-			// 			(vertices[1].y - playerY) + (screenHeight / 2),
-			// 			(vertices[2].y - playerY) + (screenHeight / 2) };
-			// 	g2.fillPolygon(xPoints, yPoints, 3);
-			// }
+			for (Triangle tri : currentMap.getTriWalls()) {
+				Point[] vertices = tri.getVertices();
+				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
+						(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
+				int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
+						(vertices[1].y - playerY) + (screenHeight / 2),
+						(vertices[2].y - playerY) + (screenHeight / 2) };
+				g2.fillPolygon(xPoints, yPoints, 3);
+			}
 
 			// print all cows
 			if (!currentMap.getCows().isEmpty()) {
@@ -1466,27 +1465,29 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			// BOSS FIGHT
 			if (currentMap == maps.get(11)) {
 				// show projectiles
-				HashSet<Projectile> currentProjectiles = new HashSet<>(projectiles);
-				for (Projectile p : currentProjectiles) {
-					g.setColor(Color.YELLOW);
-					g.fillOval((int) (p.getX() - suki.getGamePos().x) + (screenWidth / 2),
-							(int) (p.getY() - suki.getGamePos().y) + (screenHeight / 2), Projectile.getSize(),
-							Projectile.getSize());
-				}
-				// if boss is alive, show boss health bar
-				Iterator<Cow> cowIterator = currentMap.getCows().iterator();
-				while (cowIterator.hasNext()) {
-					Cow cow = cowIterator.next();
-					if (cow.getHP() > 0) {
-						// draw health bar
-						int barWidth = (int) (cow.getHP() / 2.5); // hp point is 1/3 pixels
-						int barHeight = 30;
-						int barX = screenWidth / 2 - bossHealthBar.getWidth() / 2;
-						int barY = 80;
-						g3.setColor(Color.RED);
-						g3.fillRect(barX, barY, barWidth, barHeight);
-						g.drawImage(bossHealthBar, screenWidth / 2 - bossHealthBar.getWidth() / 2, 15,
-								bossHealthBar.getWidth(), bossHealthBar.getHeight(), this);
+				if(!bossDefeated){
+					HashSet<Projectile> currentProjectiles = new HashSet<>(projectiles);
+					for (Projectile p : currentProjectiles) {
+						g.setColor(Color.YELLOW);
+						g.fillOval((int) (p.getX() - suki.getGamePos().x) + (screenWidth / 2),
+								(int) (p.getY() - suki.getGamePos().y) + (screenHeight / 2), Projectile.getSize(),
+								Projectile.getSize());
+					}
+					// if boss is alive, show boss health bar
+					Iterator<Cow> cowIterator = currentMap.getCows().iterator();
+					while (cowIterator.hasNext()) {
+						Cow cow = cowIterator.next();
+						if (cow.getHP() > 0) {
+							// draw health bar
+							int barWidth = (int) (cow.getHP() / 2.5); // hp point is 1/3 pixels
+							int barHeight = 30;
+							int barX = (screenWidth / 2) - (bossHealthBar.getWidth() / 2) + 16;
+							int barY = 80;
+							g3.setColor(Color.RED);
+							g3.fillRect(barX, barY, barWidth, barHeight);
+							g.drawImage(bossHealthBar, screenWidth / 2 - bossHealthBar.getWidth() / 2, 15,
+									bossHealthBar.getWidth(), bossHealthBar.getHeight(), this);
+						}
 					}
 				}
 			}
@@ -1512,14 +1513,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// draw border walls of each map
 			// COMMENT OUT WHEN DONE DEBUGGING (keep for ms wong to see)
-			// if (currentMap != null) {
-			// 	g.setColor(Color.RED);
-			// 	for (Wall wall : currentMap.getRectWalls()) {
-			// 		int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
-			// 		int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
-			// 		g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
-			// 	}
-			// }
+			if (currentMap != null) {
+				g.setColor(Color.RED);
+				for (Wall wall : currentMap.getRectWalls()) {
+					int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
+					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
+					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
+				}
+			}
 
 			// HEALTH BAR ON ALL MAPS:
 			int barWidth = suki.getHP() * 4; // hp point is 4 pixels
@@ -1584,7 +1585,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
 					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
 					wall.getImage().getHeight(), this);
-					// COMMENT OUT THIS (FOR DEBUGGING)
+			// COMMENT OUT THIS (FOR DEBUGGING)
 			// g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
 			// 		(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 		}
@@ -1823,7 +1824,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								// WIN CONDITION
 								// if you have the ID card, mr moo will let you leave the school
 								if (currentMap == maps.get(1)) {
-									int index = suki.searchInventory("ID Card");
+									int index = suki.searchInventory("Moo ID");
 									if (index >= 1) {
 										if (mooCount == 0) {
 											mooCount++;
@@ -2131,6 +2132,16 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 						// if the boss is dead, set bossDefeated to true
 						if (currentMap == maps.get(11)) {
 							bossDefeated = true;
+							// boss defeated
+							if (IDCount == 0) {
+								suki.addToInventory(new Collectible("Moo ID", 
+								"Waste Cow's ID Card", IDcardImage, new Point(0, 0), 0));
+								System.out.println("ID card added to inventory.");
+								IDCount++;
+							}
+							// projectiles cleared
+							projectiles.clear();
+							repaint();
 						}
 						currentMap.removeCow(cow); // remove dead cow from the map
 					}
