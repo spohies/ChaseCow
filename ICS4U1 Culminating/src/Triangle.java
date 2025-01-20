@@ -67,11 +67,16 @@ public class Triangle {
         return (sign1 >= 0 && sign2 >= 0 && sign3 >= 0) || (sign1 <= 0 && sign2 <= 0 && sign3 <= 0);
     }
 
-    // getters
+    // Description: get the sign of a point relative to a line formed by two points
+    //              returns a value based on the cross product of vectors formed by these points
+    // Parameters: 3 points
+    // Returns: int representing the sign of the point; 
+    //          determines which side of the line p2p3 the point p1 lies on
     public int getSign(Point p1, Point p2, Point p3) {
         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
     }
-
+    
+    // getters
     public Point[] getVertices() {
         return vertices;
     }

@@ -196,21 +196,31 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		thread.start();
 	}
 
+	// Description: plays background music based on the current screen
+	// Parameters: n/a
+	// Return: void
 	public void musicPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-
+		// play menu music if not in game screen
 		if (screen != 5) {
 			audioInputStream = AudioSystem.getAudioInputStream(
 					getClass().getResourceAsStream("/sound/menumusic.wav"));
-		} else {
+		} 
+		// play game music if in game screen
+		else {
 			audioInputStream = AudioSystem.getAudioInputStream(
 					getClass().getResourceAsStream("/sound/gamemusic.wav"));
 		}
 		music = AudioSystem.getClip();
 		music.open(audioInputStream);
+		// loop music
 		music.loop(Clip.LOOP_CONTINUOUSLY);
 	}
 
+	// Description: plays sound effects based on the current action
+	// Parameters: n/a
+	// Return: void
 	public void soundPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		// import sound effects
 		audioInputItem = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/plop.wav"));
 		audioInputClick = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/click.wav"));
 		audioInputCow = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/cowhurt.wav"));
@@ -256,6 +266,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
+	// Description: plays talking sound effect when player interacts with NPC
+	// Parameters: n/a
+	// Return: void
 	public void talkPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		if (talking == null) {
 			talking = AudioSystem.getClip();
@@ -1621,9 +1634,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	// must have because we are implemeting an interface
 	@Override
-	public void keyTyped(KeyEvent e) {
-
-	}
+	public void keyTyped(KeyEvent e) {}
 
 	// Description: detects when key is pressed
 	// Parameters: KeyEvent (the key you pressed)
@@ -1696,7 +1707,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 							}
 
 							if (npc.getState() < npc.getDialogues().length) {
-								// mr lee
+								// mr lee reminds you to get a better weapon if you don't have the meter stick
 								if (currentMap == maps.get(341) && npc == currentMap.getNPCs().get(0)) {
 
 									int index = suki.searchInventory("Meter Stick");
@@ -2231,7 +2242,10 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		}
 	}
 
-	private void knockback(Cow cow, Player player, int knockbackDistance) {
+	// Description: knockback cows
+	// Parameters: cow, player, knockback distance
+	// Return: void
+	public void knockback(Cow cow, Player player, int knockbackDistance) {
 		Point cowPos = cow.getGamePos();
 		Point playerPos = player.getGamePos();
 
@@ -2247,10 +2261,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		cow.setGamePos(cowPos.x + (int) dx, cowPos.y + (int) dy);
 	}
 
+	// Description: detects when mouse is clicked
+	// Parameters: MouseEvent 
+	// Return: void
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		// if in game screen
 		if (screen == 5) {
 			if (!showInventory) {
+				// play attack sound if not in inventory
 				try {
 					swingSound = true;
 					soundPlayer();
@@ -2276,6 +2295,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					int y = startY + row * (boxSize + padding);
 
 					Rectangle itemRect = new Rectangle(x, y, boxSize, boxSize);
+					// play clicked sound
 					if (itemRect.contains(mousePos)) {
 						try {
 							clickSound = true;
@@ -2932,7 +2952,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	}
 
 	// Description: handle when player collides with wall
-	// Parameters: triangular wall, it's sides, it's points
+	// Parameters: triangular wall, its sides, its points
 	// Return: void
 	public void handleTriCollision(Triangle wall, Line[] sides, Point[] vertices) {
 		final double EPSILON = 1e-4; // small buffer to push the player out of the triangle more
@@ -3042,22 +3062,26 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		cow.setCollision(false);
 	}
 
+	// Description: check if projectiles are colliding with anything
+	// Parameters: n/a
+	// Return: void
 	public void checkProjectileCollisions() {
 
-		// check for collision with walls
 		Iterator<Projectile> it = projectiles.iterator();
 		Rectangle sukiRect = new Rectangle(suki.getGamePos().x, suki.getGamePos().y,
-				(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
+		(int) suki.getHitboxM().getWidth(), (int) suki.getHitboxM().getHeight());
 		while (it.hasNext()) {
 			Projectile projectile = it.next();
+			// check for collision with suki
 			if (projectile.getRect().intersects((sukiRect))) {
 				suki.takeDamage(10);
-				it.remove();
+				it.remove(); 
 			} else {
+				// check for collision with walls
 				for (Wall wall : currentMap.getRectWalls()) {
 					if (projectile.getRect().intersects(wall.getRect())) {
 						it.remove();
-						continue;
+						continue; // don't check for more collisions if the projectile is already removed
 					}
 				}
 				for (Triangle tri : currentMap.getTriWalls()) {

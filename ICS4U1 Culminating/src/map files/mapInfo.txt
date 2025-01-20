@@ -301,7 +301,7 @@ Whoever sharpened this pencil must have a really good sharpener…
 3
 1
 Meter Stick
-Stick for measuring metres.
+Stick for measuring meters.
 100 30
 /sprites/metreStick.png
 625 275

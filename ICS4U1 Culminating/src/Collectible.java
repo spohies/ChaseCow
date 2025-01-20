@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Collectible extends Item{
-    private BufferedImage image;
 
     // Constructor
     public Collectible(String name, String description, BufferedImage image, Point gamePos, int reach) {    
