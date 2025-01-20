@@ -154,7 +154,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 	// MUSIC AND SOUND
 
-	static Clip music, sound;
+	static Clip music, sound, talking;
 	static AudioInputStream audioInputStream, audioInputClick, audioInputCow, audioInputDoor, audioInputItem,
 			audioInputSwing, audioInputTalking, audioInputVents, audioInputWin, audioInputLose;
 	static boolean clickSound, cowSound, doorSound, itemSound, swingSound, talkSound, ventSound, winSound,
@@ -215,7 +215,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 		audioInputDoor = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/door.wav"));
 		audioInputLose = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/gameover.wav"));
 		audioInputSwing = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/swing.wav"));
-		audioInputTalking = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/talking.wav"));
 		audioInputVents = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/vents.wav"));
 		audioInputWin = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/winsound.wav"));
 
@@ -248,27 +247,36 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			swingSound = false;
 			sound.open(audioInputSwing);
 			sound.start();
-		} else if (talkSound) {
-			talkSound = false;
-			sound.close();
-			sound.open(audioInputTalking);
+		} else if (ventSound) {
+			ventSound = false;
+			sound.open(audioInputVents);
 			sound.start();
+		}
+	}
+
+	public void talkPlayer() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		if (talking == null) {
+			talking = AudioSystem.getClip();
+		}
+		audioInputTalking = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/sound/talking.wav"));
+		talking = AudioSystem.getClip();
+		if (talkSound) {
+			talkSound = false;
+			talking.close();
+			talking.open(audioInputTalking);
+			talking.start();
 			// play audio for a random amount of time between 0.5 to 2 seconds
 			int randomDuration = 800 + new Random().nextInt(2000);
 			Timer timer = new Timer(randomDuration, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (sound.isRunning()) {
-						sound.stop();
+					if (talking.isRunning()) {
+						talking.stop();
 					}
 				}
 			});
 			timer.setRepeats(false);
 			timer.start();
-		} else if (ventSound) {
-			ventSound = false;
-			sound.open(audioInputVents);
-			sound.start();
 		}
 	}
 
@@ -300,6 +308,12 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 	// Parameters: n/a
 	// Return: void
 	public void initialize() throws IOException {
+			try {
+				talkPlayer();
+			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+				e.printStackTrace();
+			}
+
 		currentCowType = 0;
 		// NPC DIALOGUE
 		// Dialogue variables
@@ -1059,8 +1073,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// prompt user to mop
 				if (currentMap == maps.get(23)) {
 					// find flood screen coords based on game coords
-					int floodScreenX = (0 - suki.getGamePos().x) + (screenWidth / 2);
-					int floodScreenY = (0 - suki.getGamePos().y) + (screenHeight / 2);
+					int floodScreenX = (0 - playerX) + (screenWidth / 2);
+					int floodScreenY = (0 - playerY) + (screenHeight / 2);
 					g.drawImage(floodImage2, floodScreenX, floodScreenY, floodImage2.getWidth(),
 							floodImage2.getHeight(),
 							this);
@@ -1074,8 +1088,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				// prompt user to mop
 				if (currentMap == maps.get(22)) {
 					// find flood in screen coords based on gamecoords
-					int floodScreenX = (0 - suki.getGamePos().x) + (screenWidth / 2);
-					int floodScreenY = (0 - suki.getGamePos().y) + (screenHeight / 2);
+					int floodScreenX = (0 - playerX) + (screenWidth / 2);
+					int floodScreenY = (0 - playerY) + (screenHeight / 2);
 					g.drawImage(floodImage1, floodScreenX, floodScreenY, floodImage1.getWidth(),
 							floodImage1.getHeight(),
 							this);
@@ -1096,8 +1110,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				}
 
 				if (currentMap == maps.get(2)) {
-					int floodScreenX = (1100 - suki.getGamePos().x) + (screenWidth / 2);
-					int floodScreenY = (3450 - suki.getGamePos().y) + (screenHeight / 2);
+					int floodScreenX = (1075 - playerX) + (screenWidth / 2);
+					int floodScreenY = (3450 - playerY) + (screenHeight / 2);
 					g.drawImage(floodImage, floodScreenX, floodScreenY, floodImage.getWidth(), floodImage.getHeight(),
 							this);
 				}
@@ -1107,15 +1121,15 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			drawInnerWalls(g2, playerX, playerY);
 
 			// FOR TESTING PURPOSES (COMMENT OUT INCASE MS Wong WANTs TO SEE THE TRIANGLES)
-			for (Triangle tri : currentMap.getTriWalls()) {
-				Point[] vertices = tri.getVertices();
-				int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
-						(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
-				int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
-						(vertices[1].y - playerY) + (screenHeight / 2),
-						(vertices[2].y - playerY) + (screenHeight / 2) };
-				g2.fillPolygon(xPoints, yPoints, 3);
-			}
+			// for (Triangle tri : currentMap.getTriWalls()) {
+			// 	Point[] vertices = tri.getVertices();
+			// 	int[] xPoints = { (vertices[0].x - playerX) + (screenWidth / 2),
+			// 			(vertices[1].x - playerX) + (screenWidth / 2), (vertices[2].x - playerX) + (screenWidth / 2) };
+			// 	int[] yPoints = { (vertices[0].y - playerY) + (screenHeight / 2),
+			// 			(vertices[1].y - playerY) + (screenHeight / 2),
+			// 			(vertices[2].y - playerY) + (screenHeight / 2) };
+			// 	g2.fillPolygon(xPoints, yPoints, 3);
+			// }
 
 			// print all cows
 			if (!currentMap.getCows().isEmpty()) {
@@ -1249,8 +1263,8 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					g.setColor(Color.BLACK);
 					g.drawString("\"There are too many boxes, I can't move all of them myself.\"", 60, 580);
 				} else if (!boxesMoved && currentMap == maps.get(2)) {
-					int boxScreenX = (4520 - suki.getGamePos().x) + (screenWidth / 2);
-					int boxScreenY = (1975 - suki.getGamePos().y) + (screenHeight / 2);
+					int boxScreenX = (4520 - playerX) + (screenWidth / 2);
+					int boxScreenY = (1975 - playerY) + (screenHeight / 2);
 					g.drawImage(boxPileImage, boxScreenX, boxScreenY, boxPileImage.getWidth(), boxPileImage.getHeight(),
 							this);
 				}
@@ -1498,14 +1512,14 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 			// draw border walls of each map
 			// COMMENT OUT WHEN DONE DEBUGGING (keep for ms wong to see)
-			if (currentMap != null) {
-				g.setColor(Color.RED);
-				for (Wall wall : currentMap.getRectWalls()) {
-					int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
-					int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
-					g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
-				}
-			}
+			// if (currentMap != null) {
+			// 	g.setColor(Color.RED);
+			// 	for (Wall wall : currentMap.getRectWalls()) {
+			// 		int wallScreenX = (wall.getRect().x - suki.getGamePos().x - 24) + (screenWidth / 2);
+			// 		int wallScreenY = (wall.getRect().y - suki.getGamePos().y + 32) + (screenHeight / 2);
+			// 		g.drawRect(wallScreenX, wallScreenY, wall.getRect().width, wall.getRect().height);
+			// 	}
+			// }
 
 			// HEALTH BAR ON ALL MAPS:
 			int barWidth = suki.getHP() * 4; // hp point is 4 pixels
@@ -1570,8 +1584,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
 					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
 					wall.getImage().getHeight(), this);
-			g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
-					(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
+					// COMMENT OUT THIS (FOR DEBUGGING)
+			// g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
+			// 		(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 		}
 
 		if (currentMap == maps.get(3) && !spillCleaned) {
@@ -1594,8 +1609,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 			g.drawImage(wall.getImage(), (wall.getTLLocation().x - playerX) + (screenWidth / 2),
 					(wall.getTLLocation().y - playerY) + (screenHeight / 2), wall.getImage().getWidth(),
 					wall.getImage().getHeight(), this);
-			g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
-					(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
+					// COMMENT THIS OUT FOR MS WONG (DEBUGGING)
+					// g.drawRect((wall.getRect().x - playerX) + (screenWidth / 2),
+			// 		(wall.getRect().y - playerY) + (screenHeight / 2), wall.getRect().width, wall.getRect().height);
 		}
 	}
 
@@ -1647,19 +1663,18 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 					for (NPC npc : currentMap.getNPCs()) {
 						if (npc.interactable()) {
 							try {
-								if (sound.isRunning()) {
-									sound.stop();
+								if (talking.isRunning()) {
+									talking.stop();
 								}
-								if (!sound.isRunning()) {
+								if (!talking.isRunning()) {
 									talkSound = true;
-									soundPlayer();
+									talkPlayer();
 								}
 							} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
 								e1.printStackTrace();
 							}
 							// STAGE 2 --> mrs. kim foolscap
 							if (currentMap == maps.get(3) && npc == currentMap.getNPCs().get(1)) {
-
 								if (npc.getState() == 1 && essayWritten && !essaySubmitted) {
 									int index = suki.searchInventory("Foolscap");
 									if (index >= 0) {
@@ -1679,18 +1694,7 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 							if (npc.getState() < npc.getDialogues().length) {
 								// mr lee
 								if (currentMap == maps.get(341) && npc == currentMap.getNPCs().get(0)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
+
 									int index = suki.searchInventory("Meter Stick");
 									if (index < 0) {
 										npc.setState(0);
@@ -1703,18 +1707,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 								// mr lien needs chips (stage3)
 								if (currentMap == maps.get(345) && npc == currentMap.getNPCs().get(1)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									int index = suki.searchInventory("Lays Classic Chips");
 									if (index >= 0 && chipCount == 0) {
 										updateEquippedItemIndexBeforeChange();
@@ -1737,18 +1729,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								}
 								// ms wong gives you tissues
 								if (currentMap == maps.get(224) && npc == currentMap.getNPCs().get(0)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									int index = suki.searchInventory("Tissue Box");
 									if (index < 0 && tissueCount == 0 && npc.getCurrentDialogueIndex() == 2) {
 										tissueCount++;
@@ -1770,18 +1750,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								}
 								// mr chow gives you keys
 								if (currentMap == maps.get(225) && npc == currentMap.getNPCs().get(0)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									int index = suki.searchInventory("Tissue Box");
 									if (index >= 0 && chowCount == 0) {
 										updateEquippedItemIndexBeforeChange();
@@ -1804,18 +1772,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								}
 								// av guy moves boxes
 								if (currentMap == maps.get(21) && npc == currentMap.getNPCs().get(0)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									if (!avTalkedTo) {
 										npc.setState(0);
 										npc.setCurrentDialogueIndex(0);
@@ -1827,18 +1783,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								}
 								// mr j cheung asks you to mop the washrooms
 								if (currentMap == maps.get(24)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									if (!mopped && npc.getState() == 0 && mopCount == 0) {
 										mopCount++;
 										updateEquippedItemIndexBeforeChange();
@@ -1855,8 +1799,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 									}
 									// he hands you a weight to smash the stairwell with
 									else if (mopped) {
-										npc.setState(1);
 										if (weightCount == 0) {
+											npc.setState(1);
+											npc.setCurrentDialogueIndex(0);
 											weightCount++;
 											updateEquippedItemIndexBeforeChange();
 											suki.addToInventory(
@@ -1878,18 +1823,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 								// WIN CONDITION
 								// if you have the ID card, mr moo will let you leave the school
 								if (currentMap == maps.get(1)) {
-									try {
-										if (sound.isRunning()) {
-											sound.stop();
-										}
-										if (!sound.isRunning()) {
-											talkSound = true;
-											soundPlayer();
-										}
-									} catch (UnsupportedAudioFileException | IOException
-											| LineUnavailableException e1) {
-										e1.printStackTrace();
-									}
 									int index = suki.searchInventory("ID Card");
 									if (index >= 1) {
 										if (mooCount == 0) {
@@ -2190,7 +2123,6 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 
 					// apply knockback if not boss battle
 					if (currentMap != maps.get(11)) {
-
 						knockback(cow, suki, 50);
 					}
 
@@ -2238,7 +2170,9 @@ public class ChaseCow extends JPanel implements Runnable, KeyListener, MouseList
 				cow.hurt(damage);
 
 				// Aaply knockback
-				knockback(cow, suki, 50);
+				if (currentMap != maps.get(11)) {
+					knockback(cow, suki, 50);
+				}
 
 				if (!cow.isAlive()) {
 					System.out.println("Cow DIE!");

@@ -5,7 +5,7 @@ Claire Hung & Sophie Jiang | Jan 2025 - ICS4U1
 
 ### How to play? - Use a keyboard and mouse!
     • use WASD to move around
-    • LEFT click is attack!
+    • LEFT or RIGHT click to attack!
     • press E to toggle inventory
         • LEFT click to select an item to equip 
     • press C to walk through doors
@@ -38,8 +38,8 @@ The goal of the game is to escape Markville! There are three levels (the floors 
 			- replacing character selection
 
 ### Known bugs / errors in your game
-	- If you walk diagonally into a triangular wall, you may phase through into the abyss
-		- Fixed on third floor (ran out of time to finish debugging)
+	- (Known strange feature) Cows do not detect collisions with walls
+	- 
 
 ### Who did what?
 

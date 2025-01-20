@@ -36,16 +36,20 @@ abstract class Item implements Comparable<Item> {
     public BufferedImage getImage() {
         return this.image;
     }
-
+    
     public String getName() {
         return this.name;
     }
-
+    
     public int getReach() {
         return reach;
     }
-
+    
     // Setters
+    
+    public void setImage(BufferedImage newImage) {
+        this.image = newImage;
+    }
     public void setDescription(String description) {
         this.description = description;
     }

@@ -12,9 +12,4 @@ public class Collectible extends Item{
         super(name, description, image, gamePos, reach);
     }
 
-    // setters
-    public void setImage(BufferedImage image) {
-        this.image = image;
-    }
-
 }
