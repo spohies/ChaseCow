@@ -15,7 +15,7 @@ Claire Hung & Sophie Jiang | Jan 2025 - ICS4U1
 ### About:
 The goal of the game is to escape Markville! There are three levels (the floors of the school, from top to bottom) where you will encounter many enemies (🐮🐄) that you have to beat. You will be able to pick up weapons and items to help you defeat the enemies and reach the end. In each room, you will be able to speak to NPCs (teachers) for hints as to where to find keys to help you unlock rooms. Find your way out of the school!
 
-### Cheats for Ms. Wong: 
+### Cheats: 
 **(!) PLEASE READ AND FOLLOW GAMEPROGRESSION.txt (!)**
 	- Walking by any water fountain will heal you.
 	- Since the game restarts once you die, this will help you reach the end!
@@ -43,7 +43,6 @@ The goal of the game is to escape Markville! There are three levels (the floors 
 		- REASON: iterator.remove() and hashSet.remove() implicitly call hashCode and equals function(?) (this is from our research not 100% sure)
 		- hashCode returns a DIFFERENT int sometimes for the same cow because the cow's variables change a lot. 
 			-> we could not write an efficient hashCode method because it would be the same for all cows, or it would be based on HP and coords which would not return the same hashCode each time... UNLESS we added an ID to all cows which would take forever
-			--> it is 1:30 and we want to sleep
 				(this error only occurs once every like 100 cows so we just decided to omit)
 
 ### Who did what?
@@ -57,5 +56,5 @@ Menus/Leaderboard, Sound, Player Movement, Coordinate System, Enemy Path Finding
 Together:
 Level and Game Design, Testing and Debugging
 
-### Any other important info for me to play/mark your game
+### Any other important info
 moo
